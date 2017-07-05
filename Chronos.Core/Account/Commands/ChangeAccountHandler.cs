@@ -1,4 +1,5 @@
 ﻿using System;
+using Chronos.Core.Account.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 
@@ -15,10 +16,10 @@ namespace Chronos.Core.Account.Commands
 
         /// <summary>
         /// <see cref="ChangeAccountCommand"/>? -> <see cref="ChangeAccountHandler"/> 
-        /// <para> @<see cref="Aggregate"/>:<see cref="Changed"/>! -> </para>
+        /// <para> @<see cref="Aggregate"/>:<see cref="AccountChanged"/>! -> </para>
         /// <para> -> <see cref="Aggregate.OnAccountChanged"/> </para>
         /// <para> -> AccountInfoViewModel::OnAccountChanged</para>
-        /// <para> @<see cref="Aggregate"/>:<see cref="Created"/>! -> CreateAccountViewModel::OnAccountCreated </para>
+        /// <para> @<see cref="Aggregate"/>:<see cref="AccountCreated"/>! -> CreateAccountViewModel::OnAccountCreated </para>
         /// </summary>
         public void Handle(ChangeAccountCommand command)
         {

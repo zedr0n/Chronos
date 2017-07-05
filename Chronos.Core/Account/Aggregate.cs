@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using Chronos.Core.Account.Events;
 using Chronos.Infrastructure.Aggregates;
 using Chronos.Infrastructure.Events;
 
 namespace Chronos.Core.Account
 {
     public class Aggregate : AggregateBase,
-        IConsumer<Created>,
-        IConsumer<Changed>,
+        IConsumer<AccountCreated>,
+        IConsumer<AccountChanged>,
         IConsumer<AmountDebited>
     {
         private string Name { get; set; }
@@ -24,7 +25,7 @@ namespace Chronos.Core.Account
         public Aggregate(Guid id, string name, string ccy)
             : this(id)
         {
-            RaiseEvent(new Created
+            RaiseEvent(new AccountCreated
             {
                 SourceId = id,
                 Name = name,
@@ -33,13 +34,13 @@ namespace Chronos.Core.Account
         }
 
         /// <summary>
-        /// @<see cref="Aggregate"/> : <see cref="Changed"/>! -> <see cref="When(Changed)"/>
+        /// @<see cref="Aggregate"/> : <see cref="AccountChanged"/>! -> <see cref="When(AccountChanged)"/>
         /// </summary>
         /// <param name="name">Account name</param>
         /// <param name="currency">Account currency</param>
         public void ChangeDetails(string name, string currency)
         {
-            RaiseEvent(new Changed
+            RaiseEvent(new AccountChanged
             {
                 SourceId = Id,
                 Name = name,
@@ -60,13 +61,13 @@ namespace Chronos.Core.Account
             });
         }
 
-        public void When(Created e)
+        public void When(AccountCreated e)
         {
             Name = e.Name;
             Currency = e.Currency;
         }
 
-        public void When(Changed e)
+        public void When(AccountChanged e)
         {
             Name = e.Name;
             Currency = e.Currency;
