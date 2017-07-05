@@ -14,11 +14,11 @@ namespace Chronos.Core.Account.Commands
 
         public void Handle(CreateAccountCommand command)
         {
-            var account = _domainRepository.Find<Aggregate>(command.Guid);
+            var account = _domainRepository.Find<Aggregates.Account>(command.Guid);
             if(account != null)
                 throw new InvalidOperationException("Account has already been created");
                 
-            account = new Aggregate(command.Guid,command.Name, command.Currency);
+            account = new Aggregates.Account(command.Guid,command.Name, command.Currency);
             _domainRepository.Save(account);
         }
     }

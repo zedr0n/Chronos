@@ -4,9 +4,9 @@ using Chronos.Core.Account.Events;
 using Chronos.Infrastructure.Aggregates;
 using Chronos.Infrastructure.Events;
 
-namespace Chronos.Core.Account
+namespace Chronos.Core.Account.Aggregates
 {
-    public class Aggregate : AggregateBase,
+    public class Account : AggregateBase,
         IConsumer<AccountCreated>,
         IConsumer<AccountChanged>,
         IConsumer<AmountDebited>
@@ -15,14 +15,14 @@ namespace Chronos.Core.Account
         private string Currency { get; set; }
         private double Balance { get; set; }
 
-        private Aggregate(Guid id) : base(id)
+        private Account(Guid id) : base(id)
         {
         }
 
-        public Aggregate(Guid id, IEnumerable<IEvent> pastEvents)
+        public Account(Guid id, IEnumerable<IEvent> pastEvents)
             : base(id,pastEvents) { }
 
-        public Aggregate(Guid id, string name, string ccy)
+        public Account(Guid id, string name, string ccy)
             : this(id)
         {
             RaiseEvent(new AccountCreated
@@ -34,7 +34,7 @@ namespace Chronos.Core.Account
         }
 
         /// <summary>
-        /// @<see cref="Aggregate"/> : <see cref="AccountChanged"/>! -> <see cref="When(AccountChanged)"/>
+        /// @<see cref="Account"/> : <see cref="AccountChanged"/>! -> <see cref="When(Chronos.Core.Account.Events.AccountChanged)"/>
         /// </summary>
         /// <param name="name">Account name</param>
         /// <param name="currency">Account currency</param>
@@ -49,7 +49,7 @@ namespace Chronos.Core.Account
         }
 
         /// <summary>
-        /// @<see cref="Aggregate"/> : <see cref="AmountDebited"/>! -> <see cref="When(AmountDebited)"/>
+        /// @<see cref="Account"/> : <see cref="AmountDebited"/>! -> <see cref="When(Chronos.Core.Account.Events.AmountDebited)"/>
         /// </summary>
         /// <param name="amount">Debit amount</param>
         public void Debit(double amount)

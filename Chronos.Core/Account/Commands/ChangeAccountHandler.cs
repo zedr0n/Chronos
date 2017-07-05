@@ -16,15 +16,15 @@ namespace Chronos.Core.Account.Commands
 
         /// <summary>
         /// <see cref="ChangeAccountCommand"/>? -> <see cref="ChangeAccountHandler"/> 
-        /// <para> @<see cref="Aggregate"/>:<see cref="AccountChanged"/>! -> </para>
-        /// <para> -> <see cref="Aggregate.OnAccountChanged"/> </para>
+        /// <para> @<see cref="Account"/>:<see cref="AccountChanged"/>! -> </para>
+        /// <para> -> <see cref="Account.OnAccountChanged"/> </para>
         /// <para> -> AccountInfoViewModel::OnAccountChanged</para>
-        /// <para> @<see cref="Aggregate"/>:<see cref="AccountCreated"/>! -> CreateAccountViewModel::OnAccountCreated </para>
+        /// <para> @<see cref="Account"/>:<see cref="AccountCreated"/>! -> CreateAccountViewModel::OnAccountCreated </para>
         /// </summary>
         public void Handle(ChangeAccountCommand command)
         {
             //var account = _repository.GetById(command.Guid);
-            var account = _domainRepository.Find<Aggregate>(command.Guid);
+            var account = _domainRepository.Find<Aggregates.Account>(command.Guid);
             if(account == null)
                 throw new InvalidOperationException("Account does not exist");
            
