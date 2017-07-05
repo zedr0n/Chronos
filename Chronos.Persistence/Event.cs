@@ -6,7 +6,6 @@ namespace Chronos.Persistence
     public class Event
     {
         public Guid Guid { get; set; }
-        public string Stream { get; set; }
         public DateTime Timestamp { get; set; }
         public string Payload { get; set; }
         [Key]

@@ -69,7 +69,6 @@ namespace Chronos.Persistence
 
                 serialized = new Event
                 {
-                    Stream = AggregateToStreamName(typeof(T), e.SourceId),
                     Guid = e.SourceId,
                     Timestamp = e.Timestamp.ToDateTimeUtc(),
                     Payload = writer.ToString()

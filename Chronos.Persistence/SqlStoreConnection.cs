@@ -22,12 +22,18 @@ namespace Chronos.Persistence
             _eventDb.Init();
             using (var context = _eventDb.GetContext())
             {
-                var stream = context.Set<Stream>().SingleOrDefault(x => x.Name == streamName) ?? new Stream
+                var stream = context.Set<Stream>().SingleOrDefault(x => x.Name == streamName);
+                
+                if(stream == null)
                 {
-                    Name = streamName,
-                    Version = 0,
-                    Events = new List<Event>()
-                };
+                    stream = new Stream
+                    {
+                        Name = streamName,
+                        Version = -1,
+                        Events = new List<Event>()
+                    };
+                    context.Set<Stream>().Add(stream);
+                }
 
                 if (stream.Version != expectedVersion)
                     throw new InvalidOperationException("Stream version is not consistent with events");
@@ -50,9 +56,12 @@ namespace Chronos.Persistence
             using (var context = _eventDb.GetContext())
             {
                 var stream = context.Set<Stream>().SingleOrDefault(x => x.Name == streamName);
+                if (stream == null)
+                    return new List<Event>();
+
                 var events = context.Entry(stream).Collection(x => x.Events).Query().Skip((int) start - 1).Take(count);
 
-                return events;
+                return events.ToList();
             }
         }
     }
