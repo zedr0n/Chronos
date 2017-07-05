@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.4</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Account\ChangeAccount\**" />
+    <Compile Remove="Account\CreateAccount\**" />
+    <Compile Remove="Account\DebitAmount\**" />
+    <EmbeddedResource Remove="Account\ChangeAccount\**" />
+    <EmbeddedResource Remove="Account\CreateAccount\**" />
+    <EmbeddedResource Remove="Account\DebitAmount\**" />
+    <None Remove="Account\ChangeAccount\**" />
+    <None Remove="Account\CreateAccount\**" />
+    <None Remove="Account\DebitAmount\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Chronos.Infrastructure\Chronos.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
