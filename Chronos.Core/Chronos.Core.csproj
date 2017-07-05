@@ -20,4 +20,8 @@
     <ProjectReference Include="..\Chronos.Infrastructure\Chronos.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Account\Queries\" />
+  </ItemGroup>
+
 </Project>

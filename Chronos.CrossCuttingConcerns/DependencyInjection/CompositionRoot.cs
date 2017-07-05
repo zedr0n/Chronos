@@ -1,9 +1,11 @@
 ﻿using System.Linq;
 using System.Reflection;
 using Chronos.Core.Account.Commands;
+using Chronos.Core.Account.Projections;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Projections;
 using Chronos.Persistence;
 using Chronos.Persistence.Serialization;
 using SimpleInjector;
@@ -23,6 +25,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<IEventDb, EventDb>(Lifestyle.Singleton);
             container.Register<IEventStoreConnection,SqlStoreConnection>(Lifestyle.Singleton);
             container.Register<IDomainRepository,EventStoreDomainRepository>(Lifestyle.Singleton);
+            container.Register(typeof(IRepository<>), typeof(Repository<>), Lifestyle.Singleton);
+            container.Register(typeof(IProjectionWriter<>),typeof(ProjectionWriter<>),Lifestyle.Singleton);
 
             // register commands and queries
             /*var handlerRegistrations = Assembly.Load(new AssemblyName(nameof(Chronos.Core)))
@@ -40,6 +44,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<ICommandHandler<ChangeAccountCommand>, ChangeAccountHandler>(Lifestyle.Singleton);
             container.Register<ICommandHandler<DebitAmountCommand>, DebitAmountHandler>(Lifestyle.Singleton);
 
+            container.Register<AccountInfoProjector>(Lifestyle.Singleton);
         }
     }
 }
