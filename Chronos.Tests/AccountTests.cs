@@ -25,7 +25,7 @@ namespace Chronos.Tests
         private static Container CreateContainer(string dbName)
         {
             var container = new Container();
-            new CompositionRoot().ComposeApplication(container,dbName,false);
+            new CompositionRoot().ComposeApplication(container,dbName,false,true);
             container.Verify();
             return container;
         }

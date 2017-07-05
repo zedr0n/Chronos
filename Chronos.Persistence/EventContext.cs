@@ -5,14 +5,16 @@ namespace Chronos.Persistence
     public class EventContext : DbContext
     {
         private readonly string _dbName;
+        private readonly bool _inMemory;
 
         public EventContext()
         {
         }
 
-        public EventContext(string dbName)
+        public EventContext(string dbName, bool inMemory)
         {
             _dbName = dbName;
+            _inMemory = inMemory;
         }
 
         public DbSet<Event> Events { get; set; }
@@ -20,7 +22,12 @@ namespace Chronos.Persistence
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite(@"Filename=" + _dbName);
+            if (optionsBuilder.IsConfigured)
+                return;
+            if (_inMemory)
+                optionsBuilder.UseInMemoryDatabase(_dbName);
+            else
+                optionsBuilder.UseSqlite(@"Filename=" + _dbName);
         }
     }
 }

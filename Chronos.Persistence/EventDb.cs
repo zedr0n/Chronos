@@ -5,19 +5,23 @@ namespace Chronos.Persistence
     public class EventDb : IEventDb
     {
         private readonly bool _isPersistent;
+        private readonly bool _inMemory;
         private bool _isInitialized = false;
         private readonly string _dbName;
         private readonly object _lock;
 
-        public EventDb(string dbName, bool isPersistent)
+        public EventDb(string dbName, bool isPersistent, bool inMemory)
         {
             _dbName = dbName;
             _isPersistent = isPersistent;
+            _inMemory = inMemory;
             _lock = new object();
         }
 
         public void Init()
         {
+            if (_inMemory)
+                return;
             lock (_lock)
             {
                 if (_isInitialized)
@@ -33,6 +37,6 @@ namespace Chronos.Persistence
             }
         }
 
-        public DbContext GetContext() => new EventContext(_dbName);
+        public DbContext GetContext() => new EventContext(_dbName,_inMemory);
     }
 }

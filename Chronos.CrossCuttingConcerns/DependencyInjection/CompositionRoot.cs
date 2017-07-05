@@ -14,8 +14,9 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
 {
     public class CompositionRoot
     {
-        public virtual void ComposeApplication(Container container, string dbName,bool isPersistentDb)
+        public virtual void ComposeApplication(Container container, string dbName,bool isPersistentDb, bool inMemory)
         {
+            container.Options.RegisterParameterConvention(new InMemoryConvention(inMemory));
             container.Options.RegisterParameterConvention(new DbNameStringConvention(dbName + ".db"));
             container.Options.RegisterParameterConvention(new PersistentDbConvention(isPersistentDb));
             

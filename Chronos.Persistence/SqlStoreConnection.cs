@@ -11,10 +11,12 @@ namespace Chronos.Persistence
     {
 
         private readonly IEventDb _eventDb;
+        private readonly bool _inMemory;
 
-        public SqlStoreConnection(IEventDb eventDb)
+        public SqlStoreConnection(IEventDb eventDb, bool inMemory)
         {
             _eventDb = eventDb;
+            _inMemory = inMemory;
         }
 
         public void AppendToStream(string streamName, int expectedVersion, IEnumerable<Event> events)
@@ -55,10 +57,13 @@ namespace Chronos.Persistence
             _eventDb.Init();
             using (var context = _eventDb.GetContext())
             {
-                var stream = context.Set<Stream>().SingleOrDefault(x => x.Name == streamName);
+                var streamQuery = context.Set<Stream>().Where(x => x.Name == streamName);
+                if (_inMemory)
+                    streamQuery = streamQuery.Include(x => x.Events);
+                var stream = streamQuery.SingleOrDefault();
                 if (stream == null)
                     return new List<Event>();
-
+                    
                 var events = context.Entry(stream).Collection(x => x.Events).Query().Skip((int) start - 1).Take(count);
 
                 return events.ToList();
