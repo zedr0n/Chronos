@@ -16,6 +16,7 @@ namespace Chronos.Persistence
         }
 
         public DbSet<Event> Events { get; set; }
+        public DbSet<Stream> Streams { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

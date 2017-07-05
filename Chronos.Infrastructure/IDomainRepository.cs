@@ -14,6 +14,7 @@ namespace Chronos.Infrastructure
         /// Rebuild the aggregate from event history extracted from Event Store
         /// </summary>
         /// <param name="id">The aggregate guid</param>
+        /// <typeparam name="T">Aggregate type</typeparam>
         /// <returns>Aggregate or null if no events found</returns>
         T Find<T>(Guid id) where T : IAggregate;
         /// <summary>
