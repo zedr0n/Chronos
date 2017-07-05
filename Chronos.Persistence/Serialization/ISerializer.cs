@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Xml.Serialization;
 
 namespace Chronos.Persistence.Serialization
 {
@@ -10,7 +9,7 @@ namespace Chronos.Persistence.Serialization
         T Deserialize<T>(TextReader reader);
     }
 
-    public static class SerializerExtensions
+    /*public static class SerializerExtensions
     {
         /// <summary>
         /// Serializes the given data object as a string.
@@ -35,29 +34,5 @@ namespace Chronos.Persistence.Serialization
                 return serializer.Deserialize<T>(reader);
             }
         }
-    }
-
-    public class Serializer : ISerializer
-    {
-        private readonly XmlSerializerNamespaces _ns;
-
-        public Serializer()
-        {
-            _ns = new XmlSerializerNamespaces();
-            _ns.Add("", "");
-        }
-
-        public void Serialize<T>(TextWriter writer, T obj)
-        {
-            var xmlSerializer = new XmlSerializer(typeof(T));
-            xmlSerializer.Serialize(writer, obj, _ns);
-            writer.Flush();
-        }
-
-        public T Deserialize<T>(TextReader reader)
-        {
-            var serializer = new XmlSerializer(typeof(T));
-            return (T) serializer.Deserialize(reader);
-        }
-    }
+    }*/
 }
