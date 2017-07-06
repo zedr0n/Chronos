@@ -23,7 +23,7 @@ namespace Chronos.Infrastructure.Projections
 
         protected void UpdateProjection(IEvent e, Action<T> action )
         {
-            _writer.UpdateOrThrow(e.SourceId, action, e.Timestamp);
+            _writer.UpdateOrThrow(action, x => x.AsOf.CompareTo(e.Timestamp) >= 0 );
         }
 
         protected void AddProjection(IEvent e, Func<T> projection )

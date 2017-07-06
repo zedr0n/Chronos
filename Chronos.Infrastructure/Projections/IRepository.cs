@@ -20,7 +20,13 @@ namespace Chronos.Infrastructure.Projections
         /// <returns>All projections satisfying the criteria or null if none found</returns>
         bool Add(Guid guid, T projection, Instant asOf);
         /// <summary>
-        /// Find all projections satisfying the criteria or return null
+        /// Find all projections with the target source id satisfying the criteria or return null
+        /// </summary>
+        /// <param name="criteria">Criteria projections need to satisfy</param>
+        /// <returns>All projections satisfying the criteria or null if none found</returns>
+        IEnumerable<T> Find(Func<T, bool> criteria);
+        /// <summary>
+        /// Find all projections with the target source id satisfying the criteria or return null
         /// </summary>
         /// <param name="guid">Projection id</param>
         /// <param name="criteria">Criteria projections need to satisfy</param>

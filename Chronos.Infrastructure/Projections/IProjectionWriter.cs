@@ -22,6 +22,8 @@ namespace Chronos.Infrastructure.Projections
         /// <param name="asOf">Earliest timestamp of projections to update</param>
         /// <exception cref="InvalidOperationException">No projections satisfying the time criteria</exception>
         void UpdateOrThrow(TId id, Action<TProjection> action, Instant asOf);
+
+        void UpdateOrThrow(Action<TProjection> action, Func<TProjection, bool> where);
     }
 
     public interface IProjectionWriter<TProjection> : IProjectionWriter<Guid, TProjection>

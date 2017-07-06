@@ -35,5 +35,15 @@ namespace Chronos.Infrastructure.Projections
                 _eventBus.Publish(new ProjectionUpdated<TProjection> { SourceId = id, AsOf = projection.AsOf});
             }
         }
+
+        public void UpdateOrThrow(Action<TProjection> action, Func<TProjection, bool> @where)
+        {
+            var projections = _repository.Find(@where);
+            foreach (var projection in projections)
+            {
+                action(projection);
+                _eventBus.Publish(new ProjectionUpdated<TProjection>());
+            }
+        }
     }
 }
