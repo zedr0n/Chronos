@@ -1,6 +1,6 @@
 ﻿using Chronos.Infrastructure.Projections;
 
-namespace Chronos.Core.Account.Projections
+namespace Chronos.Core.Accounts.Projections
 {
     public class AccountInfo : Projection
     {

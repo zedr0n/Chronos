@@ -1,6 +1,6 @@
 ﻿using Chronos.Infrastructure.Events;
 
-namespace Chronos.Core.Account.Events
+namespace Chronos.Core.Accounts.Events
 {
     public class AccountChanged : EventBase
     {

@@ -8,6 +8,6 @@ namespace Chronos.Persistence
         [Key]
         public string Name { get; set; }
         public int Version { get; set; }
-        public List<Event> Events { get; set; }
+        public List<Event> Events { get; set; } = new List<Event>();
     }
 }

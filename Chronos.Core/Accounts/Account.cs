@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Chronos.Core.Account.Events;
+using Chronos.Core.Accounts.Events;
 using Chronos.Infrastructure.Aggregates;
 using Chronos.Infrastructure.Events;
 
-namespace Chronos.Core.Account.Aggregates
+namespace Chronos.Core.Accounts
 {
     public class Account : AggregateBase,
         IConsumer<AccountCreated>,
@@ -34,7 +34,7 @@ namespace Chronos.Core.Account.Aggregates
         }
 
         /// <summary>
-        /// @<see cref="Account"/> : <see cref="AccountChanged"/>! -> <see cref="When(Chronos.Core.Account.Events.AccountChanged)"/>
+        /// @<see cref="Account"/> : <see cref="AccountChanged"/>! -> <see cref="When(Chronos.Core.Accounts.Events.AccountChanged)"/>
         /// </summary>
         /// <param name="name">Account name</param>
         /// <param name="currency">Account currency</param>
@@ -49,7 +49,7 @@ namespace Chronos.Core.Account.Aggregates
         }
 
         /// <summary>
-        /// @<see cref="Account"/> : <see cref="AmountDebited"/>! -> <see cref="When(Chronos.Core.Account.Events.AmountDebited)"/>
+        /// @<see cref="Account"/> : <see cref="AmountDebited"/>! -> <see cref="When(Chronos.Core.Accounts.Events.AmountDebited)"/>
         /// </summary>
         /// <param name="amount">Debit amount</param>
         public void Debit(double amount)

@@ -2,7 +2,7 @@
 using Chronos.Infrastructure.Commands;
 using NodaTime;
 
-namespace Chronos.Core.Account.Commands
+namespace Chronos.Core.Accounts.Commands
 {
     public class CreateAccountCommand : ICommand
     {

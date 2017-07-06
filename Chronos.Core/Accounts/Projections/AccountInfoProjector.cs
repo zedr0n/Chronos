@@ -1,8 +1,8 @@
-﻿using Chronos.Core.Account.Events;
+﻿using Chronos.Core.Accounts.Events;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Projections;
 
-namespace Chronos.Core.Account.Projections
+namespace Chronos.Core.Accounts.Projections
 {
     public class AccountInfoProjector : Projector<AccountInfo>
         , IConsumer<AccountCreated>

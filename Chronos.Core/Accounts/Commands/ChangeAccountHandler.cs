@@ -1,9 +1,9 @@
 ﻿using System;
-using Chronos.Core.Account.Events;
+using Chronos.Core.Accounts.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 
-namespace Chronos.Core.Account.Commands
+namespace Chronos.Core.Accounts.Commands
 {
     public class ChangeAccountHandler : ICommandHandler<ChangeAccountCommand>
     {
@@ -24,7 +24,7 @@ namespace Chronos.Core.Account.Commands
         public void Handle(ChangeAccountCommand command)
         {
             //var account = _repository.GetById(command.Guid);
-            var account = _domainRepository.Find<Aggregates.Account>(command.Guid);
+            var account = _domainRepository.Find<Account>(command.Guid);
             if(account == null)
                 throw new InvalidOperationException("Account does not exist");
            

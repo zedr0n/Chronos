@@ -5,15 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Account\ChangeAccount\**" />
-    <Compile Remove="Account\CreateAccount\**" />
-    <Compile Remove="Account\DebitAmount\**" />
-    <EmbeddedResource Remove="Account\ChangeAccount\**" />
-    <EmbeddedResource Remove="Account\CreateAccount\**" />
-    <EmbeddedResource Remove="Account\DebitAmount\**" />
-    <None Remove="Account\ChangeAccount\**" />
-    <None Remove="Account\CreateAccount\**" />
-    <None Remove="Account\DebitAmount\**" />
+    <Compile Remove="Accounts\ChangeAccount\**" />
+    <Compile Remove="Accounts\CreateAccount\**" />
+    <Compile Remove="Accounts\DebitAmount\**" />
+    <EmbeddedResource Remove="Accounts\ChangeAccount\**" />
+    <EmbeddedResource Remove="Accounts\CreateAccount\**" />
+    <EmbeddedResource Remove="Accounts\DebitAmount\**" />
+    <None Remove="Accounts\ChangeAccount\**" />
+    <None Remove="Accounts\CreateAccount\**" />
+    <None Remove="Accounts\DebitAmount\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,7 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Account\Queries\" />
+    <Folder Include="Accounts\Queries\" />
+    <Folder Include="Transactions\Events\" />
   </ItemGroup>
 
 </Project>
