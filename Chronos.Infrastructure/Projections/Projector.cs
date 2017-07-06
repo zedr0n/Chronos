@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Chronos.Infrastructure.Events;
 using NodaTime;
 
@@ -8,13 +9,15 @@ namespace Chronos.Infrastructure.Projections
     public class Projector<T> : IProjector
         where T : class,IProjection
     {
+        private readonly IEventStoreConnection _eventStoreConnection;
         private readonly IProjectionWriter<T> _writer;
 
         private readonly HashSet<Instant> _asOf = new HashSet<Instant> { Instant.MaxValue };
 
-        protected Projector(IProjectionWriter<T> writer, IEventBus eventBus)
+        protected Projector(IProjectionWriter<T> writer, IEventBus eventBus, IEventStoreConnection eventStoreConnection)
         {
             _writer = writer;
+            _eventStoreConnection = eventStoreConnection;
             this.RegisterAll(eventBus);
         }
 
@@ -31,17 +34,16 @@ namespace Chronos.Infrastructure.Projections
 
         public void Rebuild()
         {
-            /*var events = _eventStore.GetEvents()
-                .OrderBy(e => e.Timestamp);
+            var events = _eventStoreConnection.GetAllEvents().OrderBy(e => e.Timestamp);
 
             foreach(var e in events)
-                this.Dispatch(e);*/
+                this.Dispatch(e);
         }
 
         public void Rebuild(Instant upTo)
         {
-            /*_asOf.Add(upTo);
-            Rebuild();*/
+            _asOf.Add(upTo);
+            Rebuild();
         }
 
     }

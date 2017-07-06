@@ -34,14 +34,20 @@ namespace Chronos.Infrastructure.Projections
         /// <returns>All projections satisfying the criteria or null if none found</returns>
         IEnumerable<T> Find(Guid guid, Instant asOf);
         /// <summary>
-        /// Find all projections satisfying the time criteria
+        /// Find all projections before asOf instant
         /// </summary>
         /// <exception cref="InvalidOperationException">No projections satisfy the criteria</exception>
         /// <param name="guid">Projection id</param>
         /// <param name="asOf">Before time instant</param>
         /// <returns>All projections satisfying the criteria or null if none found</returns>
         IEnumerable<T> Get(Guid guid, Instant asOf);
-
+        /// <summary>
+        /// Find all projections satisfying time criteria
+        /// </summary>
+        /// <exception cref="InvalidOperationException">No projections satisfy the criteria</exception>
+        /// <param name="guid">Projection id</param>
+        /// <param name="asOf">Before time instant</param>
+        /// <returns>All projections satisfying the criteria or null if none found</returns>
         IEnumerable<T> Get(Guid guid, Func<T, bool> criteria);
         Guid ResolveId(T instance);
     }

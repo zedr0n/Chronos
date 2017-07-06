@@ -29,7 +29,7 @@ namespace Chronos.Persistence.Migrations
                     Guid = table.Column<Guid>(nullable: false),
                     Payload = table.Column<string>(nullable: true),
                     StreamName = table.Column<string>(nullable: true),
-                    Timestamp = table.Column<DateTime>(nullable: false)
+                    TimestampUtc = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {

@@ -8,7 +8,7 @@ using Chronos.Persistence;
 namespace Chronos.Persistence.Migrations
 {
     [DbContext(typeof(EventContext))]
-    [Migration("20170705213439_Initial")]
+    [Migration("20170706211444_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,7 +27,7 @@ namespace Chronos.Persistence.Migrations
 
                     b.Property<string>("StreamName");
 
-                    b.Property<DateTime>("Timestamp");
+                    b.Property<DateTime>("TimestampUtc");
 
                     b.HasKey("EventNumber");
 

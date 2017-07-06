@@ -15,15 +15,13 @@ namespace Chronos.Persistence
     /// </summary>
     public class EventStoreDomainRepository : DomainRepositoryBase
     {
-        private readonly ISerializer _serializer;
         private readonly IEventBus _eventBus;
         //private readonly IEventDb _eventDb;
         private readonly IEventStoreConnection _connection;
 
 
-        public EventStoreDomainRepository(ISerializer serializer, IEventBus eventBus, IEventStoreConnection connection)
+        public EventStoreDomainRepository(IEventBus eventBus, IEventStoreConnection connection)
         {
-            _serializer = serializer;
             _eventBus = eventBus;
             _connection = connection;
         }
@@ -33,10 +31,9 @@ namespace Chronos.Persistence
             var events = aggregate.UncommitedEvents.ToList();
 
             var expectedVersion = CalculateExpectedVersion(aggregate, events);
-            var eventsDto = events.Select(Serialize<T>);
-            var streamName = AggregateToStreamName(typeof(T), aggregate.Id);
+            var streamName = StreamExtensions.AggregateToStreamName(typeof(T), aggregate.Id);
 
-            _connection.AppendToStream(streamName,expectedVersion,eventsDto);
+            _connection.AppendToStream(streamName,expectedVersion,events);
 
             aggregate.ClearUncommitedEvents();
 
@@ -45,42 +42,13 @@ namespace Chronos.Persistence
         }
         public override T Find<T>(Guid id) 
         {
-            var streamName = AggregateToStreamName(typeof(T), id);
-            var events = _connection.ReadStreamEventsForward(streamName, 0, int.MaxValue).Select(Deserialize).AsCachedAnyEnumerable();
+            var streamName = StreamExtensions.AggregateToStreamName(typeof(T), id);
+            var events = _connection.ReadStreamEventsForward(streamName, 0, int.MaxValue).AsCachedAnyEnumerable();
 
             if (events.Any())
                 return (T)Activator.CreateInstance(typeof(T), id, events);
 
             return default(T);
-        }
-
-        private static string AggregateToStreamName(Type type, Guid id)
-        {
-            return string.Format("{0}-{1}", type.Name, id);
-        }
-
-        private Event Serialize<T>(IEvent e)
-        {
-            Event serialized;
-
-            using (var writer = new StringWriter())
-            {
-                _serializer.Serialize(writer, e);
-
-                serialized = new Event
-                {
-                    Guid = e.SourceId,
-                    Timestamp = e.Timestamp.ToDateTimeUtc(),
-                    Payload = writer.ToString()
-                };
-            }
-
-            return serialized;
-        }
-        private IEvent Deserialize(Event e)
-        {
-            using (var reader = new StringReader(e.Payload))
-                return _serializer.Deserialize<IEvent>(reader);
         }
     }
 }

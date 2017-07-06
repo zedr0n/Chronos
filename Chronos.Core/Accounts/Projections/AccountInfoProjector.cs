@@ -1,4 +1,5 @@
 ﻿using Chronos.Core.Accounts.Events;
+using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Projections;
 
@@ -9,8 +10,8 @@ namespace Chronos.Core.Accounts.Projections
         , IConsumer<AccountChanged>
         , IConsumer<AmountDebited>
     {
-        public AccountInfoProjector(IProjectionWriter<AccountInfo> writer, IEventBus eventBus)
-            : base(writer, eventBus)
+        public AccountInfoProjector(IProjectionWriter<AccountInfo> writer, IEventBus eventBus, IEventStoreConnection eventStoreConnection)
+            : base(writer, eventBus,eventStoreConnection)
         {
         }
 

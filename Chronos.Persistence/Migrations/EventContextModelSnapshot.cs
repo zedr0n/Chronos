@@ -26,7 +26,7 @@ namespace Chronos.Persistence.Migrations
 
                     b.Property<string>("StreamName");
 
-                    b.Property<DateTime>("Timestamp");
+                    b.Property<DateTime>("TimestampUtc");
 
                     b.HasKey("EventNumber");
 
