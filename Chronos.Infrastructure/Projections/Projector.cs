@@ -40,6 +40,16 @@ namespace Chronos.Infrastructure.Projections
                 this.Dispatch(e);
         }
 
+        private void CatchUp()
+        {
+            var events = _eventStoreConnection.GetAllEvents().OrderBy(e => e.EventNumber);
+
+            foreach (var e in events)
+            {
+                this.Dispatch(e);
+            }
+        }
+
         public void Rebuild(Instant upTo)
         {
             _asOf.Add(upTo);
