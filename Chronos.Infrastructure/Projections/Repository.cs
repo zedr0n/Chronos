@@ -67,7 +67,8 @@ namespace Chronos.Infrastructure.Projections
 
         public IEnumerable<T> Find(Guid guid, Func<T, bool> criteria)
         {
-            _dictionary.TryGetValue(guid, out List<T> projections);
+            if (!_dictionary.TryGetValue(guid, out List<T> projections))
+                return null;
             var satisfyingProjections = projections?.Where(criteria).OrderBy(x => x.AsOf);
             return !satisfyingProjections.Any() ? null : satisfyingProjections;
         }

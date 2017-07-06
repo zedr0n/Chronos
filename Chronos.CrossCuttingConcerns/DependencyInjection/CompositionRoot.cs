@@ -2,11 +2,13 @@
 using System.Reflection;
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
+using Chronos.Core.Accounts.Queries;
 using Chronos.Core.Transactions.Commands;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Projections;
+using Chronos.Infrastructure.Queries;
 using Chronos.Persistence;
 using Chronos.Persistence.Serialization;
 using SimpleInjector;
@@ -46,6 +48,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<ICommandHandler<ChangeAccountCommand>, ChangeAccountHandler>(Lifestyle.Singleton);
             container.Register<ICommandHandler<DebitAmountCommand>, DebitAmountHandler>(Lifestyle.Singleton);
             container.Register<ICommandHandler<CreatePurchaseCommand>, CreatePurchaseHandler>(Lifestyle.Singleton);
+            container.Register<IQueryHandler<GetAccountInfo,AccountInfo>,GetAccountInfoHandler>(Lifestyle.Singleton);
 
             container.Register<AccountInfoProjector>(Lifestyle.Singleton);
         }

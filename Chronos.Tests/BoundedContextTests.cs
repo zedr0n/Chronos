@@ -3,12 +3,14 @@ using System.Linq;
 using Chronos.Core.Accounts;
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
+using Chronos.Core.Accounts.Queries;
 using Chronos.Core.Transactions;
 using Chronos.Core.Transactions.Commands;
 using Chronos.CrossCuttingConcerns.DependencyInjection;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Projections;
+using Chronos.Infrastructure.Queries;
 using Microsoft.Extensions.DependencyInjection;
 using NodaTime;
 using SimpleInjector;
@@ -57,8 +59,10 @@ namespace Chronos.Tests
             var handler = container.GetInstance<ICommandHandler<CreateAccountCommand>>();
             handler.Handle(command);
 
-            var repository = container.GetInstance<IRepository<AccountInfo>>();
-            var accountInfo = repository.Get(command.Guid);
+            var query = new GetAccountInfo { AccountId = id };
+
+            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var accountInfo = queryHandler.Handle(query);
 
             Assert.Equal("Account",accountInfo.Name);
         }
@@ -100,8 +104,10 @@ namespace Chronos.Tests
 
             container.GetInstance<AccountInfoProjector>();
 
-            var projectionRepository = container.GetInstance<IRepository<AccountInfo>>();
-            var accountInfo = projectionRepository.Get(accountId);
+            var query = new GetAccountInfo { AccountId = accountId };
+
+            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var accountInfo = queryHandler.Handle(query);
 
             Assert.NotNull(purchase);
             Assert.Equal(100, accountInfo.Balance);
@@ -141,13 +147,12 @@ namespace Chronos.Tests
             var handler2 = container.GetInstance<ICommandHandler<CreatePurchaseCommand>>();
             handler2.Handle(command);
 
-            var repository = container.GetInstance<IRepository<AccountInfo>>();
+            var baseQuery = new GetAccountInfo { AccountId = accountId, AsOf = date};
+            var query = new GetAccountInfo { AccountId = accountId };
 
-            var projector = container.GetInstance<AccountInfoProjector>();
-            projector.Rebuild(date);
-
-            var baseInfo = repository.Get(createAccountCommand.Guid,date).Last();
-            var lastInfo = repository.Get(createAccountCommand.Guid, Instant.MaxValue).Last();
+            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var baseInfo = queryHandler.Handle(baseQuery);
+            var lastInfo = queryHandler.Handle(query);
 
             Assert.Equal(0, baseInfo.Balance);
             Assert.Equal(100, lastInfo.Balance);
