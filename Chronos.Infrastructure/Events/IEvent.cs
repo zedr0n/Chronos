@@ -7,5 +7,6 @@ namespace Chronos.Infrastructure.Events
     {
         Guid SourceId { get; }
         Instant Timestamp { get; }
+        int EventNumber { get; set; }
     }
 }

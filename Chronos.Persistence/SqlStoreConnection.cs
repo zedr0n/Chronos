@@ -81,7 +81,7 @@ namespace Chronos.Persistence
                 if (stream == null)
                     return new List<IEvent>();
                     
-                var events = context.Entry(stream).Collection(x => x.Events).Query().Skip((int) start - 1).Take(count);
+                var events = context.Entry(stream).Collection(x => x.Events).Query().Skip((int) start).Take(count);
 
                 return events.ToList().Select(Deserialize);
             }
@@ -124,7 +124,11 @@ namespace Chronos.Persistence
         private IEvent Deserialize(Event e)
         {
             using (var reader = new StringReader(e.Payload))
-                 return _serializer.Deserialize<IEvent>(reader);
+            {
+                var @event = _serializer.Deserialize<IEvent>(reader);
+                @event.EventNumber = e.EventNumber;
+                return @event;
+            }
         }
     }
 }
