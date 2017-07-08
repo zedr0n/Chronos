@@ -15,7 +15,7 @@ namespace Chronos.Tests
 {
     public class BoundedContextTests : TestsBase
     {
-        [Fact]
+        [Fact,Trait("Category","AggregateTest")]
         public void CanCreateAccount()
         {
             var id = Guid.NewGuid();
