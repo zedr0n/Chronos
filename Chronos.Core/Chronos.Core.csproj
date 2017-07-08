@@ -24,4 +24,8 @@
     <Folder Include="Transactions\Events\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Stateless" Version="3.1.0" />
+  </ItemGroup>
+
 </Project>

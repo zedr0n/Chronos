@@ -8,13 +8,23 @@ using NodaTime;
 
 namespace Chronos.Persistence
 {
+
+    public static class AggregateExtensions
+    {
+        public static int ExpectedVersion(this IAggregate aggregate, IEnumerable<IEvent> events)
+        {
+            return aggregate.Version - events.Count();
+        }
+    }
     /// <summary>
     /// The event sourcing store
     /// </summary>
-    public class EventStoreDomainRepository : DomainRepositoryBase
+    public class EventStoreDomainRepository : IDomainRepository
     {
         private readonly IEventBus _eventBus;
         private readonly IEventStoreConnection _connection;
+        private readonly HashSet<Guid> _existingAggregates = new HashSet<Guid>();
+        private readonly Dictionary<Type, IAggregate> _lastAggregates = new Dictionary<Type, IAggregate>();
 
         public EventStoreDomainRepository(IEventBus eventBus, IEventStoreConnection connection)
         {
@@ -22,7 +32,7 @@ namespace Chronos.Persistence
             _connection = connection;
         }
 
-        public override void Save<T>(T aggregate)
+        public void Save<T>(T aggregate) where T :IAggregate
         {
             var events = aggregate.UncommitedEvents.ToList();
             if (!events.Any())
@@ -30,7 +40,7 @@ namespace Chronos.Persistence
             var expectedVersion = aggregate.ExpectedVersion(events);
 
             _connection.AppendToStream(aggregate.StreamName(), expectedVersion, events);
-            LastAggregates[typeof(T)] = aggregate;
+            _lastAggregates[typeof(T)] = aggregate;
 
             aggregate.ClearUncommitedEvents();
 
@@ -38,10 +48,10 @@ namespace Chronos.Persistence
                 _eventBus.Publish(e);
         }
 
-        public override T Find<T>(Guid id)
+        public T Find<T>(Guid id) where T : IAggregate
         {
-            if (LastAggregates.ContainsKey(typeof(T)) && LastAggregates[typeof(T)].Id == id)
-                return (T) LastAggregates[typeof(T)];
+            if (_lastAggregates.ContainsKey(typeof(T)) && _lastAggregates[typeof(T)].Id == id)
+                return (T) _lastAggregates[typeof(T)];
 
             var streamName = StreamExtensions.StreamName<T>(id);
             var events = _connection.ReadStreamEventsForward(streamName, 0, int.MaxValue).AsCachedAnyEnumerable();
@@ -49,15 +59,35 @@ namespace Chronos.Persistence
             if (events.Any())
             {
                 var aggregate = (T) Activator.CreateInstance(typeof(T), id, events);
-                LastAggregates[typeof(T)] = aggregate;
+                _lastAggregates[typeof(T)] = aggregate;
                 return aggregate;
             }
 
             return default(T);
         }
 
-        public override void Replay(Instant date)
+        public T Get<T>(Guid id) where T : IAggregate
         {
+            var entity = Find<T>(id);
+            if (entity == null)
+                throw new InvalidOperationException("No events recorded for aggregate");
+
+            return entity;
+        }
+
+        public bool Exists<T>(Guid id) where T : IAggregate
+        {
+            if (_lastAggregates.ContainsKey(typeof(T)) && _lastAggregates[typeof(T)].Id == id || _existingAggregates.Contains(id))
+            {
+                _existingAggregates.Add(id);
+                return true;
+            }
+            return Find<T>(id) != null;
+        }
+
+        public void Replay(Instant date)
+        {
+            // the events should be resorted by timestamp as we might have modified the past
             var events = _connection.GetAllEvents().Where(e => e.Timestamp.CompareTo(date) <= 0).ToList()
                 .OrderBy(e => e.Timestamp);
 
