@@ -136,20 +136,13 @@ namespace Chronos.Persistence
             using (var context = _eventDb.GetContext())
             {
                 var streamQuery = context.Set<Stream>().Where(x => x.Name == streamName);
-                IList<Event> events = new List<Event>();
 
-                if (_inMemory || start == 0 && count == int.MaxValue)
+                if (_inMemory)
                     streamQuery = streamQuery.Include(x => x.Events);
 
                 var stream = streamQuery.SingleOrDefault();
-                if (stream != null)
-                {
-                    if (stream.Events == null)
-                        events = context.Entry(stream).Collection(x => x.Events).Query().Skip((int) start).Take(count)
-                            .ToList();
-                    else
-                        events = stream.Events;
-                }
+                var events = context.Entry(stream).Collection(x => x.Events).Query().Skip((int)start).Take(count)
+                        .ToList();
 
                 return events.Select(Deserialize);
             }

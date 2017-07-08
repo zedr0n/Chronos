@@ -28,8 +28,8 @@ namespace Chronos.Infrastructure.Projections
             where T : class, IProjection
         {
             var events = _connection.GetAllEvents().Where(eventCriteria).OrderBy(e => e.Timestamp);
-            var projections = _projectionRepository.Find(criteria).ToList();
-            if (!projections.Any())
+            var projections = _projectionRepository.Find(criteria)?.ToList();
+            if (projections == null)
                 return;
 
             foreach (var projection in projections)
@@ -44,8 +44,8 @@ namespace Chronos.Infrastructure.Projections
         public void RegisterJuncture<T>(Func<T, bool> criteria, Instant time)
             where T : class, IProjection
         {
-            var projections = _projectionRepository.Find(criteria).ToList();
-            if(!projections.Any())
+            var projections = _projectionRepository.Find(criteria);
+            if(projections == null)
                 throw new InvalidOperationException("Impossible to build projection with such criteria");
             if (projections.Any(x => x.AsOf.CompareTo(time) == 0))
                 return;

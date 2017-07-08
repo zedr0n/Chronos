@@ -51,17 +51,8 @@ namespace Chronos.Persistence
             return _current ?? (_current = new Logger());
         }
 
-        public void Dispose()
-        {
-            _current.Enabled = false;
-            //_current
-            // N/A
-        }
-
         private class Logger : ILogger
         {
-            public bool Enabled { get; set; } = true;
-
             public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
             {
                 if(IsEnabled(logLevel))
@@ -71,7 +62,7 @@ namespace Chronos.Persistence
 
             public bool IsEnabled(LogLevel logLevel)
             {
-                return Enabled;
+                return true;
             }
 
             public IDisposable BeginScope<TState>(TState state)
@@ -84,14 +75,9 @@ namespace Chronos.Persistence
                 File.Delete(@".\EF.LOG");
             }
         }
-        private class NullLogger : ILogger
+
+        public void Dispose()
         {
-            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter) { }
-
-            public bool IsEnabled(LogLevel logLevel) => false;
-
-            public IDisposable BeginScope<TState>(TState state) => null;
         }
-
     }
 }

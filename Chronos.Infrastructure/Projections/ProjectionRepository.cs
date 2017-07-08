@@ -9,7 +9,7 @@ namespace Chronos.Infrastructure.Projections
         private readonly Dictionary<Type,List<IProjection>> _dictionary = new Dictionary<Type, List<IProjection>>();
         public IEnumerable<T> Find<T>(Func<T, bool> criteria) where T : class, IProjection
         {
-            if (!_dictionary.TryGetValue(typeof(T), out var projections))
+            if (!_dictionary.TryGetValue(typeof(T), out var projections) || !projections.Any())
                 return null;
             
             return projections.Where(x => criteria(x as T)).Cast<T>();
@@ -30,11 +30,6 @@ namespace Chronos.Infrastructure.Projections
                 _dictionary.Add(typeof(T),new List<IProjection> {projection});
             else
                 projections.Add(projection);
-        }
-
-        public IEnumerable<IProjection> All()
-        {
-            return _dictionary.SelectMany(x => x.Value);
         }
     }
 }

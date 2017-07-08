@@ -41,12 +41,5 @@ namespace Chronos.Infrastructure
         }
 
         public abstract void Replay(Instant date);
-
-        protected static int ExpectedVersion<T>(IAggregate aggregate, List<T> events)
-        {
-            var expectedVersion = aggregate.Version - events.Count;
-
-            return expectedVersion;
-        }
     }
 }

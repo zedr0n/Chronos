@@ -4,21 +4,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Chronos.Persistence.Migrations
 {
-    public partial class Initial : Migration
+    public partial class Schema : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "AggregateIds",
-                columns: table => new
-                {
-                    Guid = table.Column<Guid>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AggregateIds", x => x.Guid);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Streams",
                 columns: table => new
@@ -61,9 +50,6 @@ namespace Chronos.Persistence.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "AggregateIds");
-
             migrationBuilder.DropTable(
                 name: "Events");
 
