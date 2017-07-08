@@ -1,5 +1,4 @@
 ﻿using System;
-using Chronos.Infrastructure.Aggregates;
 
 namespace Chronos.Infrastructure
 {

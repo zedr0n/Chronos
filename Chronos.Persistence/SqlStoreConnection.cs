@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
 using Chronos.Persistence.Serialization;
@@ -26,38 +25,54 @@ namespace Chronos.Persistence
             _serializer = serializer;
         }
 
+        private static Stream OpenStreamForWriting(DbContext context, string streamName)
+        {
+            var streamQuery = context.Set<Stream>().AsNoTracking().Where(x => x.Name == streamName);
+            var stream = streamQuery.SingleOrDefault();
+
+            if (stream == null)
+            {
+                // create a new stream if none exists
+                stream = new Stream
+                {
+                    Name = streamName,
+                    Version = -1
+                };
+                context.Set<Stream>().Add(stream);
+            }
+            else
+            {
+                // create a dummy stream to avoid loading all events from database
+                stream = new Stream { Name = streamName, Version = stream.Version };
+                context.Set<Stream>().Attach(stream);
+            }
+
+            return stream;
+        }
+
+        private static void ForEach<T1, T2>(IEnumerable<T1> to, IEnumerable<T2> from, Action<T1,T2> action)
+        {
+            using (var e1 = to.GetEnumerator())
+            using (var e2 = from.GetEnumerator())
+            {
+                while (e1.MoveNext() && e2.MoveNext())
+                    action(e1.Current, e2.Current);
+            }
+        }
+
         public void AppendToStream(string streamName, int expectedVersion, IEnumerable<IEvent> events)
         {
             _eventDb.Init();
             using (var context = _eventDb.GetContext())
             {
-                var streamQuery = context.Set<Stream>().AsNoTracking().Where(x => x.Name == streamName);
-                var stream = streamQuery.SingleOrDefault();
-
                 var enumerable = events as IList<IEvent> ?? events.ToList();
-
-                if (stream == null)
-                {
-                    stream = new Stream
-                    {
-                        Name = streamName,
-                        Version = -1
-                    };
-                    context.Set<Stream>().Add(stream);
-                }
-                else
-                {
-                    // create a dummy stream to avoid loading all events from database
-                    stream = new Stream {Name = streamName, Version = stream.Version};
-                    context.Set<Stream>().Attach(stream);
-                }
+                var stream = OpenStreamForWriting(context, streamName);
 
                 if (stream.Version != expectedVersion)
                     throw new InvalidOperationException("Stream version is not consistent with events");
 
                 var eventsDto = enumerable.Select(Serialize).ToList();
 
-                //var streamEvents = context.Entry(stream).Collection(x => x.Events).Query().Take(0).ToList();
                 foreach (var e in eventsDto)
                 {
                     stream.Events.Add(e);
@@ -67,12 +82,8 @@ namespace Chronos.Persistence
 
                 context.SaveChanges();
 
-                using (var e1 = enumerable.GetEnumerator())
-                using (var e2 = stream.Events.GetEnumerator())
-                {
-                    while (e1.MoveNext() && e2.MoveNext())
-                        e1.Current.EventNumber = e2.Current.EventNumber;
-                }
+                // set the event numbers based on database generated id
+                ForEach(enumerable,stream.Events,(e1,e2) => e1.EventNumber = e2.EventNumber);
             }
         }
 

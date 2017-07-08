@@ -7,6 +7,6 @@ namespace Chronos.Infrastructure.Events
         void Subscribe<TEvent>(Action<TEvent> handler) where TEvent : IEvent;
         void Unsubscribe<TEvent>(Action<TEvent> handler) where TEvent : IEvent;
         void Publish<TEvent>(TEvent e) where TEvent : IEvent;
-        void Publish(object e);
+        //void Publish(object e);
     }
 }

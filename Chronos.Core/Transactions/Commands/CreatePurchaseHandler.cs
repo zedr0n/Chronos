@@ -20,7 +20,7 @@ namespace Chronos.Core.Transactions.Commands
 
         public void Handle(CreatePurchaseCommand command)
         {
-            var purchase = _domainRepository.Find<Purchase>(command.Id);
+            var purchase = _domainRepository.Find<Purchase>(command.AggregateId);
             if(purchase != null)
                 throw new InvalidOperationException("Transaction already exists");
 
@@ -28,14 +28,17 @@ namespace Chronos.Core.Transactions.Commands
             if(account == null)
                 throw new InvalidOperationException("Account does not exist");
 
-            if(command.Date == default(Instant))
-                throw new InvalidOperationException("Date is not valid");
-
-            purchase = new Purchase(command.Id,command.AccountId,command.Payee,command.Currency,command.Amount,command.Date);
+            var purchaseInfo = new PurchaseInfo
+            {
+                Payee = command.Payee,
+                Currency = command.Currency,
+                Amount = command.Amount
+            };
+            purchase = new Purchase(command.AggregateId,command.AccountId,purchaseInfo);
 
             var debit = new DebitAmountCommand
             {
-                Guid = command.AccountId,
+                AggregateId = command.AccountId,
                 Amount = command.Amount
             };
 

@@ -4,7 +4,7 @@ using Chronos.Infrastructure.Projections;
 
 namespace Chronos.Core.Accounts.Projections
 {
-    public class AccountInfoProjector : Projector<AccountInfo>
+    public class AccountInfoProjector : ProjectorBase<AccountInfo>
         , IConsumer<AccountCreated>
         , IConsumer<AccountChanged>
         , IConsumer<AmountDebited>

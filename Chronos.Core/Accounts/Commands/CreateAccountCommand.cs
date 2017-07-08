@@ -4,11 +4,9 @@ using NodaTime;
 
 namespace Chronos.Core.Accounts.Commands
 {
-    public class CreateAccountCommand : ICommand
+    public class CreateAccountCommand : CommandBase
     {
-        public Guid Guid { get; set; }
-        public virtual string Name { get; set; }
-        public virtual string Currency { get; set; }
-        public virtual Instant Date { get; set; }
+        public string Name { get; set; }
+        public string Currency { get; set; }
     }
 }

@@ -4,12 +4,12 @@ using Chronos.Infrastructure.Events;
 
 namespace Chronos.Infrastructure.Projections
 {
-    public abstract class Projector<T> : IProjector<T>
+    public abstract class ProjectorBase<T> : IProjector<T>
         where T : class,IProjection, new()
     {
         private readonly IProjectionRepository _repository;
 
-        protected Projector(IEventBus eventBus, IProjectionRepository repository)
+        protected ProjectorBase(IEventBus eventBus, IProjectionRepository repository)
         {
             _repository = repository;
             this.RegisterAll(eventBus);
@@ -33,12 +33,6 @@ namespace Chronos.Infrastructure.Projections
                 action(p);
                 p.LastEvent = e.EventNumber;
             }
-        }
-
-        public void AddProjection(T projection,Func<T,bool> where)
-        {
-            if(_repository.Find(where) == null)
-                _repository.Add(projection);
         }
     }
 }

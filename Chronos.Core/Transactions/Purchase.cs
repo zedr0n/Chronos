@@ -1,46 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
 using Chronos.Core.Transactions.Events;
-using Chronos.Infrastructure.Aggregates;
+using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
-using NodaTime;
 
 namespace Chronos.Core.Transactions
 {
-    public class Purchase : AggregateBase, IConsumer<PurchaseCreated>
+    public partial class Purchase : AggregateBase, IConsumer<PurchaseCreated>
     {
         private Guid _accountId;
-        private string _payee;
-        private string _currency;
-        private double _amount;
-        private Instant _date;
+        private PurchaseInfo _purchaseInfo;
 
-        public Purchase(Guid id) : base(id)
-        {
-        }
         public Purchase(Guid id, IEnumerable<IEvent> pastEvents) 
             : base(id,pastEvents) { }
 
         public Purchase(Guid id, Guid accountId,
-            string payee, string ccy, double amount, Instant date) : this(id)
+            PurchaseInfo info) : base(id)
         {
             RaiseEvent(new PurchaseCreated
             {
                 AccountId = accountId,
-                Payee = payee,
-                Ccy = ccy,
-                Amount = amount,
-                Date = date
+                Payee = info.Payee,
+                Ccy = info.Currency,
+                Amount = info.Amount,
+                Date = info.Date
             });
         }
 
         public void When(PurchaseCreated e)
         {
             _accountId = e.AccountId;
-            _payee = e.Payee;
-            _currency = e.Ccy;
-            _amount = e.Amount;
-            _date = e.Date;
+            _purchaseInfo = new PurchaseInfo
+            {
+                Payee = e.Payee,
+                Amount = e.Amount,
+                Currency = e.Ccy,
+                Date = e.Date
+            };
         }
 
     }

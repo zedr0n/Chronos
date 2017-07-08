@@ -1,11 +1,9 @@
-﻿using System;
-using Chronos.Infrastructure.Commands;
+﻿using Chronos.Infrastructure.Commands;
 
 namespace Chronos.Core.Accounts.Commands
 {
-    public class DebitAmountCommand : ICommand
+    public class DebitAmountCommand : CommandBase
     {
-        public Guid Guid { get; set; }
         public double Amount { get; set; }
     }
 }

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Chronos.Infrastructure.Events;
-using NodaTime;
 
-namespace Chronos.Infrastructure.Aggregates
+namespace Chronos.Infrastructure
 {
     public abstract class AggregateBase : IAggregate
     {
@@ -37,9 +36,7 @@ namespace Chronos.Infrastructure.Aggregates
         protected void RaiseEvent(IEvent e)
         {
             if (this.Dispatch(e))
-            {
                 _uncommitedEvents.Add(e);
-            }
         }        
     }
 }

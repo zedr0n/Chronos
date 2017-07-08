@@ -46,7 +46,7 @@ namespace Chronos.Infrastructure.Events
             }
         }
 
-        public void Publish(object message)
+        /*public void Publish(object message)
         {
             var messageType = message.GetType();
             if (_subscribers.ContainsKey(messageType))
@@ -59,6 +59,6 @@ namespace Chronos.Infrastructure.Events
                     invoke.Invoke(handler, new[] { message });
                 }
             }
-        }
+        }*/
     }
 }

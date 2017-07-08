@@ -1,19 +1,14 @@
 ﻿using System;
-using System.Linq;
 using Chronos.Core.Accounts;
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Accounts.Queries;
 using Chronos.Core.Transactions;
 using Chronos.Core.Transactions.Commands;
-using Chronos.CrossCuttingConcerns.DependencyInjection;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Projections;
 using Chronos.Infrastructure.Queries;
-using Microsoft.Extensions.DependencyInjection;
-using NodaTime;
-using SimpleInjector;
 using Xunit;
 
 namespace Chronos.Tests
@@ -26,9 +21,8 @@ namespace Chronos.Tests
             var id = Guid.NewGuid();
             var command = new CreateAccountCommand
             {
-                Guid = id,
+                AggregateId = id,
                 Currency = "GBP",
-                Date = Clock.GetCurrentInstant(),
                 Name = "Account"
             };
 
@@ -47,9 +41,8 @@ namespace Chronos.Tests
             var id = Guid.NewGuid();
             var command = new CreateAccountCommand
             {
-                Guid = id,
+                AggregateId = id,
                 Currency = "GBP",
-                Date = Clock.GetCurrentInstant(),
                 Name = "Account"
             };
 
@@ -65,7 +58,59 @@ namespace Chronos.Tests
             var accountInfo = queryHandler.Handle(query);
 
             Assert.Equal("Account",accountInfo.Name);
+            Assert.Equal("GBP", accountInfo.Currency);
         }
+
+        [Fact]
+        public void ThrowsOnChangingNonexistentAccount()
+        {
+            var command = new ChangeAccountCommand
+            {
+                AggregateId = Guid.NewGuid(),
+                Currency = "",
+                Name = ""
+            };
+
+            var container = CreateContainer(nameof(ThrowsOnChangingNonexistentAccount));
+            var handler = container.GetInstance<ICommandHandler<ChangeAccountCommand>>();
+            Assert.Throws<InvalidOperationException>(() => handler.Handle(command));
+        }
+
+        [Fact]
+        public void CanChangeAccount()
+        {
+            var id = Guid.NewGuid();
+            var command = new CreateAccountCommand
+            {
+                AggregateId = id,
+                Currency = "GBP",
+                Name = "Account"
+            };
+
+            var container = CreateContainer(nameof(CanProjectAccountInfo));
+            container.GetInstance<AccountInfoProjector>();
+
+            var handler = container.GetInstance<ICommandHandler<CreateAccountCommand>>();
+            handler.Handle(command);
+
+            var query = new GetAccountInfo {AccountId = id};
+            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var accountInfo = queryHandler.Handle(query);
+
+            Assert.Equal("Account", accountInfo.Name);
+
+            var changeCommand = new ChangeAccountCommand
+            {
+                AggregateId = id,
+                Name = "OtherAccount",
+                Currency = "GBP"
+            };
+            container.GetInstance<ICommandHandler<ChangeAccountCommand>>().Handle(changeCommand);
+
+            var nextAccountInfo = queryHandler.Handle(query);
+            Assert.Equal("OtherAccount",nextAccountInfo.Name);
+        }
+
 
         [Fact]
         public void CanCreatePurchase()
@@ -73,9 +118,8 @@ namespace Chronos.Tests
             var accountId = Guid.NewGuid();
             var createAccountCommand = new CreateAccountCommand
             {
-                Guid = accountId,
+                AggregateId = accountId,
                 Currency = "GBP",
-                Date = Clock.GetCurrentInstant(),
                 Name = "Account"
             };
 
@@ -88,11 +132,10 @@ namespace Chronos.Tests
 
             var command = new CreatePurchaseCommand
             {
-                Id = id,
+                AggregateId = id,
                 AccountId = accountId,
                 Amount = 100,
                 Currency = "GBP",
-                Date = Clock.GetCurrentInstant(),
                 Payee = "Payee"
             };
 
@@ -114,15 +157,43 @@ namespace Chronos.Tests
         }
 
         [Fact]
+        public void CanRebuildAccountInfo()
+        {
+            var accountId = Guid.NewGuid();
+            var createAccountCommand = new CreateAccountCommand
+            {
+                AggregateId = accountId,
+                Currency = "GBP",
+                Name = "Account"
+            };
+
+            var container = CreateContainer(nameof(CanProjectAccountInfo));
+            container.GetInstance<AccountInfoProjector>();
+
+            var handler = container.GetInstance<ICommandHandler<CreateAccountCommand>>();
+            handler.Handle(createAccountCommand);
+
+            var query = new GetAccountInfo { AccountId = accountId };
+
+            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var accountInfo = queryHandler.Handle(query);
+
+            Assert.Equal("Account", accountInfo.Name);
+
+            var projectionManager = container.GetInstance<IProjectionManager>();
+            projectionManager.Rebuild<AccountInfo>(x => x.AccountId == accountId);
+            var otherInfo = queryHandler.Handle(query);
+            Assert.True(accountInfo.LastEvent == otherInfo.LastEvent);
+        }
+
+        [Fact]
         public void CanGetAccountInfoAsOf()
         {
             var accountId = Guid.NewGuid();
-            var date = Clock.GetCurrentInstant();
             var createAccountCommand = new CreateAccountCommand
             {
-                Guid = accountId,
+                AggregateId = accountId,
                 Currency = "GBP",
-                Date = date,
                 Name = "Account"
             };
 
@@ -137,11 +208,10 @@ namespace Chronos.Tests
 
             var command = new CreatePurchaseCommand
             {
-                Id = id,
+                AggregateId = id,
                 AccountId = accountId,
                 Amount = 100,
                 Currency = "GBP",
-                Date = Clock.GetCurrentInstant(),
                 Payee = "Payee"
             };
 

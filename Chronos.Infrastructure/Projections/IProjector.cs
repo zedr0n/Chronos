@@ -1,6 +1,5 @@
 using System;
 using Chronos.Infrastructure.Events;
-using NodaTime;
 
 namespace Chronos.Infrastructure.Projections
 {
@@ -12,6 +11,5 @@ namespace Chronos.Infrastructure.Projections
         where T : IProjection
     {
         void UpdateProjection(IEvent e, Action<T> action, Func<T, bool> where);
-        void AddProjection(T projection,Func<T,bool> where);
     }
 }

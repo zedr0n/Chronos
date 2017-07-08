@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Chronos.Core.Accounts.Events;
-using Chronos.Infrastructure.Aggregates;
+using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
+using NodaTime;
 
 namespace Chronos.Core.Accounts
 {
@@ -11,9 +12,10 @@ namespace Chronos.Core.Accounts
         IConsumer<AccountChanged>,
         IConsumer<AmountDebited>
     {
-        private string Name { get; set; }
-        private string Currency { get; set; }
-        private double Balance { get; set; }
+        private string _name;
+        private string _currency;
+        private double _balance;
+        private Instant _createdAt;
 
         private Account(Guid id) : base(id)
         {
@@ -63,19 +65,21 @@ namespace Chronos.Core.Accounts
 
         public void When(AccountCreated e)
         {
-            Name = e.Name;
-            Currency = e.Currency;
+            _name = e.Name;
+            _currency = e.Currency;
+            _balance = 0;
+            _createdAt = e.Timestamp;
         }
 
         public void When(AccountChanged e)
         {
-            Name = e.Name;
-            Currency = e.Currency;
+            _name = e.Name;
+            _currency = e.Currency;
         }
 
         public void When(AmountDebited e)
         {
-            Balance += e.Amount;
+            _balance += e.Amount;
         }
 
     }

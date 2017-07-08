@@ -1,12 +1,8 @@
 using System;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using Chronos.Infrastructure;
-using Chronos.Infrastructure.Aggregates;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Misc;
-using Chronos.Persistence.Serialization;
 
 namespace Chronos.Persistence
 {

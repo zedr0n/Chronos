@@ -3,10 +3,9 @@ using Chronos.Infrastructure.Commands;
 
 namespace Chronos.Core.Accounts.Commands
 {
-    public class ChangeAccountCommand : ICommand
+    public class ChangeAccountCommand : CommandBase
     {
-        public Guid Guid { get; set; }
-        public virtual string Name { get; set; }
-        public virtual string Currency { get; set; }
+        public string Name { get; set; }
+        public string Currency { get; set; }
     }
 }

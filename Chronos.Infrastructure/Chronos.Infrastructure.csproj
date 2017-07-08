@@ -8,8 +8,4 @@
     <PackageReference Include="NodaTime" Version="2.0.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Commands\" />
-  </ItemGroup>
-
 </Project>

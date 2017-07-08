@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Chronos.Infrastructure.Events;
 
-namespace Chronos.Infrastructure.Aggregates
+namespace Chronos.Infrastructure
 {
     public interface IAggregate : IConsumer
     {

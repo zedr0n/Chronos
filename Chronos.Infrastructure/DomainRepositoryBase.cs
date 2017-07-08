@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Chronos.Infrastructure.Aggregates;
 
 namespace Chronos.Infrastructure
 {
