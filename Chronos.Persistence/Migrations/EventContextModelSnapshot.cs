@@ -15,6 +15,16 @@ namespace Chronos.Persistence.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.2");
 
+            modelBuilder.Entity("Chronos.Persistence.AggregateId", b =>
+                {
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd();
+
+                    b.HasKey("Guid");
+
+                    b.ToTable("AggregateIds");
+                });
+
             modelBuilder.Entity("Chronos.Persistence.Event", b =>
                 {
                     b.Property<int>("EventNumber")

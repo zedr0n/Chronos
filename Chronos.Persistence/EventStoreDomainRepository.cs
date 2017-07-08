@@ -25,9 +25,12 @@ namespace Chronos.Persistence
         public override void Save<T>(T aggregate)
         {
             var events = aggregate.UncommitedEvents.ToList();
+            if (!events.Any())
+                return;
             var expectedVersion = aggregate.ExpectedVersion(events);
 
             _connection.AppendToStream(aggregate.StreamName(), expectedVersion, events);
+            LastAggregates[typeof(T)] = aggregate;
 
             aggregate.ClearUncommitedEvents();
 
@@ -35,13 +38,20 @@ namespace Chronos.Persistence
                 _eventBus.Publish(e);
         }
 
-        public override T Find<T>(Guid id) 
+        public override T Find<T>(Guid id)
         {
+            if (LastAggregates.ContainsKey(typeof(T)) && LastAggregates[typeof(T)].Id == id)
+                return (T) LastAggregates[typeof(T)];
+
             var streamName = StreamExtensions.StreamName<T>(id);
             var events = _connection.ReadStreamEventsForward(streamName, 0, int.MaxValue).AsCachedAnyEnumerable();
 
             if (events.Any())
-                return (T)Activator.CreateInstance(typeof(T), id, events);
+            {
+                var aggregate = (T) Activator.CreateInstance(typeof(T), id, events);
+                LastAggregates[typeof(T)] = aggregate;
+                return aggregate;
+            }
 
             return default(T);
         }

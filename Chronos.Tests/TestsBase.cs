@@ -1,4 +1,5 @@
 ﻿using Chronos.CrossCuttingConcerns.DependencyInjection;
+using Chronos.Infrastructure;
 using NodaTime;
 using SimpleInjector;
 
@@ -18,6 +19,7 @@ namespace Chronos.Tests
             var container = new Container();
             new CompositionRoot().ComposeApplication(container, dbName, false, true);
             container.Verify();
+            container.GetInstance<IEventStoreConnection>().Initialise();
             return container;
         }
     }

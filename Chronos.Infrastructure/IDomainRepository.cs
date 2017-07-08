@@ -10,6 +10,8 @@ namespace Chronos.Infrastructure
         /// </summary>
         /// <param name="aggregate">The aggregate instance</param>
         void Save<T>(T aggregate) where T : IAggregate;
+
+        bool Exists<T>(Guid id) where T : IAggregate;
         /// <summary>
         /// Rebuild the aggregate from event history extracted from Event Store
         /// </summary>

@@ -7,10 +7,8 @@ namespace Chronos.Persistence
         private readonly string _dbName;
         private readonly bool _inMemory;
 
-        public EventContext()
-        {
-        }
 
+        public EventContext() { }
         public EventContext(string dbName, bool inMemory)
         {
             _dbName = dbName;

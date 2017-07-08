@@ -16,6 +16,7 @@ namespace Chronos.Persistence
         private readonly bool _inMemory;
         private readonly ISerializer _serializer;
         private readonly ITimeline _timeline;
+        private readonly Dictionary<string,int> _streamVersions = new Dictionary<string, int>();
 
         public SqlStoreConnection(IEventDb eventDb, ISerializer serializer, bool inMemory, ITimeline timeline)
         {
@@ -32,12 +33,24 @@ namespace Chronos.Persistence
                 e.Timestamp = timestamp;
         }
 
-        private static Stream OpenStreamForWriting(DbContext context, string streamName)
+        public void Initialise()
         {
-            var streamQuery = context.Set<Stream>().AsNoTracking().Where(x => x.Name == streamName);
-            var stream = streamQuery.SingleOrDefault();
+            _eventDb.Init();
+            using (var db = _eventDb.GetContext())
+            {
+                var streams = db.Set<Stream>().AsNoTracking().ToList();
+                foreach (var stream in streams)
+                    _streamVersions[stream.Name] = stream.Version;
+            }
+        }
 
-            if (stream == null)
+        private Stream OpenStreamForWriting(DbContext context, string streamName)
+        {
+            var version = StreamExists(streamName) ? _streamVersions[streamName] : -1;
+
+            Stream stream;
+
+            if (version == -1)
             {
                 // create a new stream if none exists
                 stream = new Stream
@@ -50,7 +63,7 @@ namespace Chronos.Persistence
             else
             {
                 // create a dummy stream to avoid loading all events from database
-                stream = new Stream { Name = streamName, Version = stream.Version };
+                stream = new Stream { Name = streamName, Version = version };
                 context.Set<Stream>().Attach(stream);
             }
 
@@ -73,7 +86,9 @@ namespace Chronos.Persistence
             using (var context = _eventDb.GetContext())
             {
                 var enumerable = events as IList<IEvent> ?? events.ToList();
+                //context.LogToConsole();
                 var stream = OpenStreamForWriting(context, streamName);
+                //context.StopLogging();
 
                 if (stream.Version != expectedVersion)
                     throw new InvalidOperationException("Stream version is not consistent with events");
@@ -88,6 +103,8 @@ namespace Chronos.Persistence
                     Debug.Write(stream.Name + " : " + e.Payload);
                 }
 
+                _streamVersions[streamName] = stream.Version;
+
                 context.SaveChanges();
 
                 // set the event numbers based on database generated id
@@ -95,27 +112,40 @@ namespace Chronos.Persistence
             }
         }
 
+        private bool StreamExists(string name)
+        {
+            return _streamVersions.ContainsKey(name);
+        }
+
         public IEnumerable<IEvent> ReadStreamEventsForward(string streamName, long start, int count)
         {
-            _eventDb.Init();
+            if (!StreamExists(streamName))
+                return new List<IEvent>();
+
             using (var context = _eventDb.GetContext())
             {
                 var streamQuery = context.Set<Stream>().Where(x => x.Name == streamName);
-                if (_inMemory)
-                    streamQuery = streamQuery.Include(x => x.Events);
-                var stream = streamQuery.SingleOrDefault();
-                if (stream == null)
-                    return new List<IEvent>();
-                    
-                var events = context.Entry(stream).Collection(x => x.Events).Query().Skip((int) start).Take(count);
+                IList<Event> events = new List<Event>();
 
-                return events.ToList().Select(Deserialize);
+                if (_inMemory || start == 0 && count == int.MaxValue)
+                    streamQuery = streamQuery.Include(x => x.Events);
+
+                var stream = streamQuery.SingleOrDefault();
+                if (stream != null)
+                {
+                    if (stream.Events == null)
+                        events = context.Entry(stream).Collection(x => x.Events).Query().Skip((int) start).Take(count)
+                            .ToList();
+                    else
+                        events = stream.Events;
+                }
+
+                return events.Select(Deserialize);
             }
         }
 
         public IEnumerable<IEvent> GetAllEvents()
         {
-            _eventDb.Init();
             using (var context = _eventDb.GetContext())
             {
                 var events = new List<IEvent>();

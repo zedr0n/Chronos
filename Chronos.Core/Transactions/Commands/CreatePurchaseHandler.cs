@@ -20,13 +20,11 @@ namespace Chronos.Core.Transactions.Commands
 
         public void Handle(CreatePurchaseCommand command)
         {
-            var purchase = _domainRepository.Find<Purchase>(command.AggregateId);
-            if(purchase != null)
+            if(_domainRepository.Exists<Purchase>(command.AggregateId))
                 throw new InvalidOperationException("Transaction already exists");
 
-            var account = _domainRepository.Find<Accounts.Account>(command.AccountId);
-            if(account == null)
-                throw new InvalidOperationException("Account does not exist");
+            if(!_domainRepository.Exists<Accounts.Account>(command.AccountId))
+                throw new InvalidOperationException("Account doesn't exist");
 
             var purchaseInfo = new PurchaseInfo
             {
@@ -34,7 +32,7 @@ namespace Chronos.Core.Transactions.Commands
                 Currency = command.Currency,
                 Amount = command.Amount
             };
-            purchase = new Purchase(command.AggregateId,command.AccountId,purchaseInfo);
+            var purchase = new Purchase(command.AggregateId,command.AccountId,purchaseInfo);
 
             var debit = new DebitAmountCommand
             {

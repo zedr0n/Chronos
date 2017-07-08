@@ -8,13 +8,23 @@ using Chronos.Persistence;
 namespace Chronos.Persistence.Migrations
 {
     [DbContext(typeof(EventContext))]
-    [Migration("20170706211444_Initial")]
+    [Migration("20170708200927_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.2");
+
+            modelBuilder.Entity("Chronos.Persistence.AggregateId", b =>
+                {
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd();
+
+                    b.HasKey("Guid");
+
+                    b.ToTable("AggregateIds");
+                });
 
             modelBuilder.Entity("Chronos.Persistence.Event", b =>
                 {

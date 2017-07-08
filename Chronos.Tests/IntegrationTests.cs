@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Chronos.Tests
 {
-    public class BoundedContextTests : TestsBase
+    public class IntegrationTests : TestsBase
     {
         [Fact]
         public void CanCreateAccount()

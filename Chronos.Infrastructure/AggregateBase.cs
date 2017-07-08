@@ -11,7 +11,12 @@ namespace Chronos.Infrastructure
         public Guid Id { get; }
         public int Version { get; private set; }
         public IEnumerable<IEvent> UncommitedEvents => _uncommitedEvents;
-        public void ClearUncommitedEvents() => _uncommitedEvents.Clear();
+
+        public void ClearUncommitedEvents()
+        {
+            Version += _uncommitedEvents.Count;
+            _uncommitedEvents.Clear();
+        } 
 
         protected AggregateBase(Guid id)
         {
@@ -26,6 +31,7 @@ namespace Chronos.Infrastructure
 
         private void LoadFrom(IEnumerable<IEvent> pastEvents)
         {
+            Version = 0;
             foreach (var e in pastEvents)
             {
                 if (this.Dispatch(e))

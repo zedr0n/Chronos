@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Chronos.Infrastructure.Events;
 
 namespace Chronos.Infrastructure
@@ -21,6 +22,9 @@ namespace Chronos.Infrastructure
         /// <param name="count"></param>
         /// <returns></returns>
         IEnumerable<IEvent> ReadStreamEventsForward(string streamName, long start, int count);
+
+        void Initialise();
+
         /// <summary>
         /// Aggregate and return events from all streams
         /// </summary>

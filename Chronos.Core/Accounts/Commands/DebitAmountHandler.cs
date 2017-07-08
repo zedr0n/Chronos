@@ -15,10 +15,7 @@ namespace Chronos.Core.Accounts.Commands
 
         public void Handle(DebitAmountCommand command)
         {
-            var account = _domainRepository.Find<Account>(command.AggregateId);
-            if (account == null)
-                throw new InvalidOperationException("Account does not exist");
-
+            var account = _domainRepository.Get<Account>(command.AggregateId);
             account.Debit(command.Amount);
 
             _domainRepository.Save(account);
