@@ -8,19 +8,23 @@ namespace Chronos.Tests
     public class TestsBase
     {
         protected static readonly IClock Clock;
+        private readonly object _lock = new object();
 
         static TestsBase()
         {
             Clock = SystemClock.Instance;
         }
 
-        protected static Container CreateContainer(string dbName)
+        protected Container CreateContainer(string dbName)
         {
-            var container = new Container();
-            new CompositionRoot().ComposeApplication(container, dbName, false, true);
-            container.Verify();
-            container.GetInstance<IEventStoreConnection>().Initialise();
-            return container;
+            lock(_lock)
+            {
+                var container = new Container();
+                new CompositionRoot().ComposeApplication(container, dbName, false, true);
+                container.Verify();
+                container.GetInstance<IEventStoreConnection>().Initialise();
+                return container;
+            }
         }
     }
 }
