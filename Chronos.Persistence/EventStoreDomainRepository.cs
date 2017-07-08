@@ -58,7 +58,8 @@ namespace Chronos.Persistence
 
         public override void Replay(Instant date)
         {
-            var events = _connection.GetAllEvents().Where(e => e.Timestamp.CompareTo(date) <= 0).ToList();
+            var events = _connection.GetAllEvents().Where(e => e.Timestamp.CompareTo(date) <= 0).ToList()
+                .OrderBy(e => e.Timestamp);
 
             _eventBus.Publish(new ReplayStarted());
 

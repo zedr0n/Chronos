@@ -23,7 +23,6 @@ namespace Chronos.Core.Transactions
                 Payee = info.Payee,
                 Ccy = info.Currency,
                 Amount = info.Amount,
-                Date = info.Date
             });
         }
 
@@ -35,7 +34,6 @@ namespace Chronos.Core.Transactions
                 Payee = e.Payee,
                 Amount = e.Amount,
                 Currency = e.Ccy,
-                Date = e.Date
             };
         }
 

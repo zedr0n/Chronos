@@ -235,7 +235,7 @@ namespace Chronos.Tests
             var container = CreateContainer(nameof(CanCreateAccountInThePast));
 
             var navigator = container.GetInstance<ITimeNavigator>();            
-            var pastDate = (new ZonedDateTime(new LocalDateTime(2017,07,08,0,0), DateTimeZone.Utc,Offset.Zero)).ToInstant();
+            var pastDate = new ZonedDateTime(new LocalDateTime(2017,07,08,0,0), DateTimeZone.Utc,Offset.Zero).ToInstant();
             navigator.GoTo(pastDate);
 
             var id = Guid.NewGuid();
