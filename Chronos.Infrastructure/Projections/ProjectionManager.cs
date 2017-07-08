@@ -24,6 +24,12 @@ namespace Chronos.Infrastructure.Projections
             Rebuild(criteria,e => true);
         }
 
+        public void Invalidate()
+        {
+            foreach (var p in _projectionRepository.All())
+                p.LastEvent = -1;
+        }
+
         public void Rebuild<T>(Func<T, bool> criteria, Func<IEvent, bool> eventCriteria)
             where T : class, IProjection
         {

@@ -6,7 +6,7 @@ namespace Chronos.Infrastructure.Projections
 {
     public class ProjectionRepository : IProjectionRepository
     {
-        private readonly Dictionary<Type,List<object>> _dictionary = new Dictionary<Type, List<object>>();
+        private readonly Dictionary<Type,List<IProjection>> _dictionary = new Dictionary<Type, List<IProjection>>();
         public IEnumerable<T> Find<T>(Func<T, bool> criteria) where T : class, IProjection
         {
             if (!_dictionary.TryGetValue(typeof(T), out var projections))
@@ -27,9 +27,14 @@ namespace Chronos.Infrastructure.Projections
         public void Add<T>(T projection) where T : IProjection
         {
             if(!_dictionary.TryGetValue(typeof(T),out var projections ))
-                _dictionary.Add(typeof(T),new List<object> {projection});
+                _dictionary.Add(typeof(T),new List<IProjection> {projection});
             else
                 projections.Add(projection);
+        }
+
+        public IEnumerable<IProjection> All()
+        {
+            return _dictionary.SelectMany(x => x.Value);
         }
     }
 }

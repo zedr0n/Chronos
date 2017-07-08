@@ -4,9 +4,14 @@ namespace Chronos.Infrastructure
 {
     public static class StreamExtensions
     {
-        public static string AggregateToStreamName(Type type, Guid id)
+        public static string StreamName(this IAggregate aggregate)
         {
-            return $"{type.Name}-{id}";
+            return $"{aggregate.GetType().Name}-{aggregate.Id}";
+        }
+
+        public static string StreamName<T>(Guid id) where T : IAggregate
+        {
+            return $"{typeof(T).Name}-{id}";
         }
     }
 }

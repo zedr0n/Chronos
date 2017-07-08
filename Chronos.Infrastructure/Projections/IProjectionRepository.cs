@@ -19,5 +19,7 @@ namespace Chronos.Infrastructure.Projections
         /// <param name="projection">Projection instance</param>
         /// <returns>All projections satisfying the criteria or null if none found</returns>
         void Add<T>(T projection) where T : IProjection;
+
+        IEnumerable<IProjection> All();
     }
 }

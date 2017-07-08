@@ -12,17 +12,24 @@ namespace Chronos.Persistence
 {
     public class SqlStoreConnection : IEventStoreConnection
     {
-
         private readonly IEventDb _eventDb;
         private readonly bool _inMemory;
         private readonly ISerializer _serializer;
+        private readonly ITimeline _timeline;
 
-
-        public SqlStoreConnection(IEventDb eventDb, ISerializer serializer, bool inMemory)
+        public SqlStoreConnection(IEventDb eventDb, ISerializer serializer, bool inMemory, ITimeline timeline)
         {
             _eventDb = eventDb;
             _inMemory = inMemory;
+            _timeline = timeline;
             _serializer = serializer;
+        }
+
+        private void TimestampEvents(IEnumerable<IEvent> events)
+        {
+            var timestamp = _timeline.Now();
+            foreach (var e in events)
+                e.Timestamp = timestamp;
         }
 
         private static Stream OpenStreamForWriting(DbContext context, string streamName)
@@ -71,6 +78,7 @@ namespace Chronos.Persistence
                 if (stream.Version != expectedVersion)
                     throw new InvalidOperationException("Stream version is not consistent with events");
 
+                TimestampEvents(enumerable);
                 var eventsDto = enumerable.Select(Serialize).ToList();
 
                 foreach (var e in eventsDto)

@@ -9,13 +9,14 @@ using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Projections;
 using Chronos.Infrastructure.Queries;
+using NodaTime;
 using Xunit;
 
 namespace Chronos.Tests
 {
     public class BoundedContextTests : TestsBase
     {
-        [Fact,Trait("Category","AggregateTest")]
+        [Fact]
         public void CanCreateAccount()
         {
             var id = Guid.NewGuid();
@@ -110,7 +111,6 @@ namespace Chronos.Tests
             var nextAccountInfo = queryHandler.Handle(query);
             Assert.Equal("OtherAccount",nextAccountInfo.Name);
         }
-
 
         [Fact]
         public void CanCreatePurchase()
@@ -229,5 +229,75 @@ namespace Chronos.Tests
             Assert.Equal(100, lastInfo.Balance);
         }
 
+        [Fact]
+        public void CanCreateAccountInThePast()
+        {
+            var container = CreateContainer(nameof(CanCreateAccountInThePast));
+
+            var navigator = container.GetInstance<ITimeNavigator>();            
+            var pastDate = (new ZonedDateTime(new LocalDateTime(2017,07,08,0,0), DateTimeZone.Utc,Offset.Zero)).ToInstant();
+            navigator.GoTo(pastDate);
+
+            var id = Guid.NewGuid();
+            var command = new CreateAccountCommand
+            {
+                AggregateId = id,
+                Currency = "GBP",
+                Name = "Account"
+            };
+
+            var handler = container.GetInstance<ICommandHandler<CreateAccountCommand>>();
+            handler.Handle(command);
+
+            var query = new GetAccountInfo { AccountId = id };
+
+            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var accountInfo = queryHandler.Handle(query);
+
+            Assert.Equal(pastDate,accountInfo.CreatedAt);
+        }
+
+        [Fact]
+        public void CanReplayEvents()
+        {
+            var container = CreateContainer(nameof(CanReplayEvents));
+
+            var accountId = Guid.NewGuid();
+            var createAccountCommand = new CreateAccountCommand
+            {
+                AggregateId = accountId,
+                Currency = "GBP",
+                Name = "Account"
+            };
+
+            container.GetInstance<AccountInfoProjector>();
+
+            var handler = container.GetInstance<ICommandHandler<CreateAccountCommand>>();
+            handler.Handle(createAccountCommand);
+            var id = Guid.NewGuid();
+
+            var query = new GetAccountInfo { AccountId = accountId };
+            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var createdAt = queryHandler.Handle(query).CreatedAt;
+
+            var command = new CreatePurchaseCommand
+            {
+                AggregateId = id,
+                AccountId = accountId,
+                Amount = 100,
+                Currency = "GBP",
+                Payee = "Payee"
+            };
+            var handler2 = container.GetInstance<ICommandHandler<CreatePurchaseCommand>>();
+            handler2.Handle(command);
+
+            Assert.Equal(command.Amount, queryHandler.Handle(query).Balance);
+
+            var navigator = container.GetInstance<ITimeNavigator>();
+            navigator.GoTo(createdAt);
+
+            var accountInfo = queryHandler.Handle(query);
+            Assert.Equal(0,accountInfo.Balance);
+        }
     }
 }

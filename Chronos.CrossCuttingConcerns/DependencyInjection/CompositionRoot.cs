@@ -31,7 +31,9 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<IProjectionManager,ProjectionManager>(Lifestyle.Singleton);
             //container.Register(typeof(IProjectionWriter<>),typeof(ProjectionWriter<>),Lifestyle.Singleton);
             container.Register<IProjectorRepository,ProjectorRepository>(Lifestyle.Singleton);
-;
+            container.Register<ITimeline,Timeline>(Lifestyle.Singleton);
+            container.Register<ITimeNavigator, TimeNavigator>(Lifestyle.Singleton);
+
             // register commands and queries
             /*var handlerRegistrations = Assembly.Load(new AssemblyName(nameof(Chronos.Core)))
                                                 .ExportedTypes.Where(t => t.Name.EndsWith("Handler"))

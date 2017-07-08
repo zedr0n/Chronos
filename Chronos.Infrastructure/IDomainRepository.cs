@@ -1,4 +1,5 @@
 ﻿using System;
+using NodaTime;
 
 namespace Chronos.Infrastructure
 {
@@ -23,6 +24,10 @@ namespace Chronos.Infrastructure
         /// <param name="id">The aggregate guid</param>
         /// <returns></returns>
         T Get<T>(Guid id) where T : IAggregate;
-
+        /// <summary>
+        /// Replay all the events up to date and push through event bus
+        /// </summary>
+        /// <param name="date"></param>
+        void Replay(Instant date);
     }
 }

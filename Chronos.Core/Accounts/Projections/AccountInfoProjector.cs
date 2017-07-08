@@ -32,6 +32,7 @@ namespace Chronos.Core.Accounts.Projections
                 v.Name = e.Name;
                 v.Currency = e.Currency;
                 v.Balance = 0;
+                v.CreatedAt = e.Timestamp;
             }, v => v.AccountId == e.SourceId);
         }
 
