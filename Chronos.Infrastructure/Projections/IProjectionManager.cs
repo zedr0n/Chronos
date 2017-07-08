@@ -25,7 +25,5 @@ namespace Chronos.Infrastructure.Projections
 
         void Rebuild<T>(Func<T, bool> criteria,Func<IEvent,bool> eventCriteria)
             where T : class, IProjection;
-
-        void Invalidate();
     }
 }

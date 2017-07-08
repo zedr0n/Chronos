@@ -59,8 +59,13 @@ namespace Chronos.Persistence
         public override void Replay(Instant date)
         {
             var events = _connection.GetAllEvents().Where(e => e.Timestamp.CompareTo(date) <= 0).ToList();
+
+            _eventBus.Publish(new ReplayStarted());
+
             foreach(dynamic e in events)
                 _eventBus.Publish(e);
+
+            _eventBus.Publish(new ReplayFinished());
         }
     }
 }

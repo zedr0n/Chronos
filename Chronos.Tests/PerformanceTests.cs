@@ -9,7 +9,7 @@ namespace Chronos.Tests
     public class PerformanceTests : TestsBase
     {
         [Theory]
-        [InlineData(1000)]
+        [InlineData(200)]
         public void CanAddMultipleTransactionsQuickly(int numberOfTransactions)
         {
             var container = CreateContainer(nameof(CanAddMultipleTransactionsQuickly));

@@ -1,5 +1,4 @@
 ﻿using System;
-using Chronos.Infrastructure.Projections;
 using NodaTime;
 
 namespace Chronos.Infrastructure
@@ -7,19 +6,16 @@ namespace Chronos.Infrastructure
     public class TimeNavigator : ITimeNavigator
     {
         private readonly IDomainRepository _domainRepository;
-        private readonly IProjectionManager _projectionManager;
         private readonly ITimeline _timeline;
 
-        public TimeNavigator(ITimeline timeline, IDomainRepository domainRepository, IProjectionManager projectionManager)
+        public TimeNavigator(ITimeline timeline, IDomainRepository domainRepository)
         {
             _timeline = timeline;
             _domainRepository = domainRepository;
-            _projectionManager = projectionManager;
         }
 
         private void Replay(Instant date)
         {
-            _projectionManager.Invalidate();
             _domainRepository.Replay(date);
         }
 
