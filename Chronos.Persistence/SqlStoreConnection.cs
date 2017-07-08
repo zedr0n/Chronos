@@ -36,6 +36,7 @@ namespace Chronos.Persistence
         public void Initialise()
         {
             _eventDb.Init();
+            return;
             using (var db = _eventDb.GetContext())
             {
                 var streams = db.Set<Stream>().AsNoTracking().ToList();
@@ -46,7 +47,7 @@ namespace Chronos.Persistence
 
         private Stream OpenStreamForWriting(DbContext context, string streamName)
         {
-            var version = StreamExists(streamName) ? _streamVersions[streamName] : -1;
+            var version = GetStreamVersion(streamName);
 
             Stream stream;
 
@@ -82,7 +83,6 @@ namespace Chronos.Persistence
 
         public void AppendToStream(string streamName, int expectedVersion, IEnumerable<IEvent> events)
         {
-            _eventDb.Init();
             using (var context = _eventDb.GetContext())
             {
                 var enumerable = events as IList<IEvent> ?? events.ToList();
@@ -112,23 +112,26 @@ namespace Chronos.Persistence
             }
         }
 
-        private bool StreamExists(string name)
+        private int GetStreamVersion(string name)
         {
-            if (_streamVersions.ContainsKey(name))
-                return true;
-            using (var db = _eventDb.GetContext())
+            if (!_streamVersions.ContainsKey(name))
             {
-                var stream = db.Set<Stream>().AsNoTracking().SingleOrDefault(s => s.Name == name);
-                if (stream == null)
-                    return false;
-                _streamVersions[name] = stream.Version;
-                return true;
+                return -1;
+                using (var db = _eventDb.GetContext())
+                {
+                    var streams = db.Set<Stream>().AsNoTracking().ToList();
+                    var stream = streams.SingleOrDefault(s => s.Name == name);
+                    if (stream == null)
+                        return -1;
+                    _streamVersions[name] = stream.Version;
+                }
             }
+            return _streamVersions[name];
         }
 
         public IEnumerable<IEvent> ReadStreamEventsForward(string streamName, long start, int count)
         {
-            if (!StreamExists(streamName))
+            if (GetStreamVersion(streamName) == -1)
                 return new List<IEvent>();
 
             using (var context = _eventDb.GetContext())
