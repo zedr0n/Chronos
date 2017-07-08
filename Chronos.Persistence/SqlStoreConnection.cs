@@ -36,6 +36,7 @@ namespace Chronos.Persistence
         public void Initialise()
         {
             _eventDb.Init();
+            return;
             using (var db = _eventDb.GetContext())
             {
                 var streams = db.Set<Stream>().AsNoTracking().ToList();
@@ -115,7 +116,6 @@ namespace Chronos.Persistence
         {
             if (!_streamVersions.ContainsKey(name))
             {
-                return -1;
                 using (var db = _eventDb.GetContext())
                 {
                     var streams = db.Set<Stream>().AsNoTracking().ToList();
