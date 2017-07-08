@@ -114,7 +114,14 @@ namespace Chronos.Persistence
 
         private bool StreamExists(string name)
         {
-            return _streamVersions.ContainsKey(name);
+            using (var db = _eventDb.GetContext())
+            {
+                var stream = db.Set<Stream>().AsNoTracking().SingleOrDefault(s => s.Name == name);
+                if (stream == null)
+                    return false;
+                _streamVersions[name] = stream.Version;
+                return true;
+            }
         }
 
         public IEnumerable<IEvent> ReadStreamEventsForward(string streamName, long start, int count)
