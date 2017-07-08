@@ -114,6 +114,8 @@ namespace Chronos.Persistence
 
         private bool StreamExists(string name)
         {
+            if (_streamVersions.ContainsKey(name))
+                return true;
             using (var db = _eventDb.GetContext())
             {
                 var stream = db.Set<Stream>().AsNoTracking().SingleOrDefault(s => s.Name == name);
