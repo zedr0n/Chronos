@@ -1,5 +1,4 @@
 ﻿using Chronos.Core.Accounts.Events;
-using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Projections;
 
@@ -10,35 +9,38 @@ namespace Chronos.Core.Accounts.Projections
         , IConsumer<AccountChanged>
         , IConsumer<AmountDebited>
     {
-        public AccountInfoProjector(IProjectionWriter<AccountInfo> writer, IEventBus eventBus, IEventStoreConnection eventStoreConnection)
-            : base(writer, eventBus,eventStoreConnection)
+
+        public AccountInfoProjector(IEventBus eventBus, IProjectionRepository repository)
+            : base(eventBus,repository)
         {
         }
 
         public void When(AccountChanged e)
         {
-            UpdateProjection(e, v =>
+            UpdateProjection(e,v =>
             {
                 v.Name = e.Name;
                 v.Currency = e.Currency;
-            });
+            }, v => v.AccountId == e.SourceId);
         }
 
         public void When(AccountCreated e)
         {
-            AddProjection(e, () => new AccountInfo
+            UpdateProjection(e,v =>
             {
-                Name = e.Name,
-                Currency = e.Currency
-            });
+                v.AccountId = e.SourceId;
+                v.Name = e.Name;
+                v.Currency = e.Currency;
+                v.Balance = 0;
+            }, v => v.AccountId == e.SourceId);
         }
 
         public void When(AmountDebited e)
         {
-            UpdateProjection(e, v =>
+            UpdateProjection(e,v =>
             {
                 v.Balance += e.Amount;
-            });
+            },v => v.AccountId == e.SourceId);
         }
     }
 }

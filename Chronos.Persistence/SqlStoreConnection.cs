@@ -55,7 +55,7 @@ namespace Chronos.Persistence
                 if (stream.Version != expectedVersion)
                     throw new InvalidOperationException("Stream version is not consistent with events");
 
-                var eventsDto = enumerable.Select(Serialize);
+                var eventsDto = enumerable.Select(Serialize).ToList();
 
                 //var streamEvents = context.Entry(stream).Collection(x => x.Events).Query().Take(0).ToList();
                 foreach (var e in eventsDto)
@@ -66,6 +66,13 @@ namespace Chronos.Persistence
                 }
 
                 context.SaveChanges();
+
+                using (var e1 = enumerable.GetEnumerator())
+                using (var e2 = stream.Events.GetEnumerator())
+                {
+                    while (e1.MoveNext() && e2.MoveNext())
+                        e1.Current.EventNumber = e2.Current.EventNumber;
+                }
             }
         }
 

@@ -11,8 +11,11 @@ namespace Chronos.Infrastructure.Events
         [DebuggerStepThrough]
         public static IEnumerable<Type> Interfaces(this IConsumer consumer)
         {
-            var interfaces = consumer.GetType().GetTypeInfo().ImplementedInterfaces
-                .Where(t => typeof(IConsumer).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo()))
+            var interfaces = consumer.GetType().GetTypeInfo().ImplementedInterfaces;
+            interfaces = interfaces
+                //.Where(t => typeof(IConsumer).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo()))
+                .Where(t => t.GetTypeInfo().ImplementedInterfaces.FirstOrDefault() == typeof(IConsumer));
+            interfaces = interfaces
                 .Where(t => t.GenericTypeArguments.Length > 0);
             return interfaces;
         }

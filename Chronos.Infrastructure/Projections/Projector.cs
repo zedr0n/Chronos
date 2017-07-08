@@ -1,60 +1,44 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Chronos.Infrastructure.Events;
-using NodaTime;
 
 namespace Chronos.Infrastructure.Projections
 {
-    public class Projector<T> : IProjector
-        where T : class,IProjection
+    public abstract class Projector<T> : IProjector<T>
+        where T : class,IProjection, new()
     {
-        private readonly IEventStoreConnection _eventStoreConnection;
-        private readonly IProjectionWriter<T> _writer;
+        private readonly IProjectionRepository _repository;
 
-        private readonly HashSet<Instant> _asOf = new HashSet<Instant> { Instant.MaxValue };
-
-        protected Projector(IProjectionWriter<T> writer, IEventBus eventBus, IEventStoreConnection eventStoreConnection)
+        protected Projector(IEventBus eventBus, IProjectionRepository repository)
         {
-            _writer = writer;
-            _eventStoreConnection = eventStoreConnection;
+            _repository = repository;
             this.RegisterAll(eventBus);
         }
 
-        protected void UpdateProjection(IEvent e, Action<T> action )
+        public void UpdateProjection(IEvent e, Action<T> action, Func<T,bool> where)
         {
-            _writer.UpdateOrThrow(action, x => x.AsOf.CompareTo(e.Timestamp) >= 0 );
-        }
-
-        protected void AddProjection(IEvent e, Func<T> projection )
-        {
-            foreach (var asOf in _asOf)
-                _writer.Add(e.SourceId, projection(), asOf);
-        }
-
-        public void Rebuild()
-        {
-            var events = _eventStoreConnection.GetAllEvents().OrderBy(e => e.Timestamp);
-
-            foreach(var e in events)
-                this.Dispatch(e);
-        }
-
-        private void CatchUp()
-        {
-            var events = _eventStoreConnection.GetAllEvents().OrderBy(e => e.EventNumber);
-
-            foreach (var e in events)
+            var projections = _repository.Find(where);
+            if (projections == null)
             {
-                this.Dispatch(e);
+                var p = new T();
+                action(p);
+                p.LastEvent = e.EventNumber;
+                _repository.Add(p);
+                return;
+            }
+
+            // Timestamp and event number need to be in sync. Is that always true?
+            foreach (var p in projections.Where(p => p.LastEvent < e.EventNumber))
+            {
+                action(p);
+                p.LastEvent = e.EventNumber;
             }
         }
 
-        public void Rebuild(Instant upTo)
+        public void AddProjection(T projection,Func<T,bool> where)
         {
-            _asOf.Add(upTo);
-            Rebuild();
+            if(_repository.Find(where) == null)
+                _repository.Add(projection);
         }
-
     }
 }

@@ -118,7 +118,6 @@ namespace Chronos.Tests
         {
             var accountId = Guid.NewGuid();
             var date = Clock.GetCurrentInstant();
-            var prevDate = date.Minus(Duration.FromDays(1));
             var createAccountCommand = new CreateAccountCommand
             {
                 Guid = accountId,
@@ -134,6 +133,8 @@ namespace Chronos.Tests
             handler.Handle(createAccountCommand);
             var id = Guid.NewGuid();
 
+            var acountCreationTime = Clock.GetCurrentInstant();
+
             var command = new CreatePurchaseCommand
             {
                 Id = id,
@@ -147,7 +148,7 @@ namespace Chronos.Tests
             var handler2 = container.GetInstance<ICommandHandler<CreatePurchaseCommand>>();
             handler2.Handle(command);
 
-            var baseQuery = new GetAccountInfo { AccountId = accountId, AsOf = date};
+            var baseQuery = new GetAccountInfo { AccountId = accountId, AsOf = acountCreationTime};
             var query = new GetAccountInfo { AccountId = accountId };
 
             var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();

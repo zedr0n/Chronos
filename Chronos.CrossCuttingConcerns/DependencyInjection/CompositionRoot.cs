@@ -29,9 +29,11 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<IEventDb, EventDb>(Lifestyle.Singleton);
             container.Register<IEventStoreConnection,SqlStoreConnection>(Lifestyle.Singleton);
             container.Register<IDomainRepository,EventStoreDomainRepository>(Lifestyle.Singleton);
-            container.Register(typeof(IRepository<>), typeof(Repository<>), Lifestyle.Singleton);
-            container.Register(typeof(IProjectionWriter<>),typeof(ProjectionWriter<>),Lifestyle.Singleton);
-
+            container.Register<IProjectionRepository,ProjectionRepository>(Lifestyle.Singleton);
+            container.Register<IProjectionManager,ProjectionManager>(Lifestyle.Singleton);
+            //container.Register(typeof(IProjectionWriter<>),typeof(ProjectionWriter<>),Lifestyle.Singleton);
+            container.Register<IProjectorRepository,ProjectorRepository>(Lifestyle.Singleton);
+;
             // register commands and queries
             /*var handlerRegistrations = Assembly.Load(new AssemblyName(nameof(Chronos.Core)))
                                                 .ExportedTypes.Where(t => t.Name.EndsWith("Handler"))
@@ -50,7 +52,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<ICommandHandler<CreatePurchaseCommand>, CreatePurchaseHandler>(Lifestyle.Singleton);
             container.Register<IQueryHandler<GetAccountInfo,AccountInfo>,GetAccountInfoHandler>(Lifestyle.Singleton);
 
-            container.Register<AccountInfoProjector>(Lifestyle.Singleton);
+            container.Register<IProjector<AccountInfo>,AccountInfoProjector>(Lifestyle.Singleton);
         }
     }
 }

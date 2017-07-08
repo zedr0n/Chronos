@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Infrastructure.Projections;
@@ -7,23 +8,24 @@ namespace Chronos.Core.Accounts.Queries
 {
     public class GetAccountInfoHandler : IQueryHandler<GetAccountInfo, AccountInfo>
     {
-        private readonly IRepository<AccountInfo> _projections;
-        private readonly AccountInfoProjector _accountInfoProjector;
+        private readonly IProjectionRepository _projections;
+        private readonly IProjectionManager _manager;
 
-        public GetAccountInfoHandler(IRepository<AccountInfo> projections, AccountInfoProjector accountInfoProjector)
+        public GetAccountInfoHandler(IProjectionRepository projections, IProjectionManager manager)
         {
             _projections = projections;
-            _accountInfoProjector = accountInfoProjector;
+            _manager = manager;
         }
 
         public AccountInfo Handle(GetAccountInfo query)
         {
-            var projection = _projections.Find(query.AccountId, p => p.AsOf.CompareTo(query.AsOf) == 0 )?.SingleOrDefault();
+            _manager.RegisterJuncture<AccountInfo>(p => p.AccountId == query.AccountId, query.AsOf);
+            var projection = _projections.Find<AccountInfo>(p => p.AccountId == query.AccountId && p.AsOf.CompareTo(query.AsOf) == 0 )?.SingleOrDefault();
 
             if (projection == null)
-                _accountInfoProjector.Rebuild(query.AsOf);
+                throw new InvalidOperationException("Read model has not been found");
 
-            return _projections.Get(query.AccountId, p => p.AsOf.CompareTo(query.AsOf) == 0).Single();
+            return projection;
         }
     }
 }

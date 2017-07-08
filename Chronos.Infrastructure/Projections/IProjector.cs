@@ -6,7 +6,12 @@ namespace Chronos.Infrastructure.Projections
 {
     public interface IProjector : IConsumer
     {
-        void Rebuild();
-        void Rebuild(Instant upTo);
+    }
+
+    public interface IProjector<T> : IProjector
+        where T : IProjection
+    {
+        void UpdateProjection(IEvent e, Action<T> action, Func<T, bool> where);
+        void AddProjection(T projection,Func<T,bool> where);
     }
 }
