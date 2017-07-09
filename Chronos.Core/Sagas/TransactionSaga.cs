@@ -47,10 +47,7 @@ namespace Chronos.Core.Sagas
 
         private void DebitAccount()
         {
-            var command = new AmountDebited
-            {
-                
-            }
+
         }
 
         public void When(PurchaseCreated e)
@@ -64,11 +61,6 @@ namespace Chronos.Core.Sagas
         private void Schedule()
         {
             _stateMachine.Fire(TRIGGER.TRANSACTION_DUE);
-        }
-
-        public override void Transition(object message)
-        {
-            
         }
 
         private void Transition(PurchaseCreated e)
