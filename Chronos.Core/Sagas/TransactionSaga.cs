@@ -5,11 +5,14 @@ using Chronos.Core.Accounts.Events;
 using Chronos.Core.Transactions.Events;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Sagas;
+using NodaTime;
 using Stateless;
 
 namespace Chronos.Core.Sagas
 {
-    public class TransactionSaga : SagaBase, IConsumer<PurchaseCreated>
+    public class TransactionSaga : SagaBase,
+        IConsumer<PurchaseCreated>,
+        IConsumer<SagaCompleted>
     {
         private enum STATE
         {
@@ -24,21 +27,38 @@ namespace Chronos.Core.Sagas
             TRANSACTION_DUE
         }
 
-        private readonly StateMachine<STATE, TRIGGER> _stateMachine;
+        private StateMachine<STATE, TRIGGER> StateMachine {
+            get
+            {
+                ConfigureStateMachine();
+                return _stateMachine;
+            }   
+        }
+        private StateMachine<STATE, TRIGGER> _stateMachine;
 
         private double _amount;
         private bool _purchaseCreated;
         private Guid _accountId;
 
-        public TransactionSaga(Guid id) : base(id)
+        protected override bool IsComplete() => StateMachine.IsInState(STATE.COMPLETED);
+        private void ConfigureStateMachine()
         {
+            if (_stateMachine != null)
+                return;
+
             _stateMachine = new StateMachine<STATE, TRIGGER>(STATE.OPEN);
 
             _stateMachine.Configure(STATE.OPEN)
                 .PermitIf(TRIGGER.TRANSACTION_CREATED, STATE.COMPLETED, () => _purchaseCreated);
 
             _stateMachine.Configure(STATE.COMPLETED)
-                .OnEntry(DebitAccount);
+                .Ignore(TRIGGER.TRANSACTION_CREATED)
+                .OnEntry(DebitAccount)
+                .OnEntry(OnComplete);
+        }
+
+        public TransactionSaga(Guid id) : base(id)
+        {
         }
 
         public TransactionSaga(Guid id, IEnumerable<IEvent> pastEvents)
@@ -53,14 +73,23 @@ namespace Chronos.Core.Sagas
             });
         }
 
+        public void When(SagaCompleted e)
+        {
+            OnCompletion();
+        }
+
         public void When(PurchaseCreated e)
         {
+            if(!base.When(e))
+                return;
+
             _amount = e.Amount;
             _purchaseCreated = true;
             _accountId = e.AccountId;
 
-            _stateMachine.Fire(TRIGGER.TRANSACTION_CREATED);
-            base.When(e);
+            StateMachine.Fire(TRIGGER.TRANSACTION_CREATED);
         }
+
+
     }
 }

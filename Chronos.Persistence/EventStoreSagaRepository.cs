@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -25,12 +26,20 @@ namespace Chronos.Persistence
             _commandBus = commandBus;
         }
 
+        private static int ExpectedVersion<T>(T saga, IEnumerable<IEvent> events) where T : ISaga
+        {
+            var expectedVersion = saga.Version - events.Count();
+            return expectedVersion < 0 ? -1 : expectedVersion;
+        } 
+
         public void Save<T>(T saga) where T : ISaga
         {
             var events = saga.UncommitedEvents.ToList();
+            if (!events.Any())
+                return;
 
             var streamName = StreamExtensions.StreamName<T>(saga.SagaId);
-            var expectedVersion = saga.Version - events.Count;
+            var expectedVersion = ExpectedVersion(saga, events);
             _connection.AppendToStream(streamName,expectedVersion,events);
 
             foreach (var e in saga.UndispatchedMessages)
@@ -53,8 +62,6 @@ namespace Chronos.Persistence
             if (events.Any())
             {
                 var saga = (T) Activator.CreateInstance(typeof(T), id, events);
-                saga.ClearUncommittedEvents();
-                saga.ClearUndispatchedMessages();
                 return saga;
             }
 

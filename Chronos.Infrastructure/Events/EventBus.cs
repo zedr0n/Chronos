@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace Chronos.Infrastructure.Events
@@ -41,8 +42,12 @@ namespace Chronos.Infrastructure.Events
             if (_subscribers.ContainsKey(typeof(TEvent)))
             {
                 var handlers = _subscribers[typeof(TEvent)];
+                Debug.WriteLine(e.GetType().Name);
                 foreach (Action<TEvent> handler in handlers.AsReadOnly())
+                {
                     handler?.Invoke(e);
+                }
+                Debug.WriteLine("");
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Chronos.Infrastructure.Misc;
 
 namespace Chronos.Infrastructure.Projections
 {
@@ -11,8 +12,9 @@ namespace Chronos.Infrastructure.Projections
         {
             if (!_dictionary.TryGetValue(typeof(T), out var projections) || !projections.Any())
                 return null;
-            
-            return projections.Where(x => criteria(x as T)).Cast<T>();
+
+            var satifyingProjections = projections.Where(x => criteria(x as T)).Cast<T>().AsCachedAnyEnumerable();
+            return satifyingProjections.Any() ? satifyingProjections : null;
         }
 
         public IEnumerable<T> Get<T>(Func<T, bool> criteria) where T : class, IProjection

@@ -100,7 +100,7 @@ namespace Chronos.Persistence
                 {
                     stream.Events.Add(e);
                     stream.Version++;
-                    Debug.Write(stream.Name + " : " + e.Payload);
+                    Debug.WriteLine(stream.Name + " : " + e.Payload);
                 }
 
                 _streamVersions[streamName] = stream.Version;
@@ -145,7 +145,11 @@ namespace Chronos.Persistence
                 var events = context.Entry(stream).Collection(x => x.Events).Query().Skip((int)start).Take(count)
                         .ToList();
 
-                return events.Select(Deserialize);
+                var now = _timeline.Now();
+
+                return events.Select(Deserialize)
+                    .Where(e => e.Timestamp.CompareTo(now) <= 0)
+                    .OrderBy(e => e.Timestamp);
             }
         }
 

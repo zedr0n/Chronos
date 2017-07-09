@@ -65,6 +65,9 @@ namespace Chronos.Core.Accounts
 
         public void When(AccountCreated e)
         {
+            if (e.SourceId != Id)
+                return;
+
             _name = e.Name;
             _currency = e.Currency;
             _balance = 0;
@@ -73,12 +76,16 @@ namespace Chronos.Core.Accounts
 
         public void When(AccountChanged e)
         {
+            if (e.SourceId != Id)
+                return;
             _name = e.Name;
             _currency = e.Currency;
         }
 
         public void When(AmountDebited e)
         {
+            if (e.SourceId != Id)
+                return;
             _balance += e.Amount;
         }
 

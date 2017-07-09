@@ -38,6 +38,43 @@ namespace Chronos.Tests
         }
 
         [Fact]
+        public void CanCreateMultipleAccounts()
+        {
+            var container = CreateContainer(nameof(CanCreateAccount));
+            var bus = container.GetInstance<ICommandBus>();
+            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+
+            var id = Guid.NewGuid();
+            var command = new CreateAccountCommand
+            {
+                AggregateId = id,
+                Currency = "GBP",
+                Name = "Account"
+            };
+
+            bus.Send(command);
+
+            var otherId = Guid.NewGuid();
+            var otherCommand = new CreateAccountCommand
+            {
+                AggregateId = otherId,
+                Currency = "GBP",
+                Name = "OtherAccount"
+            };
+
+            bus.Send(otherCommand);
+
+            var query = new GetAccountInfo { AccountId = id };
+            var otherQuery = new GetAccountInfo {AccountId = otherId };
+
+            var accountInfo = queryHandler.Handle(query);
+            Assert.Equal("Account",accountInfo.Name);
+            var otherAccountInfo = queryHandler.Handle(otherQuery);
+            Assert.Equal("OtherAccount",otherAccountInfo.Name);
+
+        }
+
+        [Fact]
         public void CanProjectAccountInfo()
         {
             var id = Guid.NewGuid();
@@ -247,7 +284,48 @@ namespace Chronos.Tests
         [Fact]
         public void CanReplayEvents()
         {
-            var container = CreateContainer(nameof(CanReplayEvents));
+            var container = CreateContainer(nameof(CanReplayEventsUpToPointInPast));
+
+            var accountId = Guid.NewGuid();
+            var createAccountCommand = new CreateAccountCommand
+            {
+                AggregateId = accountId,
+                Currency = "GBP",
+                Name = "Account"
+            };
+
+            container.GetInstance<AccountInfoProjector>();
+
+            var bus = container.GetInstance<ICommandBus>();
+            bus.Send(createAccountCommand);
+            var id = Guid.NewGuid();
+
+            var query = new GetAccountInfo { AccountId = accountId };
+            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+
+            var command = new CreatePurchaseCommand
+            {
+                AggregateId = id,
+                AccountId = accountId,
+                Amount = 100,
+                Currency = "GBP",
+                Payee = "Payee"
+            };
+            bus.Send(command);
+
+            Assert.Equal(command.Amount, queryHandler.Handle(query).Balance);
+
+            var navigator = container.GetInstance<ITimeNavigator>();
+            navigator.Reset();
+
+            var accountInfo = queryHandler.Handle(query);
+            Assert.Equal(200, accountInfo.Balance);
+        }
+
+        [Fact]
+        public void CanReplayEventsUpToPointInPast()
+        {
+            var container = CreateContainer(nameof(CanReplayEventsUpToPointInPast));
 
             var accountId = Guid.NewGuid();
             var createAccountCommand = new CreateAccountCommand

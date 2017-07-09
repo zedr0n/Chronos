@@ -1,4 +1,6 @@
-﻿namespace Chronos.Infrastructure.Commands
+﻿using System.Diagnostics;
+
+namespace Chronos.Infrastructure.Commands
 {
     public class CommandBus : ICommandBus
     {
@@ -12,6 +14,7 @@
         public void Send<T>(T command) where T : ICommand
         {
             var handler = _registry.GetHandler<T>();
+            Debug.WriteLine(command.GetType().Name + "! -> " + handler?.GetType().Name);
             handler?.Handle(command);
         }
     }
