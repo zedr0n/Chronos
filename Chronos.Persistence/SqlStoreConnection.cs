@@ -90,9 +90,18 @@ namespace Chronos.Persistence
                 var stream = OpenStreamForWriting(context, streamName);
                 //context.StopLogging();
 
-                if (stream.Version != expectedVersion)
+                if (stream.Version < expectedVersion)
                     throw new InvalidOperationException("Stream version is not consistent with events : "
-                                                         + stream.Version + " != " + expectedVersion);
+                                                         + stream.Version + " < " + expectedVersion);
+                if (stream.Version > expectedVersion)
+                {
+                    // check event numbers to see if we are trying to write a past event again
+                    var futureEvents = ReadStreamEventsForward(streamName, expectedVersion,enumerable.Count()).ToList();
+                    var futureEventIds = futureEvents.Select(e => e.EventNumber);
+                    if(!enumerable.SequenceEqual(futureEvents))
+                        throw new InvalidOperationException("Trying to change past for stream : "
+                                                            + stream.Version + " > " + expectedVersion);
+                }
 
                 TimestampEvents(enumerable);
                 var eventsDto = enumerable.Select(Serialize).ToList();
@@ -157,14 +166,17 @@ namespace Chronos.Persistence
         public IEnumerable<IEvent> GetAllEvents()
         {
             using (var context = _eventDb.GetContext())
-            {
+            {               
                 var events = new List<IEvent>();
                 foreach (var stream in context.Set<Stream>().Include(x => x.Events).AsEnumerable())
                     events.AddRange(stream.Events.Select(Deserialize));
 
+                var uniqueEvents = events.OrderBy(e => e.Timestamp).Distinct();
+
+
                 //var events = context.Entry(stream).Collection(x => x.Events).Query().Skip((int)start - 1).Take(count);
 
-                return events;
+                return uniqueEvents;
             }
 
         }
