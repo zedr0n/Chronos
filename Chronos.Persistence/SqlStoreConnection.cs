@@ -91,7 +91,8 @@ namespace Chronos.Persistence
                 //context.StopLogging();
 
                 if (stream.Version != expectedVersion)
-                    throw new InvalidOperationException("Stream version is not consistent with events");
+                    throw new InvalidOperationException("Stream version is not consistent with events : "
+                                                         + stream.Version + " != " + expectedVersion);
 
                 TimestampEvents(enumerable);
                 var eventsDto = enumerable.Select(Serialize).ToList();
