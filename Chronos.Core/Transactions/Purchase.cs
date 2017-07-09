@@ -19,6 +19,7 @@ namespace Chronos.Core.Transactions
         {
             RaiseEvent(new PurchaseCreated
             {
+                SourceId = id,
                 AccountId = accountId,
                 Payee = info.Payee,
                 Ccy = info.Currency,

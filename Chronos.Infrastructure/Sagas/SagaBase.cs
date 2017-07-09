@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Events;
 
 namespace Chronos.Infrastructure.Sagas
@@ -8,9 +8,12 @@ namespace Chronos.Infrastructure.Sagas
     public abstract class SagaBase : ISaga, IConsumer
     {
         public Guid SagaId { get; }
+        public int Version { get; private set; }
 
-        protected readonly List<IEvent> PendingEvents = new List<IEvent>();
-        protected readonly List<IEvent> UndispatchedMessages = new List<IEvent>();
+        private readonly List<IEvent> _uncommitedEvents = new List<IEvent>();
+        private readonly List<IMessage> _undispatchedMessages = new List<IMessage>();
+        public IEnumerable<IEvent> UncommitedEvents => _uncommitedEvents;
+        public IEnumerable<IMessage> UndispatchedMessages => _undispatchedMessages;
 
         protected SagaBase(Guid sagaId)
         {
@@ -25,30 +28,33 @@ namespace Chronos.Infrastructure.Sagas
 
         private void LoadFrom(IEnumerable<IEvent> pastEvents)
         {
+            Version = 0;
             foreach (var e in pastEvents)
             {
-                this.Dispatch(e);
+                if (this.Dispatch(e))
+                    Version++;
             }
-        }
-
-        public IEnumerable<IEvent> GetUncommittedEvents()
-        {
-            return PendingEvents;
         }
 
         public void ClearUncommittedEvents()
         {
-            PendingEvents.Clear();
-        }
-
-        public IEnumerable<IEvent> GetUndispatchedMessages()
-        {
-            return UndispatchedMessages;
+            Version += _uncommitedEvents.Count;
+            _uncommitedEvents.Clear();
         }
 
         public void ClearUndispatchedMessages()
         {
-            UndispatchedMessages.Clear();
+            _undispatchedMessages.Clear();
+        }
+
+        protected void When(IEvent e)
+        {
+            _uncommitedEvents.Add(e);
+        }
+
+        protected void SendMessage(IMessage m)
+        {
+            _undispatchedMessages.Add(m);
         }
     }
 }

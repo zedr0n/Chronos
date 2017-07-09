@@ -2,7 +2,7 @@
 
 namespace Chronos.Infrastructure.Commands
 {
-    public interface ICommand
+    public interface ICommand : IMessage
     {
         Guid AggregateId { get; set; }
     }

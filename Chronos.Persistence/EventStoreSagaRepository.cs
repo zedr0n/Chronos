@@ -2,7 +2,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Chronos.Infrastructure;
+using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Misc;
 using Chronos.Infrastructure.Sagas;
@@ -13,25 +15,31 @@ namespace Chronos.Persistence
     public class EventStoreSagaRepository : ISagaRepository
     {
         private readonly IEventBus _eventBus;
-        private readonly IEventDb _eventDb;
+        private readonly ICommandBus _commandBus;
         private readonly IEventStoreConnection _connection;
 
-        public EventStoreSagaRepository(IEventBus eventBus, IEventDb eventDb, IEventStoreConnection connection)
+        public EventStoreSagaRepository(IEventBus eventBus, IEventStoreConnection connection, ICommandBus commandBus)
         {
             _eventBus = eventBus;
-            _eventDb = eventDb;
             _connection = connection;
+            _commandBus = commandBus;
         }
 
         public void Save<T>(T saga) where T : ISaga
         {
-            var events = saga.GetUncommittedEvents().ToList();
+            var events = saga.UncommitedEvents.ToList();
 
             var streamName = StreamExtensions.StreamName<T>(saga.SagaId);
-            _connection.AppendToStream(streamName,0,events);
+            var expectedVersion = saga.Version - events.Count;
+            _connection.AppendToStream(streamName,expectedVersion,events);
 
-            foreach (dynamic e in saga.GetUndispatchedMessages())
-                _eventBus.Publish(e);
+            foreach (var e in saga.UndispatchedMessages)
+            {
+                if(typeof(ICommand).GetTypeInfo().IsAssignableFrom(e.GetType().GetTypeInfo()))
+                    _commandBus.Send((dynamic) e);
+                else
+                    _eventBus.Publish((dynamic) e);
+            }
 
             saga.ClearUncommittedEvents();
             saga.ClearUndispatchedMessages();
@@ -59,11 +67,6 @@ namespace Chronos.Persistence
             if(saga == null)
                 throw new InvalidOperationException("No saga with such id exists");
             return saga;
-        }
-
-        public void Replay<T>(Instant date) where T : ISaga
-        {
-            throw new NotImplementedException();
         }
     }
 }

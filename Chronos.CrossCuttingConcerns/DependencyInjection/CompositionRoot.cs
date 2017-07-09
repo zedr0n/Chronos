@@ -1,12 +1,14 @@
 ﻿using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Accounts.Queries;
+using Chronos.Core.Sagas;
 using Chronos.Core.Transactions.Commands;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Projections;
 using Chronos.Infrastructure.Queries;
+using Chronos.Infrastructure.Sagas;
 using Chronos.Persistence;
 using Chronos.Persistence.Serialization;
 using SimpleInjector;
@@ -27,12 +29,16 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<IEventDb, EventDb>(Lifestyle.Singleton);
             container.Register<IEventStoreConnection,SqlStoreConnection>(Lifestyle.Singleton);
             container.Register<IDomainRepository,EventStoreDomainRepository>(Lifestyle.Singleton);
+            container.Register<ISagaRepository,EventStoreSagaRepository>(Lifestyle.Singleton);
             container.Register<IProjectionRepository,ProjectionRepository>(Lifestyle.Singleton);
             container.Register<IProjectionManager,ProjectionManager>(Lifestyle.Singleton);
             //container.Register(typeof(IProjectionWriter<>),typeof(ProjectionWriter<>),Lifestyle.Singleton);
             container.Register<IProjectorRepository,ProjectorRepository>(Lifestyle.Singleton);
             container.Register<ITimeline,Timeline>(Lifestyle.Singleton);
             container.Register<ITimeNavigator, TimeNavigator>(Lifestyle.Singleton);
+            container.Register<ICommandRegistry,CommandRegistry>(Lifestyle.Singleton);
+            container.Register<ICommandBus, CommandBus>(Lifestyle.Singleton);
+            container.Register<ISagaManager,SagaManager>(Lifestyle.Singleton);
 
             // register commands and queries
             /*var handlerRegistrations = Assembly.Load(new AssemblyName(nameof(Chronos.Core)))

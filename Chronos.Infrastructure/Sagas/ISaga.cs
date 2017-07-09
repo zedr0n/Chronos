@@ -7,11 +7,12 @@ namespace Chronos.Infrastructure.Sagas
     public interface ISaga
     {
         Guid SagaId { get; }
+        int Version { get; }
 
-        IEnumerable<IEvent> GetUncommittedEvents();
+        IEnumerable<IEvent> UncommitedEvents { get; }
         void ClearUncommittedEvents();
 
-        IEnumerable<IEvent> GetUndispatchedMessages();
+        IEnumerable<IMessage> UndispatchedMessages { get; }
         void ClearUndispatchedMessages();
     }
 }

@@ -10,7 +10,7 @@ namespace Chronos.Infrastructure
         /// Saves the saga events to event store and publish those to event bus
         /// </summary>
         /// <param name="aggregate">The saga instance</param>
-        void Save<T>(T aggregate) where T : ISaga;
+        void Save<T>(T saga) where T : ISaga;
         /// <summary>
         /// Rebuild the aggregate from event history extracted from Event Store
         /// </summary>
@@ -25,11 +25,5 @@ namespace Chronos.Infrastructure
         /// <param name="id">The aggregate guid</param>
         /// <returns></returns>
         T Get<T>(Guid id) where T : ISaga;
-        /// <summary>
-        /// Replay all the events up to date relating to this saga
-        /// </summary>
-        /// <param name="date"></param>
-        void Replay<T>(Instant date) where T : ISaga;
-
     }
 }

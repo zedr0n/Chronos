@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using Chronos.Core.Accounts;
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
@@ -29,8 +30,8 @@ namespace Chronos.Tests
 
             var container = CreateContainer(nameof(CanCreateAccount));
 
-            var handler = container.GetInstance<ICommandHandler<CreateAccountCommand>>();
-            handler.Handle(command);
+            var bus = container.GetInstance<ICommandBus>();
+            bus.Send(command);
 
             var repository = container.GetInstance<IDomainRepository>();
             repository.Get<Account>(id);
@@ -48,10 +49,8 @@ namespace Chronos.Tests
             };
 
             var container = CreateContainer(nameof(CanProjectAccountInfo));
-            container.GetInstance<AccountInfoProjector>();
-
-            var handler = container.GetInstance<ICommandHandler<CreateAccountCommand>>();
-            handler.Handle(command);
+            var bus = container.GetInstance<ICommandBus>();
+            bus.Send(command);
 
             var query = new GetAccountInfo { AccountId = id };
 
@@ -89,11 +88,9 @@ namespace Chronos.Tests
             };
 
             var container = CreateContainer(nameof(CanProjectAccountInfo));
-            container.GetInstance<AccountInfoProjector>();
-
-            var handler = container.GetInstance<ICommandHandler<CreateAccountCommand>>();
-            handler.Handle(command);
-
+            var bus = container.GetInstance<ICommandBus>();
+            bus.Send(command);
+            
             var query = new GetAccountInfo {AccountId = id};
             var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
             var accountInfo = queryHandler.Handle(query);
@@ -106,7 +103,7 @@ namespace Chronos.Tests
                 Name = "OtherAccount",
                 Currency = "GBP"
             };
-            container.GetInstance<ICommandHandler<ChangeAccountCommand>>().Handle(changeCommand);
+            bus.Send(changeCommand);
 
             var nextAccountInfo = queryHandler.Handle(query);
             Assert.Equal("OtherAccount",nextAccountInfo.Name);
@@ -124,9 +121,8 @@ namespace Chronos.Tests
             };
 
             var container = CreateContainer(nameof(CanCreatePurchase));
-
-            var handler = container.GetInstance<ICommandHandler<CreateAccountCommand>>();
-            handler.Handle(createAccountCommand);
+            var bus = container.GetInstance<ICommandBus>();
+            bus.Send(createAccountCommand);
 
             var id = Guid.NewGuid();
 
@@ -138,14 +134,10 @@ namespace Chronos.Tests
                 Currency = "GBP",
                 Payee = "Payee"
             };
-
-            var handler2 = container.GetInstance<ICommandHandler<CreatePurchaseCommand>>();
-            handler2.Handle(command);
+            bus.Send(command);
 
             var repository = container.GetInstance<IDomainRepository>();
             var purchase = repository.Find<Purchase>(id);
-
-            container.GetInstance<AccountInfoProjector>();
 
             var query = new GetAccountInfo { AccountId = accountId };
 
@@ -168,11 +160,9 @@ namespace Chronos.Tests
             };
 
             var container = CreateContainer(nameof(CanProjectAccountInfo));
-            container.GetInstance<AccountInfoProjector>();
-
-            var handler = container.GetInstance<ICommandHandler<CreateAccountCommand>>();
-            handler.Handle(createAccountCommand);
-
+            var bus = container.GetInstance<ICommandBus>();
+            bus.Send(createAccountCommand);
+    
             var query = new GetAccountInfo { AccountId = accountId };
 
             var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
@@ -198,10 +188,9 @@ namespace Chronos.Tests
             };
 
             var container = CreateContainer(nameof(CanProjectAccountInfo));
-            container.GetInstance<AccountInfoProjector>();
+            var bus = container.GetInstance<ICommandBus>();
+            bus.Send(createAccountCommand);    
 
-            var handler = container.GetInstance<ICommandHandler<CreateAccountCommand>>();
-            handler.Handle(createAccountCommand);
             var id = Guid.NewGuid();
 
             var acountCreationTime = Clock.GetCurrentInstant();
@@ -215,9 +204,7 @@ namespace Chronos.Tests
                 Payee = "Payee"
             };
 
-            var handler2 = container.GetInstance<ICommandHandler<CreatePurchaseCommand>>();
-            handler2.Handle(command);
-
+            bus.Send(command);
             var baseQuery = new GetAccountInfo { AccountId = accountId, AsOf = acountCreationTime};
             var query = new GetAccountInfo { AccountId = accountId };
 
@@ -246,8 +233,8 @@ namespace Chronos.Tests
                 Name = "Account"
             };
 
-            var handler = container.GetInstance<ICommandHandler<CreateAccountCommand>>();
-            handler.Handle(command);
+            var bus = container.GetInstance<ICommandBus>();
+            bus.Send(command);
 
             var query = new GetAccountInfo { AccountId = id };
 
@@ -272,8 +259,8 @@ namespace Chronos.Tests
 
             container.GetInstance<AccountInfoProjector>();
 
-            var handler = container.GetInstance<ICommandHandler<CreateAccountCommand>>();
-            handler.Handle(createAccountCommand);
+            var bus = container.GetInstance<ICommandBus>();
+            bus.Send(createAccountCommand);
             var id = Guid.NewGuid();
 
             var query = new GetAccountInfo { AccountId = accountId };
@@ -288,8 +275,7 @@ namespace Chronos.Tests
                 Currency = "GBP",
                 Payee = "Payee"
             };
-            var handler2 = container.GetInstance<ICommandHandler<CreatePurchaseCommand>>();
-            handler2.Handle(command);
+            bus.Send(command);
 
             Assert.Equal(command.Amount, queryHandler.Handle(query).Balance);
 

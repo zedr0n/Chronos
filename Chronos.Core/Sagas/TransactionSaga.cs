@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Events;
 using Chronos.Core.Transactions.Events;
-using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Sagas;
 using Stateless;
@@ -24,53 +25,42 @@ namespace Chronos.Core.Sagas
         }
 
         private readonly StateMachine<STATE, TRIGGER> _stateMachine;
-        private readonly ISagaRepository _repository;
 
         private double _amount;
+        private bool _purchaseCreated;
         private Guid _accountId;
 
-        public TransactionSaga(Guid id, ISagaRepository repository) : base(id)
+        public TransactionSaga(Guid id) : base(id)
         {
-            _repository = repository;
             _stateMachine = new StateMachine<STATE, TRIGGER>(STATE.OPEN);
 
             _stateMachine.Configure(STATE.OPEN)
-                .Permit(TRIGGER.TRANSACTION_CREATED, STATE.SCHEDULED);
-
-            _stateMachine.Configure(STATE.SCHEDULED)
-                .OnEntry(Schedule)
-                .Permit(TRIGGER.TRANSACTION_DUE, STATE.COMPLETED);
+                .PermitIf(TRIGGER.TRANSACTION_CREATED, STATE.COMPLETED, () => _purchaseCreated);
 
             _stateMachine.Configure(STATE.COMPLETED)
                 .OnEntry(DebitAccount);
         }
 
+        public TransactionSaga(Guid id, IEnumerable<IEvent> pastEvents)
+            : base(id,pastEvents) { }
+
         private void DebitAccount()
         {
-
+            SendMessage(new DebitAmountCommand
+            {
+                AggregateId = _accountId,
+                Amount = _amount
+            });
         }
 
         public void When(PurchaseCreated e)
         {
-            var sagaId = e.SourceId;
-            var saga = _repository.Get<TransactionSaga>(sagaId);
-            saga.Transition(e);
-            _repository.Save(saga);
-        }
-
-        private void Schedule()
-        {
-            _stateMachine.Fire(TRIGGER.TRANSACTION_DUE);
-        }
-
-        private void Transition(PurchaseCreated e)
-        {
             _amount = e.Amount;
+            _purchaseCreated = true;
             _accountId = e.AccountId;
 
             _stateMachine.Fire(TRIGGER.TRANSACTION_CREATED);
-
-            PendingEvents.Add(e);
+            base.When(e);
         }
     }
 }
