@@ -89,7 +89,8 @@ namespace Chronos.Persistence
         {
             // the events should be resorted by timestamp as we might have modified the past
             var events = _connection.GetAllEvents().Where(e => e.Timestamp.CompareTo(date) <= 0).ToList()
-                .OrderBy(e => e.Timestamp);
+                .OrderBy(e => e.Timestamp)
+                .ThenBy(e => e.EventNumber);          
 
             _eventBus.Publish(new ReplayStarted());
 
