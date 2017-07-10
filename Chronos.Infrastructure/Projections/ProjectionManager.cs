@@ -11,12 +11,14 @@ namespace Chronos.Infrastructure.Projections
         private readonly IEventStoreConnection _connection;
         private readonly IProjectionRepository _projectionRepository;
         private readonly IProjectorRepository _projectorRepository;
+        private readonly IDebugLog _debugLog;
 
-        public ProjectionManager(IEventStoreConnection connection, IProjectionRepository projectionRepository, IProjectorRepository projectorRepository)
+        public ProjectionManager(IEventStoreConnection connection, IProjectionRepository projectionRepository, IProjectorRepository projectorRepository, IDebugLog debugLog)
         {
             _connection = connection;
             _projectionRepository = projectionRepository;
             _projectorRepository = projectorRepository;
+            _debugLog = debugLog;
         }
 
         public void Rebuild<T>(Func<T, bool> criteria) where T : class, IProjection
@@ -38,7 +40,10 @@ namespace Chronos.Infrastructure.Projections
             var projector = _projectorRepository.Get(typeof(T));
 
             foreach (var e in events)
-                projector.Dispatch(e);
+            {
+                if(projector.Dispatch(e))
+                    _debugLog.WriteLine("Rebuilding projection " + typeof(T).Name + " : " + e.GetType().Name);
+            }
         }
 
         public void RegisterJuncture<T>(Func<T, bool> criteria, Instant time)

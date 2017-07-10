@@ -200,7 +200,17 @@ namespace Chronos.Tests
 
             var container = CreateContainer(nameof(CanProjectAccountInfo));
             var bus = container.GetInstance<ICommandBus>();
+
+            var createPurchaseCommand = new CreatePurchaseCommand
+            {
+                AggregateId = Guid.NewGuid(),
+                AccountId = accountId,
+                Amount = 100,
+                Currency = "GBP",
+                Payee = "Payee"
+            };
             bus.Send(createAccountCommand);
+            bus.Send(createPurchaseCommand);
     
             var query = new GetAccountInfo { AccountId = accountId };
 
