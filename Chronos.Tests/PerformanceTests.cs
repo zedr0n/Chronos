@@ -3,6 +3,7 @@ using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Transactions.Commands;
 using Chronos.Infrastructure.Commands;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Chronos.Tests
 {
@@ -40,6 +41,10 @@ namespace Chronos.Tests
 
                 handler2.Handle(command);
             }
+        }
+
+        public PerformanceTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

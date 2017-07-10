@@ -13,6 +13,7 @@ using Chronos.Infrastructure.Projections;
 using Chronos.Infrastructure.Queries;
 using NodaTime;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Chronos.Tests
 {
@@ -451,5 +452,8 @@ namespace Chronos.Tests
             waitHandle.WaitOne();
         }
 
+        public IntegrationTests(ITestOutputHelper output) : base(output)
+        {
+        }
     }
 }
