@@ -5,6 +5,8 @@
     <Name>Chronos.Core</Name>
     <Name>Chronos.Infrastructure</Name>
     <Name>Chronos.Persistence</Name>
+    <Name>Chronos.CrossCuttingConcerns</Name>
+    <Name>Chronos.Tests</Name>
   </Assemblies>
   <FrameworkAssemblies>
     <Name>System.Runtime</Name>
@@ -31,6 +33,10 @@
     <Name>System.IO.FileSystem</Name>
     <Name>Stateless</Name>
     <Name>System.Threading.Timer</Name>
+    <Name>SimpleInjector</Name>
+    <Name>xunit.abstractions</Name>
+    <Name>xunit.core</Name>
+    <Name>xunit.assert</Name>
   </FrameworkAssemblies>
   <Dirs>
     <Dir>C:\WINDOWS\Microsoft.NET\Framework\v4.0.30319</Dir>
@@ -38,6 +44,8 @@
     <Dir>$(NdProjectDir)\Chronos.Core\bin\debug\netstandard1.4</Dir>
     <Dir>$(NdProjectDir)\Chronos.Infrastructure\bin\debug\netstandard1.4</Dir>
     <Dir>$(NdProjectDir)\Chronos.Persistence\bin\debug\netstandard1.4</Dir>
+    <Dir>$(NdProjectDir)\Chronos.CrossCuttingConcerns\bin\Debug\netstandard1.4</Dir>
+    <Dir>$(NdProjectDir)\Chronos.Tests\bin\Debug\netcoreapp1.1</Dir>
   </Dirs>
   <MergeCodeGeneratedByCompiler>True</MergeCodeGeneratedByCompiler>
   <Report Kind="0" SectionsEnabled="110591" XslPath="" Flags="261120" />
