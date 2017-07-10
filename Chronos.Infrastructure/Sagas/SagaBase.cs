@@ -4,7 +4,7 @@ using Chronos.Infrastructure.Events;
 
 namespace Chronos.Infrastructure.Sagas
 {
-    public abstract class SagaBase : ISaga, IConsumer
+    public abstract class SagaBase : ISaga, IConsumer<SagaCompleted>
     {
         public Guid SagaId { get; }
         public int Version { get; private set; }
@@ -35,9 +35,10 @@ namespace Chronos.Infrastructure.Sagas
         /// <summary>
         /// If the saga is in completed state there's no need to dispatch messages anymore
         /// </summary>
-        protected void OnCompletion()
+        public void When(SagaCompleted e)
         {
-            ClearUndispatchedMessages();
+            if(e.SourceId == SagaId)
+                ClearUndispatchedMessages();
         }
 
         private void LoadFrom(IEnumerable<IEvent> pastEvents)

@@ -11,26 +11,24 @@ using Stateless;
 namespace Chronos.Core.Sagas
 {
     public class TransactionSaga : SagaBase,
-        IConsumer<PurchaseCreated>,
-        IConsumer<SagaCompleted>
-    {
+        IConsumer<PurchaseCreated>
+        {
         private enum STATE
         {
             OPEN,
-            SCHEDULED,
             COMPLETED
         }
 
         private enum TRIGGER
         {
-            TRANSACTION_CREATED,
-            TRANSACTION_DUE
+            TRANSACTION_CREATED
         }
 
         private StateMachine<STATE, TRIGGER> StateMachine {
             get
             {
-                ConfigureStateMachine();
+                if(_stateMachine == null)
+                    ConfigureStateMachine();
                 return _stateMachine;
             }   
         }
@@ -43,9 +41,6 @@ namespace Chronos.Core.Sagas
         protected override bool IsComplete() => StateMachine.IsInState(STATE.COMPLETED);
         private void ConfigureStateMachine()
         {
-            if (_stateMachine != null)
-                return;
-
             _stateMachine = new StateMachine<STATE, TRIGGER>(STATE.OPEN);
 
             _stateMachine.Configure(STATE.OPEN)
@@ -73,11 +68,6 @@ namespace Chronos.Core.Sagas
             });
         }
 
-        public void When(SagaCompleted e)
-        {
-            OnCompletion();
-        }
-
         public void When(PurchaseCreated e)
         {
             if(!base.When(e))
@@ -89,7 +79,5 @@ namespace Chronos.Core.Sagas
 
             StateMachine.Fire(TRIGGER.TRANSACTION_CREATED);
         }
-
-
     }
 }

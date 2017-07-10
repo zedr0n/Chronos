@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Chronos.Core.Accounts;
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
@@ -364,6 +365,45 @@ namespace Chronos.Tests
             Assert.Equal(0,accountInfo.Balance);
 
             navigator.Reset();
+        }
+
+        [Fact]
+        public void CanScheduleCommand()
+        {
+            var id = Guid.NewGuid();
+            var command = new CreateAccountCommand
+            {
+                AggregateId = id,
+                Currency = "GBP",
+                Name = "Account"
+            };
+
+            var scheduledOn = Clock.GetCurrentInstant().Plus(Duration.FromSeconds(0.5));
+
+            var scheduleCommand = new ScheduleCommand
+            {
+                AggregateId = id,
+                Command = command,
+                Date = scheduledOn
+            };
+
+            var container = CreateContainer(nameof(CanScheduleCommand));
+            var repository = container.GetInstance<IDomainRepository>();
+            var bus = container.GetInstance<ICommandBus>();
+            bus.Send(scheduleCommand);
+
+            Assert.Throws<InvalidOperationException>(() => repository.Get<Account>(id));
+
+            var waitHandle = new ManualResetEvent(false);
+            var timer = new Timer(obj =>
+            {
+                if (repository.Find<Account>(id) != null)
+                    waitHandle.Set();
+            } , null, 500,500);
+
+            waitHandle.WaitOne();
+
+            repository.Get<Account>(id);
         }
     }
 }

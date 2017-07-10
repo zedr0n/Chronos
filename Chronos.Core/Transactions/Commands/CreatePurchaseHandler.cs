@@ -5,7 +5,7 @@ using NodaTime;
 
 namespace Chronos.Core.Transactions.Commands
 {
-    public class CreatePurchaseHandler : ICommandHandler<Commands.CreatePurchaseCommand>
+    public class CreatePurchaseHandler : ICommandHandler<CreatePurchaseCommand>
     {
         private readonly IDomainRepository _domainRepository;
 

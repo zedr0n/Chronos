@@ -1,6 +1,5 @@
 ﻿using System;
 using Chronos.Infrastructure.Events;
-using NodaTime;
 
 namespace Chronos.Core.Transactions.Events
 {
@@ -11,6 +10,5 @@ namespace Chronos.Core.Transactions.Events
         public string Payee { get; set; }
         public double Amount { get; set; }
         public string Ccy { get; set; }
-        public Instant Date { get; set; }
     }
 }

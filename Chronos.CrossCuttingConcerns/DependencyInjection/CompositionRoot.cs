@@ -39,6 +39,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<ICommandRegistry,CommandRegistry>(Lifestyle.Singleton);
             container.Register<ICommandBus, CommandBus>(Lifestyle.Singleton);
             container.Register<ISagaManager,SagaManager>(Lifestyle.Singleton);
+            container.Register<ITimerService,TimerService>(Lifestyle.Singleton);
 
             // register commands and queries
             /*var handlerRegistrations = Assembly.Load(new AssemblyName(nameof(Chronos.Core)))
@@ -56,6 +57,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<ICommandHandler<ChangeAccountCommand>, ChangeAccountHandler>(Lifestyle.Singleton);
             container.Register<ICommandHandler<DebitAmountCommand>, DebitAmountHandler>(Lifestyle.Singleton);
             container.Register<ICommandHandler<CreatePurchaseCommand>, CreatePurchaseHandler>(Lifestyle.Singleton);
+            container.Register<ICommandHandler<ScheduleCommand>,ScheduleCommandHandler>(Lifestyle.Singleton);
             container.Register<IQueryHandler<GetAccountInfo,AccountInfo>,GetAccountInfoHandler>(Lifestyle.Singleton);
 
             container.Register<IProjector<AccountInfo>,AccountInfoProjector>(Lifestyle.Singleton);
