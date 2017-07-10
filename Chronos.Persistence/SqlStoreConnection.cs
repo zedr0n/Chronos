@@ -57,7 +57,7 @@ namespace Chronos.Persistence
                 stream = new Stream
                 {
                     Name = streamName,
-                    Version = -1
+                    Version = 0
                 };
                 context.Set<Stream>().Add(stream);
             }
@@ -98,7 +98,7 @@ namespace Chronos.Persistence
                     // check event numbers to see if we are trying to write a past event again
                     var futureEvents = ReadStreamEventsForward(streamName, expectedVersion,enumerable.Count()).ToList();
                     var futureEventIds = futureEvents.Select(e => e.EventNumber);
-                    if(!enumerable.SequenceEqual(futureEvents))
+                    if(!enumerable.Select(e => e.EventNumber).SequenceEqual(futureEventIds))
                         throw new InvalidOperationException("Trying to change past for stream : "
                                                             + stream.Version + " > " + expectedVersion);
                 }

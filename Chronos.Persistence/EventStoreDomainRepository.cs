@@ -37,9 +37,9 @@ namespace Chronos.Persistence
             var events = aggregate.UncommitedEvents.ToList();
             if (!events.Any())
                 return;
-            var expectedVersion = aggregate.ExpectedVersion(events);
+            //var expectedVersion = aggregate.ExpectedVersion(events);
 
-            _connection.AppendToStream(aggregate.StreamName(), expectedVersion, events);
+            _connection.AppendToStream(aggregate.StreamName(), aggregate.Version, events);
             _lastAggregates[typeof(T)] = aggregate;
 
             aggregate.ClearUncommitedEvents();
@@ -54,7 +54,7 @@ namespace Chronos.Persistence
                 return (T) _lastAggregates[typeof(T)];
 
             var streamName = StreamExtensions.StreamName<T>(id);
-            var events = _connection.ReadStreamEventsForward(streamName, 0, int.MaxValue).AsCachedAnyEnumerable();
+            var events = _connection.ReadStreamEventsForward(streamName, 0, int.MaxValue).ToList();
 
             if (events.Any())
             {

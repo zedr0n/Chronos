@@ -26,12 +26,6 @@ namespace Chronos.Persistence
             _commandBus = commandBus;
         }
 
-        private static int ExpectedVersion<T>(T saga, IEnumerable<IEvent> events) where T : ISaga
-        {
-            var expectedVersion = saga.Version - events.Count();
-            return expectedVersion < 0 ? -1 : expectedVersion;
-        } 
-
         public void Save<T>(T saga) where T : ISaga
         {
             var events = saga.UncommitedEvents.ToList();
@@ -39,8 +33,7 @@ namespace Chronos.Persistence
                 return;
 
             var streamName = StreamExtensions.StreamName<T>(saga.SagaId);
-            var expectedVersion = ExpectedVersion(saga, events);
-            _connection.AppendToStream(streamName,expectedVersion,events);
+            _connection.AppendToStream(streamName,saga.Version,events);
 
             foreach (var e in saga.UndispatchedMessages)
             {
@@ -57,7 +50,7 @@ namespace Chronos.Persistence
         public T Find<T>(Guid id) where T : ISaga
         {
             var streamName = StreamExtensions.StreamName<T>(id);
-            var events = _connection.ReadStreamEventsForward(streamName, 0, int.MaxValue).AsCachedAnyEnumerable();
+            var events = _connection.ReadStreamEventsForward(streamName, 0, int.MaxValue).ToList();
 
             if (events.Any())
             {
