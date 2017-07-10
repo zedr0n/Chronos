@@ -15,11 +15,10 @@ namespace Chronos.Core.Transactions.Commands
 
         public void Handle(ScheduleCommand command)
         {
-            var guid = Guid.NewGuid();
             _eventBus.Publish(new CommandScheduled
             {
-                SourceId = guid,
-                ScheduleId = guid,
+                SourceId = command.ScheduleId,
+                ScheduleId = command.ScheduleId,
                 Command = command.Command,
                 Time = command.Date
             });

@@ -92,12 +92,12 @@ namespace Chronos.Persistence
                 .OrderBy(e => e.Timestamp)
                 .ThenBy(e => e.EventNumber);          
 
-            _eventBus.Publish(new ReplayStarted());
-
-            foreach(dynamic e in events)
+            foreach (dynamic e in events)
+            {
+                e.Replaying = true;
                 _eventBus.Publish(e);
-
-            _eventBus.Publish(new ReplayFinished());
+                e.Replaying = false;
+            }
         }
     }
 }

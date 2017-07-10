@@ -5,5 +5,6 @@ namespace Chronos.Infrastructure
 {
     public interface ITimerService : IConsumer<TimeoutRequested>
     {
+        void Reset();
     }
 }

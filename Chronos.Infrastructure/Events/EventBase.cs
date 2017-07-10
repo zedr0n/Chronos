@@ -8,5 +8,6 @@ namespace Chronos.Infrastructure.Events
         public Guid SourceId { get; set; }
         public Instant Timestamp { get; set; }
         public int EventNumber { get; set; } = -1;
+        public bool Replaying { get; set; } = false;
     }
 }

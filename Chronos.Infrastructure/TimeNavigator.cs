@@ -7,11 +7,13 @@ namespace Chronos.Infrastructure
     {
         private readonly IDomainRepository _domainRepository;
         private readonly ITimeline _timeline;
+        private readonly ITimerService _timerService;
 
-        public TimeNavigator(ITimeline timeline, IDomainRepository domainRepository)
+        public TimeNavigator(ITimeline timeline, IDomainRepository domainRepository, ITimerService timerService)
         {
             _timeline = timeline;
             _domainRepository = domainRepository;
+            _timerService = timerService;
         }
 
         private void Replay(Instant date)
@@ -21,12 +23,14 @@ namespace Chronos.Infrastructure
 
         public void GoTo(Instant date)
         {
+            _timerService.Reset();
             _timeline.Set(date);
             Replay(date);
         }
 
         public void Reset()
         {
+            _timerService.Reset();
             _timeline.Reset();
             Replay(_timeline.Now());
         }

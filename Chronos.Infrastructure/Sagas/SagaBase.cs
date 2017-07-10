@@ -66,7 +66,7 @@ namespace Chronos.Infrastructure.Sagas
 
         protected bool When(IEvent e)
         {
-            if (e.SourceId == SagaId && !IsComplete())
+            if (e.SourceId == SagaId && !IsComplete() && !e.Replaying)
             {
                 _uncommitedEvents.Add(e);
                 return true;

@@ -83,9 +83,12 @@ namespace Chronos.Persistence
 
         public void AppendToStream(string streamName, int expectedVersion, IEnumerable<IEvent> events)
         {
+            var enumerable = events as IList<IEvent> ?? events.ToList();
+            if (!enumerable.Any())
+                return;
+
             using (var context = _eventDb.GetContext())
             {
-                var enumerable = events as IList<IEvent> ?? events.ToList();
                 //context.LogToConsole();
                 var stream = OpenStreamForWriting(context, streamName);
                 //context.StopLogging();
@@ -168,15 +171,12 @@ namespace Chronos.Persistence
             using (var context = _eventDb.GetContext())
             {               
                 var events = new List<IEvent>();
-                foreach (var stream in context.Set<Stream>().Include(x => x.Events).AsEnumerable())
+                foreach (var stream in context.Set<Stream>()/*.Where(s => !s.Name.Contains("Saga"))*/.Include(x => x.Events).AsEnumerable())
                     events.AddRange(stream.Events.Select(Deserialize));
-
-                var uniqueEvents = events.OrderBy(e => e.Timestamp).Distinct();
-
 
                 //var events = context.Entry(stream).Collection(x => x.Events).Query().Skip((int)start - 1).Take(count);
 
-                return uniqueEvents;
+                return events;
             }
 
         }

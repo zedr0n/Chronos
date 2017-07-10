@@ -11,8 +11,8 @@ namespace Chronos.Infrastructure
 
         public void Set(Instant date)
         {
-            if(!Live)
-                throw new InvalidOperationException("Timeline is already at historical value");
+            //if(!Live)
+            //    throw new InvalidOperationException("Timeline is already at historical value");
 
             _current = _clock.GetCurrentInstant();
             if(_current.CompareTo(date) <= 0)

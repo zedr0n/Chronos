@@ -4,11 +4,10 @@ using Chronos.Infrastructure.Events;
 
 namespace Chronos.Infrastructure.Projections
 {
-    public abstract class ProjectorBase<T> : IProjector<T>, IConsumer<ReplayStarted>, IConsumer<ReplayFinished>
+    public abstract class ProjectorBase<T> : IProjector<T>
         where T : class,IProjection, new()
     {
         private readonly IProjectionRepository _repository;
-        private bool _replayInProgress;
 
         protected ProjectorBase(IEventBus eventBus, IProjectionRepository repository)
         {
@@ -29,21 +28,11 @@ namespace Chronos.Infrastructure.Projections
             }
 
             // Timestamp and event number need to be in sync. Is that always true?
-            foreach (var p in projections.Where(p => p.LastEvent < e.EventNumber || _replayInProgress))
+            foreach (var p in projections.Where(p => p.LastEvent < e.EventNumber || e.Replaying))
             {
                 action(p);
                 p.LastEvent = e.EventNumber;
             }
-        }
-
-        public void When(ReplayStarted e)
-        {
-            _replayInProgress = true;
-        }
-
-        public void When(ReplayFinished e)
-        {
-            _replayInProgress = false;
         }
     }
 }

@@ -402,8 +402,54 @@ namespace Chronos.Tests
             } , null, 500,500);
 
             waitHandle.WaitOne();
-
-            repository.Get<Account>(id);
         }
+
+        [Fact]
+        public void CanScheduleCommandInHistoricalMode()
+        {
+            var container = CreateContainer(nameof(CanScheduleCommand));
+            var repository = container.GetInstance<IDomainRepository>();
+            var bus = container.GetInstance<ICommandBus>();
+            var timeNavigator = container.GetInstance<ITimeNavigator>();
+            var pastDate = new ZonedDateTime(new LocalDateTime(2017, 07, 08, 0, 0), DateTimeZone.Utc, Offset.Zero).ToInstant();
+            timeNavigator.GoTo(pastDate);
+
+            var id = Guid.NewGuid();
+            var command = new CreateAccountCommand
+            {
+                AggregateId = id,
+                Currency = "GBP",
+                Name = "Account"
+            };
+
+            var scheduledOn = pastDate.Plus(Duration.FromDays(1));
+
+            var scheduleGuid = Guid.NewGuid();
+
+            var scheduleCommand = new ScheduleCommand
+            {
+                ScheduleId = scheduleGuid,
+                Command = command,
+                Date = scheduledOn
+            };
+
+            bus.Send(scheduleCommand);
+
+            timeNavigator.Advance(Duration.FromHours(6));
+
+            Assert.Throws<InvalidOperationException>(() => repository.Get<Account>(id));
+
+            timeNavigator.Advance(Duration.FromDays(1));
+
+            var waitHandle = new ManualResetEvent(false);
+            var timer = new Timer(obj =>
+            {
+                if (repository.Find<Account>(id) != null)
+                    waitHandle.Set();
+            }, null, 500, 500);
+
+            waitHandle.WaitOne();
+        }
+
     }
 }

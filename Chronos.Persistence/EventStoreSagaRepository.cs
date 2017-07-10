@@ -29,8 +29,6 @@ namespace Chronos.Persistence
         public void Save<T>(T saga) where T : ISaga
         {
             var events = saga.UncommitedEvents.ToList();
-            if (!events.Any())
-                return;
 
             var streamName = StreamExtensions.StreamName<T>(saga.SagaId);
             _connection.AppendToStream(streamName,saga.Version,events);

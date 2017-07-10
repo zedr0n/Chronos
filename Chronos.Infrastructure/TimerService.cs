@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Chronos.Infrastructure.Events;
 
@@ -27,10 +28,20 @@ namespace Chronos.Infrastructure
             {
                 if (!_timers.ContainsKey(e.SourceId))
                     return;
-
-                _timers[e.SourceId].Dispose();
-                _timers.Remove(e.SourceId);
+                
+                RemoveTimer(e.SourceId);
                 _eventBus.Publish(new TimeoutCompleted { SourceId = e.SourceId });
+            }
+        }
+
+        private void RemoveTimer(Guid id)
+        {
+            lock (_timers)
+            {
+                if (!_timers.ContainsKey(id))
+                    return;
+                _timers[id].Dispose();
+                _timers.Remove(id);
             }
         }
 
@@ -42,6 +53,15 @@ namespace Chronos.Infrastructure
                     _timers[e.SourceId] = new Timer(obj => CheckTimeout(e) , null, PollingFrequency, PollingFrequency);
                 else
                     throw new InvalidOperationException("Timeout has already been requested for this id");
+            }
+        }
+
+        public void Reset()
+        {
+            lock (_timers)
+            {
+                foreach (var timer in _timers.Keys.ToList())
+                    RemoveTimer(timer);
             }
         }
     }

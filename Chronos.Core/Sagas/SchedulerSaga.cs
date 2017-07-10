@@ -44,6 +44,7 @@ namespace Chronos.Core.Sagas
                 .Permit(TRIGGER.COMMAND_SCHEDULED, STATE.SCHEDULED);
 
             StateMachine.Configure(STATE.SCHEDULED)
+                .Ignore(TRIGGER.COMMAND_SCHEDULED)
                 .Permit(TRIGGER.COMMAND_DUE, STATE.COMPLETED)
                 .OnEntry(RequestTimeout);
 
