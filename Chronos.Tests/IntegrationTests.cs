@@ -286,7 +286,7 @@ namespace Chronos.Tests
         [Fact]
         public void CanReplayEvents()
         {
-            var container = CreateContainer(nameof(CanReplayEventsUpToPointInPast));
+            var container = CreateContainer(nameof(CanReplayEvents));
 
             var accountId = Guid.NewGuid();
             var createAccountCommand = new CreateAccountCommand
@@ -295,8 +295,6 @@ namespace Chronos.Tests
                 Currency = "GBP",
                 Name = "Account"
             };
-
-            container.GetInstance<AccountInfoProjector>();
 
             var bus = container.GetInstance<ICommandBus>();
             bus.Send(createAccountCommand);
@@ -321,7 +319,7 @@ namespace Chronos.Tests
             navigator.Reset();
 
             var accountInfo = queryHandler.Handle(query);
-            Assert.Equal(200, accountInfo.Balance);
+            Assert.Equal(100, accountInfo.Balance);
         }
 
         [Fact]
@@ -336,8 +334,6 @@ namespace Chronos.Tests
                 Currency = "GBP",
                 Name = "Account"
             };
-
-            container.GetInstance<AccountInfoProjector>();
 
             var bus = container.GetInstance<ICommandBus>();
             bus.Send(createAccountCommand);
