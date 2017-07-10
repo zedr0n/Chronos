@@ -131,7 +131,7 @@ namespace Chronos.Persistence
                     var futureEvents = ReadStreamEventsForward(streamName, expectedVersion,events.Count()).ToList();
                     var futureEventIds = futureEvents.Select(e => e.EventNumber);
                     if(!events.Select(e => e.EventNumber).SequenceEqual(futureEventIds))
-                        throw new InvalidOperationException("Trying to change past for stream : "
+                        throw new InvalidOperationException("Trying to change past for stream " + streamName + " : "
                                                             + stream.Version + " > " + expectedVersion);
                 }
 

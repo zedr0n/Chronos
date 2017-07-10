@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Chronos.Infrastructure
+namespace Chronos.Infrastructure.Logging
 {
     public class DebugLog : IDebugLog
     {

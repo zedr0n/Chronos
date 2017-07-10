@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Logging;
 using NodaTime;
 using NodaTime.Text;
 

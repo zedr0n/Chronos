@@ -10,7 +10,7 @@ namespace Chronos.Core.Accounts.Projections
         , IConsumer<AccountChanged>
         , IConsumer<AmountDebited>
     {
-        public AccountInfoProjector(IEventBus eventBus, IProjectionRepository repository, IDebugLog debugLog) : base(eventBus, repository)
+        public AccountInfoProjector(IEventBus eventBus, IProjectionRepository repository) : base(eventBus, repository)
         {
         }
 

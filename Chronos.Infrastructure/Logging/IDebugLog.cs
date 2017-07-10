@@ -1,4 +1,4 @@
-﻿namespace Chronos.Infrastructure
+﻿namespace Chronos.Infrastructure.Logging
 {
     public interface IDebugLog
     {

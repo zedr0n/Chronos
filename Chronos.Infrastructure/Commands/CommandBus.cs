@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Chronos.Infrastructure.Logging;
 
 namespace Chronos.Infrastructure.Commands
 {

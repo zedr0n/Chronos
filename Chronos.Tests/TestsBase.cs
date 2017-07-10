@@ -6,6 +6,7 @@ using Chronos.Infrastructure;
 using NodaTime;
 using SimpleInjector;
 using Xunit.Abstractions;
+using Chronos.Infrastructure.Logging;
 
 namespace Chronos.Tests
 {

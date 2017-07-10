@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure.Sagas
 {

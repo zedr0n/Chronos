@@ -1,4 +1,5 @@
 ﻿using System;
+using Chronos.Infrastructure.Logging;
 using NodaTime;
 using NodaTime.Text;
 

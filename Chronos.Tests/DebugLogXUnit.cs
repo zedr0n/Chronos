@@ -1,4 +1,5 @@
 ﻿using Chronos.Infrastructure;
+using Chronos.Infrastructure.Logging;
 using Xunit.Abstractions;
 
 namespace Chronos.Tests
