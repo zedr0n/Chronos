@@ -8,6 +8,13 @@ namespace Chronos.Infrastructure.Events
     public class EventBus : IEventBus
     {
         private readonly Dictionary<Type, List<object>> _subscribers = new Dictionary<Type, List<object>>();
+        private readonly IDebugLog _debugLog;
+
+        public EventBus(IDebugLog debugLog)
+        {
+            _debugLog = debugLog;
+        }
+
         public void Subscribe<TEvent>(Action<TEvent> handler) where TEvent : IEvent
         {
             if (_subscribers.ContainsKey(typeof(TEvent)))
@@ -42,12 +49,13 @@ namespace Chronos.Infrastructure.Events
             if (_subscribers.ContainsKey(typeof(TEvent)))
             {
                 var handlers = _subscribers[typeof(TEvent)];
-                Debug.WriteLine(e.GetType().Name);
+                _debugLog.WriteLine(e.GetType().Name);
                 foreach (Action<TEvent> handler in handlers.AsReadOnly())
                 {
+                    _debugLog.WriteLine("    " + handler?.Target.GetType().Name);
                     handler?.Invoke(e);
                 }
-                Debug.WriteLine("");
+                _debugLog.WriteLine("");
             }
         }
 

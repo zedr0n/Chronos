@@ -29,13 +29,6 @@ namespace Chronos.Tests
         {
             lock(_lock)
             {
-                TraceListener[] listeners = {
-                    new TextWriterTraceListener(new FileStream("debug.log",FileMode.Append)),
-                    new TextWriterTraceListener(Console.Out)
-                };
-
-                Trace.Listeners.AddRange(listeners);
-
                 var container = new Container();
                 new CompositionRoot().ComposeApplication(container, dbName, false, true);
                 container.Register<IDebugLog,DebugLogXUnit>(Lifestyle.Singleton);
