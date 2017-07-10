@@ -244,6 +244,10 @@ namespace Chronos.Tests
 
             var acountCreationTime = Clock.GetCurrentInstant();
 
+            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var createdAt = queryHandler.Handle(new GetAccountInfo { AccountId = accountId }).CreatedAt;
+
+
             var command = new CreatePurchaseCommand
             {
                 AggregateId = id,
@@ -257,7 +261,6 @@ namespace Chronos.Tests
             var baseQuery = new GetAccountInfo { AccountId = accountId, AsOf = acountCreationTime};
             var query = new GetAccountInfo { AccountId = accountId };
 
-            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
             var baseInfo = queryHandler.Handle(baseQuery);
             var lastInfo = queryHandler.Handle(query);
 
@@ -402,13 +405,16 @@ namespace Chronos.Tests
             Assert.Throws<InvalidOperationException>(() => repository.Get<Account>(id));
 
             var waitHandle = new ManualResetEvent(false);
+            var retries = 0;
             var timer = new Timer(obj =>
             {
-                if (repository.Find<Account>(id) != null)
+                retries++;
+                if (repository.Find<Account>(id) != null || retries > 5)
                     waitHandle.Set();
             } , null, 500,500);
 
             waitHandle.WaitOne();
+            Assert.True(repository.Find<Account>(id) != null);
         }
 
         [Fact]

@@ -81,47 +81,67 @@ namespace Chronos.Persistence
             }
         }
 
-        public void AppendToStream(string streamName, int expectedVersion, IEnumerable<IEvent> events)
+        public void AppendToNull(IEnumerable<IEvent> enumerable)
         {
-            var enumerable = events as IList<IEvent> ?? events.ToList();
-            if (!enumerable.Any())
+            var events = enumerable as IList<IEvent> ?? enumerable.ToList();
+            if (!events.Any())
+                return;
+
+            const string streamName = "Null";
+
+            using (var context = _eventDb.GetContext())
+            {
+                var stream = OpenStreamForWriting(context, streamName);
+                TimestampEvents(events);
+                WriteStream(stream, events);
+
+                context.SaveChanges();
+            }
+        }
+
+        private void WriteStream(Stream stream, IEnumerable<IEvent> events)
+        {
+            var eventsDto = events.Select(Serialize).ToList();
+
+            foreach (var e in eventsDto)
+            {
+                stream.Events.Add(e);
+                stream.Version++;
+                Debug.WriteLine(stream.Name + " : " + e.Payload);
+            }
+            _streamVersions[stream.Name] = stream.Version;
+        }
+
+        public void AppendToStream(string streamName, int expectedVersion, IEnumerable<IEvent> enumerable)
+        {
+            var events = enumerable as IList<IEvent> ?? enumerable.ToList();
+            if (!events.Any())
                 return;
 
             using (var context = _eventDb.GetContext())
             {
-                //context.LogToConsole();
                 var stream = OpenStreamForWriting(context, streamName);
-                //context.StopLogging();
 
                 if (stream.Version < expectedVersion)
                     throw new InvalidOperationException("Stream version is not consistent with events : "
-                                                         + stream.Version + " < " + expectedVersion);
+                                                         + "version : " + stream.Version + " < " + "expected :" + expectedVersion);
                 if (stream.Version > expectedVersion)
                 {
                     // check event numbers to see if we are trying to write a past event again
-                    var futureEvents = ReadStreamEventsForward(streamName, expectedVersion,enumerable.Count()).ToList();
+                    var futureEvents = ReadStreamEventsForward(streamName, expectedVersion,events.Count()).ToList();
                     var futureEventIds = futureEvents.Select(e => e.EventNumber);
-                    if(!enumerable.Select(e => e.EventNumber).SequenceEqual(futureEventIds))
+                    if(!events.Select(e => e.EventNumber).SequenceEqual(futureEventIds))
                         throw new InvalidOperationException("Trying to change past for stream : "
                                                             + stream.Version + " > " + expectedVersion);
                 }
 
-                TimestampEvents(enumerable);
-                var eventsDto = enumerable.Select(Serialize).ToList();
-
-                foreach (var e in eventsDto)
-                {
-                    stream.Events.Add(e);
-                    stream.Version++;
-                    Debug.WriteLine(stream.Name + " : " + e.Payload);
-                }
-
-                _streamVersions[streamName] = stream.Version;
+                TimestampEvents(events);
+                WriteStream(stream,events);
 
                 context.SaveChanges();
 
                 // set the event numbers based on database generated id
-                ForEach(enumerable,stream.Events,(e1,e2) => e1.EventNumber = e2.EventNumber);
+                ForEach(events,stream.Events,(e1,e2) => e1.EventNumber = e2.EventNumber);
             }
         }
 
@@ -174,11 +194,21 @@ namespace Chronos.Persistence
                 foreach (var stream in context.Set<Stream>()/*.Where(s => !s.Name.Contains("Saga"))*/.Include(x => x.Events).AsEnumerable())
                     events.AddRange(stream.Events.Select(Deserialize));
 
-                //var events = context.Entry(stream).Collection(x => x.Events).Query().Skip((int)start - 1).Take(count);
-
                 return events;
             }
 
+        }
+
+        public IEnumerable<IEvent> GetAggregateEvents()
+        {
+            using (var context = _eventDb.GetContext())
+            {
+                var events = new List<IEvent>();
+                foreach (var stream in context.Set<Stream>().Where(s => !s.Name.Contains("Saga")).Include(x => x.Events).AsEnumerable())
+                    events.AddRange(stream.Events.Select(Deserialize));
+
+                return events;
+            }
         }
 
         private Event Serialize(IEvent e)

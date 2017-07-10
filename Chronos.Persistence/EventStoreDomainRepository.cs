@@ -5,6 +5,7 @@ using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Misc;
 using NodaTime;
+using NodaTime.Text;
 
 namespace Chronos.Persistence
 {
@@ -25,11 +26,13 @@ namespace Chronos.Persistence
         private readonly IEventStoreConnection _connection;
         private readonly HashSet<Guid> _existingAggregates = new HashSet<Guid>();
         private readonly Dictionary<Type, IAggregate> _lastAggregates = new Dictionary<Type, IAggregate>();
+        private readonly IDebugLog _debugLog;
 
-        public EventStoreDomainRepository(IEventBus eventBus, IEventStoreConnection connection)
+        public EventStoreDomainRepository(IEventBus eventBus, IEventStoreConnection connection, IDebugLog debugLog)
         {
             _eventBus = eventBus;
             _connection = connection;
+            _debugLog = debugLog;
         }
 
         public void Save<T>(T aggregate) where T :IAggregate
@@ -44,6 +47,7 @@ namespace Chronos.Persistence
 
             aggregate.ClearUncommitedEvents();
 
+            _debugLog.WriteLine("@" + typeof(T).Name + " : ");
             foreach (dynamic e in events)
                 _eventBus.Publish(e);
         }
@@ -88,7 +92,8 @@ namespace Chronos.Persistence
         public void Replay(Instant date)
         {
             // the events should be resorted by timestamp as we might have modified the past
-            var events = _connection.GetAllEvents().Where(e => e.Timestamp.CompareTo(date) <= 0).ToList()
+            var events = _connection.GetAggregateEvents().Where(e => e.Timestamp.CompareTo(date) <= 0)
+                .ToList()
                 .OrderBy(e => e.Timestamp)
                 .ThenBy(e => e.EventNumber);          
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Chronos.Infrastructure.Events;
+using NodaTime.Text;
 
 namespace Chronos.Infrastructure.Projections
 {

@@ -11,8 +11,8 @@ namespace Chronos.Infrastructure.Projections
         /// </summary>
         /// <typeparam name="T">Projection type</typeparam>
         /// <param name="criteria">Projection criteria</param>
-        /// <param name="time">Projection will contain all events up to this moment in time</param>
-        void RegisterJuncture<T>(Func<T, bool> criteria, Instant time)
+        /// <param name="instant">Projection will contain all events up to this moment in time</param>
+        void RegisterJuncture<T>(Func<T, bool> criteria, Instant instant)
             where T : class, IProjection;
 
         /// <summary>

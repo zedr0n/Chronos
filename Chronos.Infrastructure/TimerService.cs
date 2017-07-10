@@ -30,7 +30,7 @@ namespace Chronos.Infrastructure
                     return;
                 
                 RemoveTimer(e.SourceId);
-                _eventBus.Publish(new TimeoutCompleted { SourceId = e.SourceId });
+                _eventBus.Publish(new TimeoutCompleted { SourceId = e.SourceId, Timestamp = e.When});
             }
         }
 

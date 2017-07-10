@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using NodaTime;
+using NodaTime.Text;
 
 namespace Chronos.Infrastructure.Events
 {
@@ -49,10 +51,10 @@ namespace Chronos.Infrastructure.Events
             if (_subscribers.ContainsKey(typeof(TEvent)))
             {
                 var handlers = _subscribers[typeof(TEvent)];
-                _debugLog.WriteLine(e.GetType().Name);
+                _debugLog.WriteLine(e.GetType().Name + (e.Replaying ? "[R]" : "") + "( " + InstantPattern.ExtendedIso.Format(e.Timestamp) + " )");
                 foreach (Action<TEvent> handler in handlers.AsReadOnly())
                 {
-                    _debugLog.WriteLine("    " + handler?.Target.GetType().Name);
+                    _debugLog.WriteLine(" -> " + handler?.Target.GetType().Name);
                     handler?.Invoke(e);
                 }
                 _debugLog.WriteLine("");

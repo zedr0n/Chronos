@@ -6,14 +6,15 @@ namespace Chronos.Infrastructure
 {
     public interface IEventStoreConnection
     {
+        void AppendToNull(IEnumerable<IEvent> enumerable);
         /// <summary>
         /// Appends events to the stream with the given name
         /// </summary>
         /// <param name="streamName">Name of the stream to read from</param>
         /// <param name="expectedVersion"></param>
-        /// <param name="events"></param>
+        /// <param name="enumerable"></param>
         /// <exception cref="System.InvalidOperationException">If the stream is not at expected version</exception>
-        void AppendToStream(string streamName, int expectedVersion, IEnumerable<IEvent> events);
+        void AppendToStream(string streamName, int expectedVersion, IEnumerable<IEvent> enumerable);
         /// <summary>
         /// Read specified number events from the stream forward from starting position
         /// </summary>
@@ -30,5 +31,7 @@ namespace Chronos.Infrastructure
         /// </summary>
         /// <returns></returns>
         IEnumerable<IEvent> GetAllEvents();
+
+        IEnumerable<IEvent> GetAggregateEvents();
     }
 }

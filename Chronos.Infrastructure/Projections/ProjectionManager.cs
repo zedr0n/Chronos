@@ -2,6 +2,7 @@
 using System.Linq;
 using Chronos.Infrastructure.Events;
 using NodaTime;
+using NodaTime.Text;
 
 namespace Chronos.Infrastructure.Projections
 {
@@ -29,7 +30,7 @@ namespace Chronos.Infrastructure.Projections
         public void Rebuild<T>(Func<T, bool> criteria, Func<IEvent, bool> eventCriteria)
             where T : class, IProjection
         {
-            var events = _connection.GetAllEvents().Where(eventCriteria).OrderBy(e => e.Timestamp);
+            var events = _connection.GetAggregateEvents().Where(eventCriteria).OrderBy(e => e.Timestamp);
             var projections = _projectionRepository.Find(criteria)?.ToList();
             if (projections == null)
                 return;
@@ -39,27 +40,31 @@ namespace Chronos.Infrastructure.Projections
 
             var projector = _projectorRepository.Get(typeof(T));
 
+            _debugLog.WriteLine("@ProjectionManager : ");
             foreach (var e in events)
             {
+                _debugLog.WriteLine("    " + e.GetType().Name + "[R]( " + InstantPattern.ExtendedIso.Format(e.Timestamp) + " )");
                 if(projector.Dispatch(e))
-                    _debugLog.WriteLine("Rebuilding projection " + typeof(T).Name + " : " + e.GetType().Name);
+                    _debugLog.WriteLine("     -> " + projector.GetType().Name);
+                //_debugLog.WriteLine("    " + e.GetType().Name + "[R]( " + InstantPattern.ExtendedIso.Format(e.Timestamp) + " )");
             }
         }
 
-        public void RegisterJuncture<T>(Func<T, bool> criteria, Instant time)
+        public void RegisterJuncture<T>(Func<T, bool> criteria, Instant instant)
             where T : class, IProjection
         {
             var projections = _projectionRepository.Find(criteria)?.ToList();
             if(projections == null)
                 throw new InvalidOperationException("Impossible to build projection with such criteria");
-            if (projections.Any(x => x.AsOf.CompareTo(time) == 0))
+            if (projections.Any(x => x.AsOf.CompareTo(instant) == 0))
                 return;
 
             var projection = projections.First().Copy<T>();
-            projection.AsOf = time;
+            projection.AsOf = instant;
             _projectionRepository.Add(projection);
 
-            Rebuild<T>(x => criteria(x) && x.AsOf.CompareTo(time) == 0,e => e.Timestamp.CompareTo(time) <= 0);
+            _debugLog.WriteLine("Project " + typeof(T).Name + " as of " + InstantPattern.ExtendedIso.Format(instant));
+            Rebuild<T>(x => criteria(x) && x.AsOf.CompareTo(instant) == 0,e => e.Timestamp.CompareTo(instant) <= 0);
         }
     }
 }
