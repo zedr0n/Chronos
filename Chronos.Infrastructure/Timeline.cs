@@ -30,7 +30,17 @@ namespace Chronos.Infrastructure
 
         public Instant Now()
         {
-            return Live ? _clock.GetCurrentInstant() : _current;
+            if (!Live)
+                return _current;
+            var now = _clock.GetCurrentInstant();
+            // if we process events faster than clock ticks
+            // manually increment the time
+            if (now.CompareTo(_current) <= 0)
+                _current = _current.PlusNanoseconds(1);
+            else
+                _current = now;
+
+            return _current;
         }
     }
 }
