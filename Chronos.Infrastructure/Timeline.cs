@@ -5,15 +5,18 @@ namespace Chronos.Infrastructure
 {
     public class Timeline : ITimeline
     {
-        private readonly IClock _clock = SystemClock.Instance;
+        private readonly IClock _clock;
         private Instant _current;
+
+        public Timeline(IClock clock)
+        {
+            _clock = clock;
+        }
+
         public bool Live { get; private set; } = true;
 
         public void Set(Instant date)
         {
-            //if(!Live)
-            //    throw new InvalidOperationException("Timeline is already at historical value");
-
             _current = _clock.GetCurrentInstant();
             if(_current.CompareTo(date) <= 0)
                 throw new InvalidOperationException("Cannot time travel to the future");
@@ -30,16 +33,8 @@ namespace Chronos.Infrastructure
 
         public Instant Now()
         {
-            if (!Live)
-                return _current;
-            var now = _clock.GetCurrentInstant();
-            // if we process events faster than clock ticks
-            // manually increment the time
-            if (now.CompareTo(_current) <= 0)
-                _current = _current.PlusNanoseconds(1);
-            else
-                _current = now;
-
+            if (Live)
+                _current = _clock.GetCurrentInstant();
             return _current;
         }
     }

@@ -11,6 +11,7 @@ using Chronos.Infrastructure.Queries;
 using Chronos.Infrastructure.Sagas;
 using Chronos.Persistence;
 using Chronos.Persistence.Serialization;
+using NodaTime;
 using SimpleInjector;
 
 namespace Chronos.CrossCuttingConcerns.DependencyInjection
@@ -40,6 +41,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<ICommandBus, CommandBus>(Lifestyle.Singleton);
             container.Register<ISagaManager,SagaManager>(Lifestyle.Singleton);
             container.Register<ITimerService,TimerService>(Lifestyle.Singleton);
+            container.Register<IClock,HighPrecisionClock>(Lifestyle.Singleton);
 
             // register commands and queries
             /*var handlerRegistrations = Assembly.Load(new AssemblyName(nameof(Chronos.Core)))
