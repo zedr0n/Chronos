@@ -10,43 +10,34 @@ using Stateless;
 
 namespace Chronos.Core.Sagas
 {
-    public class TransactionSaga : SagaBase,
+    public class TransactionSaga : StatelessSaga<TransactionSaga.STATE, TransactionSaga.TRIGGER>,
         IConsumer<PurchaseCreated>
         {
-        private enum STATE
+        public enum STATE
         {
             OPEN,
             COMPLETED
         }
 
-        private enum TRIGGER
+        public enum TRIGGER
         {
             TRANSACTION_CREATED
         }
-
-        private StateMachine<STATE, TRIGGER> StateMachine {
-            get
-            {
-                if(_stateMachine == null)
-                    ConfigureStateMachine();
-                return _stateMachine;
-            }   
-        }
-        private StateMachine<STATE, TRIGGER> _stateMachine;
 
         private double _amount;
         private bool _purchaseCreated;
         private Guid _accountId;
 
         protected override bool IsComplete() => StateMachine.IsInState(STATE.COMPLETED);
-        private void ConfigureStateMachine()
-        {
-            _stateMachine = new StateMachine<STATE, TRIGGER>(STATE.OPEN);
 
-            _stateMachine.Configure(STATE.OPEN)
+        protected override void ConfigureStateMachine()
+        {
+            StateMachine = new StateMachine<STATE, TRIGGER>(STATE.OPEN);
+
+            StateMachine.Configure(STATE.OPEN)
                 .PermitIf(TRIGGER.TRANSACTION_CREATED, STATE.COMPLETED, () => _purchaseCreated);
 
-            _stateMachine.Configure(STATE.COMPLETED)
+            StateMachine.Configure(STATE.COMPLETED)
                 .Ignore(TRIGGER.TRANSACTION_CREATED)
                 .OnEntry(DebitAccount)
                 .OnEntry(OnComplete);
