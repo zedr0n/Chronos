@@ -26,7 +26,7 @@ namespace Chronos.Persistence
             _commandBus = commandBus;
         }
 
-        public void Save<T>(T saga) where T : ISaga
+        public void Save<T>(T saga) where T : class,ISaga, new()
         {
             var events = saga.UncommitedEvents.ToList();
 
@@ -45,21 +45,19 @@ namespace Chronos.Persistence
             saga.ClearUndispatchedMessages();
         }
 
-        public T Find<T>(Guid id) where T : ISaga
+        public T Find<T>(Guid id) where T : class,ISaga, new()
         {
             var streamName = StreamExtensions.StreamName<T>(id);
             var events = _connection.ReadStreamEventsForward(streamName, 0, int.MaxValue).ToList();
 
-            if (events.Any())
-            {
-                var saga = (T) Activator.CreateInstance(typeof(T), id, events);
-                return saga;
-            }
+            if (!events.Any())
+                return null;
 
-            return default(T);
+            var saga = new T().LoadFrom<T>(id,events);
+            return saga;
         }
 
-        public T Get<T>(Guid id) where T : ISaga
+        public T Get<T>(Guid id) where T : class,ISaga,new()
         {
             var saga = Find<T>(id);
             if(saga == null)

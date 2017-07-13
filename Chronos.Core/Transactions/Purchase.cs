@@ -6,37 +6,35 @@ using Chronos.Infrastructure.Events;
 
 namespace Chronos.Core.Transactions
 {
-    public partial class Purchase : AggregateBase, IConsumer<PurchaseCreated>
+    public class Purchase : AggregateBase, IConsumer<PurchaseCreated>
     {
         private Guid _accountId;
-        private PurchaseInfo _purchaseInfo;
+        private Cash _cash;
+        private string _payee;
 
-        public Purchase(Guid id, IEnumerable<IEvent> pastEvents) 
-            : base(id,pastEvents) { }
+        public Purchase() { }
 
-        public Purchase(Guid id, Guid accountId,
-            PurchaseInfo info) : base(id)
+        public Purchase(Guid id, 
+                        Guid accountId,
+                        string payee,
+                        Cash cash)
+            : base(id)
         {
             RaiseEvent(new PurchaseCreated
             {
                 SourceId = id,
                 AccountId = accountId,
-                Payee = info.Payee,
-                Ccy = info.Currency,
-                Amount = info.Amount,
+                Payee = payee,
+                Currency = cash.Currency,
+                Amount = cash.Amount
             });
         }
 
         public void When(PurchaseCreated e)
         {
             _accountId = e.AccountId;
-            _purchaseInfo = new PurchaseInfo
-            {
-                Payee = e.Payee,
-                Amount = e.Amount,
-                Currency = e.Ccy,
-            };
+            _payee = e.Payee;
+            _cash = new Cash(e.Currency, e.Amount);
         }
-
     }
 }

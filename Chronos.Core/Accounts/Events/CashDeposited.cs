@@ -2,7 +2,7 @@
 
 namespace Chronos.Core.Accounts.Events
 {
-    public class AmountDebited : EventBase
+    public class CashDeposited : EventBase
     {
         public double Amount { get; set; }
     }

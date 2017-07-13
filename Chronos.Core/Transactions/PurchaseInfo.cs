@@ -1,8 +1,4 @@
-﻿using Chronos.Core.Transactions.Events;
-using Chronos.Infrastructure;
-using Chronos.Infrastructure.Events;
-
-namespace Chronos.Core.Transactions
+﻿namespace Chronos.Core.Transactions
 {
     public class PurchaseInfo
     {

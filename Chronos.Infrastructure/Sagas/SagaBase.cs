@@ -7,7 +7,7 @@ namespace Chronos.Infrastructure.Sagas
 {
     public abstract class SagaBase : ISaga, IConsumer<SagaCompleted>
     {
-        public Guid SagaId { get; }
+        public Guid SagaId { get; private set; }
         public int Version { get; private set; }
 
         protected abstract bool IsComplete();
@@ -17,15 +17,11 @@ namespace Chronos.Infrastructure.Sagas
         public IEnumerable<IEvent> UncommitedEvents => _uncommitedEvents;
         public IEnumerable<IMessage> UndispatchedMessages => _undispatchedMessages;
 
+
+        protected SagaBase() { }
         protected SagaBase(Guid sagaId)
         {
             SagaId = sagaId;
-        }
-
-        protected SagaBase(Guid id, IEnumerable<IEvent> pastEvents)
-            : this(id)
-        {
-            LoadFrom(pastEvents);
         }
 
         protected void OnComplete()
@@ -38,12 +34,12 @@ namespace Chronos.Infrastructure.Sagas
         /// </summary>
         public void When(SagaCompleted e)
         {
-            if(e.SourceId == SagaId)
-                ClearUndispatchedMessages();
+            ClearUndispatchedMessages();
         }
 
-        private void LoadFrom(IEnumerable<IEvent> pastEvents)
+        public T LoadFrom<T>(Guid id,IEnumerable<IEvent> pastEvents) where T : class, ISaga,new()
         {
+            SagaId = id;
             Version = 0;
             foreach (var e in pastEvents)
             {
@@ -52,6 +48,8 @@ namespace Chronos.Infrastructure.Sagas
             }
             // as the events for sagas flow through event bus reloading saga will recommit events again
             _uncommitedEvents.Clear();
+
+            return this as T;
         }
 
         public void ClearUncommittedEvents()
@@ -67,7 +65,7 @@ namespace Chronos.Infrastructure.Sagas
 
         protected bool When(IEvent e)
         {
-            if (e.SourceId == SagaId && !IsComplete())
+            if (!IsComplete())
             {
                 if(!e.Replaying)
                     _uncommitedEvents.Add(e);

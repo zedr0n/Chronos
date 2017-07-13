@@ -9,6 +9,6 @@ namespace Chronos.Core.Transactions.Events
 
         public string Payee { get; set; }
         public double Amount { get; set; }
-        public string Ccy { get; set; }
+        public string Currency { get; set; }
     }
 }

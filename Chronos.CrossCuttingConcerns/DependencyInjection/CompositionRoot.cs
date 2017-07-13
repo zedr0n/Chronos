@@ -57,7 +57,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
 
             container.Register<ICommandHandler<CreateAccountCommand>, CreateAccountHandler>(Lifestyle.Singleton);
             container.Register<ICommandHandler<ChangeAccountCommand>, ChangeAccountHandler>(Lifestyle.Singleton);
-            container.Register<ICommandHandler<DebitAmountCommand>, DebitAmountHandler>(Lifestyle.Singleton);
+            container.Register<ICommandHandler<DepositCashCommand>, DepositCash>(Lifestyle.Singleton);
+            container.Register<ICommandHandler<WithdrawCashCommand>,WithdrawCashHandler>(Lifestyle.Singleton);
             container.Register<ICommandHandler<CreatePurchaseCommand>, CreatePurchaseHandler>(Lifestyle.Singleton);
             container.Register<ICommandHandler<ScheduleCommand>,ScheduleCommandHandler>(Lifestyle.Singleton);
             container.Register<IQueryHandler<GetAccountInfo,AccountInfo>,GetAccountInfoHandler>(Lifestyle.Singleton);

@@ -184,7 +184,7 @@ namespace Chronos.Tests
             var accountInfo = queryHandler.Handle(query);
 
             Assert.NotNull(purchase);
-            Assert.Equal(100, accountInfo.Balance);
+            Assert.Equal(-100, accountInfo.Balance);
         }
 
         [Fact]
@@ -262,7 +262,7 @@ namespace Chronos.Tests
             var lastInfo = queryHandler.Handle(query);
 
             Assert.Equal(0, baseInfo.Balance);
-            Assert.Equal(100, lastInfo.Balance);
+            Assert.Equal(-100, lastInfo.Balance);
         }
 
         [Fact]
@@ -323,13 +323,13 @@ namespace Chronos.Tests
             };
             bus.Send(command);
 
-            Assert.Equal(command.Amount, queryHandler.Handle(query).Balance);
+            Assert.Equal(-100, queryHandler.Handle(query).Balance);
 
             var navigator = container.GetInstance<ITimeNavigator>();
             navigator.Reset();
 
             var accountInfo = queryHandler.Handle(query);
-            Assert.Equal(100, accountInfo.Balance);
+            Assert.Equal(-100, accountInfo.Balance);
         }
 
         [Fact]
@@ -363,7 +363,7 @@ namespace Chronos.Tests
             };
             bus.Send(command);
 
-            Assert.Equal(command.Amount, queryHandler.Handle(query).Balance);
+            Assert.Equal(-command.Amount, queryHandler.Handle(query).Balance);
 
             var navigator = container.GetInstance<ITimeNavigator>();
             navigator.GoTo(createdAt);

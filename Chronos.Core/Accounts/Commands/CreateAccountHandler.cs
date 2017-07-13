@@ -7,6 +7,7 @@ namespace Chronos.Core.Accounts.Commands
     public class CreateAccountHandler : ICommandHandler<CreateAccountCommand>
     {
         private readonly IDomainRepository _domainRepository;
+
         public CreateAccountHandler(IDomainRepository domainRepository)
         {
             _domainRepository = domainRepository;

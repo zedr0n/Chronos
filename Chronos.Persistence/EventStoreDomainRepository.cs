@@ -36,14 +36,14 @@ namespace Chronos.Persistence
             _debugLog = debugLog;
         }
 
-        public void Save<T>(T aggregate) where T :IAggregate
+        public void Save<T>(T aggregate) where T :class,IAggregate,new()
         {
             var events = aggregate.UncommitedEvents.ToList();
             if (!events.Any())
                 return;
             //var expectedVersion = aggregate.ExpectedVersion(events);
 
-            _connection.AppendToStream(aggregate.StreamName(), aggregate.Version, events);
+            _connection.AppendToStream(aggregate.StreamName(), aggregate.Version - events.Count, events);
             _lastAggregates[typeof(T)] = aggregate;
 
             aggregate.ClearUncommitedEvents();
@@ -53,7 +53,7 @@ namespace Chronos.Persistence
                 _eventBus.Publish(e);
         }
 
-        public T Find<T>(Guid id) where T : IAggregate
+        public T Find<T>(Guid id) where T : class,IAggregate, new()
         {
             if (_lastAggregates.ContainsKey(typeof(T)) && _lastAggregates[typeof(T)].Id == id)
                 return (T) _lastAggregates[typeof(T)];
@@ -63,7 +63,7 @@ namespace Chronos.Persistence
 
             if (events.Any())
             {
-                var aggregate = (T) Activator.CreateInstance(typeof(T), id, events);
+                var aggregate = new T().LoadFrom<T>(id,events);
                 _lastAggregates[typeof(T)] = aggregate;
                 return aggregate;
             }
@@ -71,7 +71,7 @@ namespace Chronos.Persistence
             return default(T);
         }
 
-        public T Get<T>(Guid id) where T : IAggregate
+        public T Get<T>(Guid id) where T : class,IAggregate,new()
         {
             var entity = Find<T>(id);
             if (entity == null)
@@ -80,7 +80,7 @@ namespace Chronos.Persistence
             return entity;
         }
 
-        public bool Exists<T>(Guid id) where T : IAggregate
+        public bool Exists<T>(Guid id) where T : class,IAggregate,new()
         {
             if (_lastAggregates.ContainsKey(typeof(T)) && _lastAggregates[typeof(T)].Id == id || _existingAggregates.Contains(id))
             {

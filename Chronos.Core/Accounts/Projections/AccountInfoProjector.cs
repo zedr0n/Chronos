@@ -8,7 +8,8 @@ namespace Chronos.Core.Accounts.Projections
     public class AccountInfoProjector : ProjectorBase<AccountInfo>
         , IConsumer<AccountCreated>
         , IConsumer<AccountChanged>
-        , IConsumer<AmountDebited>
+        , IConsumer<CashDeposited>
+        , IConsumer<CashWithdrawn>
     {
         public AccountInfoProjector(IEventBus eventBus, IProjectionRepository repository) : base(eventBus, repository)
         {
@@ -35,7 +36,7 @@ namespace Chronos.Core.Accounts.Projections
             }, v => v.AccountId == e.SourceId);
         }
 
-        public void When(AmountDebited e)
+        public void When(CashDeposited e)
         {
             UpdateProjection(e,v =>
             {
@@ -43,5 +44,12 @@ namespace Chronos.Core.Accounts.Projections
             },v => v.AccountId == e.SourceId);
         }
 
+        public void When(CashWithdrawn e)
+        {
+            UpdateProjection(e, v =>
+            {
+                v.Balance -= e.Amount;
+            }, v => v.AccountId == e.SourceId);
+        }
     }
 }

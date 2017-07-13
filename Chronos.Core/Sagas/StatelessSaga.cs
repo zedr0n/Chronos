@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Sagas;
 using Stateless;
 
-namespace Chronos.Infrastructure.Sagas
+namespace Chronos.Core.Sagas
 {
     public abstract class StatelessSaga<TState,TTrigger> : SagaBase
     {
@@ -19,12 +18,8 @@ namespace Chronos.Infrastructure.Sagas
         }
         private StateMachine<TState, TTrigger> _stateMachine;
 
-
+        protected StatelessSaga() { }
         protected StatelessSaga(Guid sagaId) : base(sagaId)
-        {
-        }
-
-        protected StatelessSaga(Guid id, IEnumerable<IEvent> pastEvents) : base(id, pastEvents)
         {
         }
 

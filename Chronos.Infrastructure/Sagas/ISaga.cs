@@ -15,5 +15,7 @@ namespace Chronos.Infrastructure.Sagas
 
         IEnumerable<IMessage> UndispatchedMessages { get; }
         void ClearUndispatchedMessages();
+
+        T LoadFrom<T>(Guid id, IEnumerable<IEvent> pastEvents) where T : class,ISaga,new();
     }
 }

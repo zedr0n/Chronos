@@ -2,7 +2,7 @@
 
 namespace Chronos.Core.Accounts.Commands
 {
-    public class DebitAmountCommand : CommandBase
+    public class DepositCashCommand : CommandBase
     {
         public double Amount { get; set; }
     }

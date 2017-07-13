@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Sagas;
@@ -28,11 +27,9 @@ namespace Chronos.Core.Sagas
         private ICommand _command;
         private Instant _scheduledOn;
 
-        public SchedulerSaga(Guid sagaId) : base(sagaId)
-        {
-        }
+        public SchedulerSaga() { }
 
-        public SchedulerSaga(Guid id, IEnumerable<IEvent> pastEvents) : base(id, pastEvents)
+        public SchedulerSaga(Guid sagaId) : base(sagaId)
         {
         }
 

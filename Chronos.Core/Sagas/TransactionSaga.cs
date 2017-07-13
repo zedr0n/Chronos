@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Events;
+using Chronos.Core.Transactions.Commands;
 using Chronos.Core.Transactions.Events;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Sagas;
@@ -11,22 +11,26 @@ using Stateless;
 namespace Chronos.Core.Sagas
 {
     public class TransactionSaga : StatelessSaga<TransactionSaga.STATE, TransactionSaga.TRIGGER>,
-        IConsumer<PurchaseCreated>
+        IConsumer<PurchaseCreated>,
+        IConsumer<AssetTransferCreated>,
+        IConsumer<CashTransferCreated>
         {
         public enum STATE
         {
             OPEN,
             COMPLETED
         }
-
         public enum TRIGGER
         {
-            TRANSACTION_CREATED
+            PURCHASE_CREATED,
+            CASHTRANSFER_CREATED,
+            ASSETTRANSFER_CREATED
         }
 
         private double _amount;
-        private bool _purchaseCreated;
         private Guid _accountId;
+        private Guid _toAccountId;
+        private Guid _assetId;
 
         protected override bool IsComplete() => StateMachine.IsInState(STATE.COMPLETED);
 
@@ -35,28 +39,52 @@ namespace Chronos.Core.Sagas
             StateMachine = new StateMachine<STATE, TRIGGER>(STATE.OPEN);
 
             StateMachine.Configure(STATE.OPEN)
-                .PermitIf(TRIGGER.TRANSACTION_CREATED, STATE.COMPLETED, () => _purchaseCreated);
+                .Permit(TRIGGER.PURCHASE_CREATED, STATE.COMPLETED);
+            StateMachine.Configure(STATE.OPEN)
+                .Permit(TRIGGER.ASSETTRANSFER_CREATED, STATE.COMPLETED);
 
             StateMachine.Configure(STATE.COMPLETED)
-                .Ignore(TRIGGER.TRANSACTION_CREATED)
-                .OnEntry(DebitAccount)
+                .OnEntryFrom(TRIGGER.ASSETTRANSFER_CREATED, TransferAsset)
+                .OnEntryFrom(TRIGGER.CASHTRANSFER_CREATED, TransferCash)
+                .OnEntryFrom(TRIGGER.PURCHASE_CREATED, WithdrawCash)
                 .OnEntry(OnComplete);
         }
+
+        public TransactionSaga() { }
 
         public TransactionSaga(Guid id) : base(id)
         {
         }
 
-        public TransactionSaga(Guid id, IEnumerable<IEvent> pastEvents)
-            : base(id,pastEvents) { }
-
-        private void DebitAccount()
+       private void WithdrawCash()
         {
-            SendMessage(new DebitAmountCommand
+            SendMessage(new WithdrawCashCommand
             {
                 AggregateId = _accountId,
                 Amount = _amount
             });
+        }
+
+        private void TransferCash()
+        {
+            SendMessage(new DepositCashCommand
+            {
+                AggregateId = _toAccountId,
+                Amount = _amount
+            });
+            SendMessage(new WithdrawCashCommand
+            {
+                AggregateId = _accountId,
+                Amount = _amount
+            });
+        }
+        private void TransferAsset()
+        {
+            SendMessage(new DepositAssetCommand
+            {
+                AggregateId = _toAccountId,
+                AssetId = _assetId             
+            });            
         }
 
         public void When(PurchaseCreated e)
@@ -65,10 +93,30 @@ namespace Chronos.Core.Sagas
                 return;
 
             _amount = e.Amount;
-            _purchaseCreated = true;
             _accountId = e.AccountId;
 
-            StateMachine.Fire(TRIGGER.TRANSACTION_CREATED);
+            StateMachine.Fire(TRIGGER.PURCHASE_CREATED);
+        }
+        public void When(AssetTransferCreated e)
+        {
+            if (base.When(e))
+                return;
+
+            _accountId = e.FromAccount;
+            _assetId = e.AssetId;
+            _toAccountId = e.ToAccount;
+
+            StateMachine.Fire(TRIGGER.ASSETTRANSFER_CREATED);
+        }
+        public void When(CashTransferCreated e)
+        {
+            if (base.When(e))
+                return;
+
+            _accountId = e.FromAccount;
+            _amount = e.Amount;
+
+            StateMachine.Fire(TRIGGER.CASHTRANSFER_CREATED);
         }
     }
 }

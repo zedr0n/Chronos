@@ -8,8 +8,10 @@ namespace Chronos.Infrastructure
     {
         Guid Id { get; }
         int Version { get; }
+
         IEnumerable<IEvent> UncommitedEvents { get; }
         void ClearUncommitedEvents();
-    }
 
+        T LoadFrom<T>(Guid id,IEnumerable<IEvent> pastEvents) where T : class,IAggregate, new();
+    }
 }
