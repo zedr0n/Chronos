@@ -1,4 +1,6 @@
-﻿namespace Chronos.Infrastructure.Events
+﻿using Chronos.Infrastructure.Interfaces;
+
+namespace Chronos.Infrastructure.Events
 {
     public interface IConsumer
     {

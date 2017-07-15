@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
 using NodaTime;
 using NodaTime.Text;

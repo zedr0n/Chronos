@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
 using NodaTime;
 using NodaTime.Text;
@@ -39,7 +40,7 @@ namespace Chronos.Infrastructure.Projections
             foreach (var projection in projections)
                 projection.LastEvent = -1;
 
-            var projector = _projectorRepository.Get(typeof(T));
+            var projector = _projectorRepository.Get<IProjector<T>>();
 
             _debugLog.WriteLine("@ProjectionManager : ");
             foreach (var e in events)

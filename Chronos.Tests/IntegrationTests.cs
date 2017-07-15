@@ -17,7 +17,7 @@ using Xunit.Abstractions;
 
 namespace Chronos.Tests
 {
-    public class IntegrationTests : TestsBase
+    public class IntegrationTests : TestBase
     {
         [Fact]
         public void CanCreateAccount()

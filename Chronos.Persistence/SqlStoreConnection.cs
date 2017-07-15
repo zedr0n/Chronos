@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Interfaces;
 using Chronos.Persistence.Serialization;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,8 +1,7 @@
 ﻿using System;
-using Chronos.Infrastructure.Interfaces;
 using NodaTime;
 
-namespace Chronos.Infrastructure.Events
+namespace Chronos.Infrastructure.Interfaces
 {
     public interface IEvent : IMessage
     {

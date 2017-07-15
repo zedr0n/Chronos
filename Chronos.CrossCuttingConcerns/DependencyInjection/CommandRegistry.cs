@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Chronos.Infrastructure.Commands;
+using Chronos.Infrastructure.Interfaces;
 using SimpleInjector;
 
 namespace Chronos.CrossCuttingConcerns.DependencyInjection

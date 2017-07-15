@@ -7,6 +7,7 @@ using System.Reflection;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Misc;
 using Chronos.Infrastructure.Sagas;
 using NodaTime;

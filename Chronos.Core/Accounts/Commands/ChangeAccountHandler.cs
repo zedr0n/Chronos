@@ -15,9 +15,9 @@ namespace Chronos.Core.Accounts.Commands
         }
 
         /// <summary>
-        /// <see cref="ChangeAccountCommand"/>? -> <see cref="ChangeAccountHandler"/> 
+        /// <see cref="ChangeAccountCommand"/>! -> <see cref="ChangeAccountHandler"/> 
         /// <para> @<see cref="Account"/>:<see cref="AccountChanged"/>!</para>
-        /// <para> -> <see cref="Account.OnAccountChanged"/> </para>
+        /// <para> -> <see cref="Account.When(AccountChanged)"/> </para>
         /// </summary>
         public void Handle(ChangeAccountCommand command)
         {

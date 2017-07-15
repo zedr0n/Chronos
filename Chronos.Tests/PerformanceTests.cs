@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Chronos.Tests
 {
-    public class PerformanceTests : TestsBase
+    public class PerformanceTests : TestBase
     {
         [Theory]
         [InlineData(100)]

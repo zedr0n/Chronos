@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
 using Chronos.Infrastructure.Misc;
 using NodaTime;

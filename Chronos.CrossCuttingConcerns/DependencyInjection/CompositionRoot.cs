@@ -1,4 +1,5 @@
-﻿using Chronos.Core.Accounts.Commands;
+﻿using System.Reflection;
+using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Accounts.Queries;
 using Chronos.Core.Sagas;
@@ -17,12 +18,32 @@ using SimpleInjector;
 namespace Chronos.CrossCuttingConcerns.DependencyInjection
 {
     public class CompositionRoot
+
     {
-        public virtual void ComposeApplication(Container container, string dbName,bool isPersistentDb, bool inMemory)
+        public class DbConfiguration
         {
-            container.Options.RegisterParameterConvention(new InMemoryConvention(inMemory));
-            container.Options.RegisterParameterConvention(new DbNameStringConvention(dbName + ".db"));
-            container.Options.RegisterParameterConvention(new PersistentDbConvention(isPersistentDb));
+            public string Name { get; set; }
+            public bool IsPersistent { get; set; }
+            public bool InMemory { get; set; }
+        }
+
+        private DbConfiguration Database { get; set; } = new DbConfiguration
+        {
+            InMemory = false,
+            IsPersistent = false,
+            Name = "Default"
+        };
+
+        public static CompositionRoot WithDatabase(DbConfiguration configuration)
+        {
+            return new CompositionRoot() {Database = configuration};
+        }
+
+        public virtual void ComposeApplication(Container container)
+        {
+            container.Options.RegisterParameterConvention(new InMemoryConvention(Database.InMemory));
+            container.Options.RegisterParameterConvention(new DbNameStringConvention(Database.Name + ".db"));
+            container.Options.RegisterParameterConvention(new PersistentDbConvention(Database.IsPersistent));
             
             // register infrastructure
             container.Register<IEventBus,EventBus>(Lifestyle.Singleton);
@@ -33,7 +54,6 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<ISagaRepository,EventStoreSagaRepository>(Lifestyle.Singleton);
             container.Register<IProjectionRepository,ProjectionRepository>(Lifestyle.Singleton);
             container.Register<IProjectionManager,ProjectionManager>(Lifestyle.Singleton);
-            //container.Register(typeof(IProjectionWriter<>),typeof(ProjectionWriter<>),Lifestyle.Singleton);
             container.Register<IProjectorRepository,ProjectorRepository>(Lifestyle.Singleton);
             container.Register<ITimeline,Timeline>(Lifestyle.Singleton);
             container.Register<ITimeNavigator, TimeNavigator>(Lifestyle.Singleton);
@@ -43,24 +63,21 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<ITimerService,TimerService>(Lifestyle.Singleton);
             container.Register<IClock,HighPrecisionClock>(Lifestyle.Singleton);
 
-            // register commands and queries
-            /*var handlerRegistrations = Assembly.Load(new AssemblyName(nameof(Chronos.Core)))
-                                                .ExportedTypes.Where(t => t.Name.EndsWith("Handler"))
-                                                .Select(t => new
-                {
-                    Service = t.GetTypeInfo().ImplementedInterfaces.First(),
-                    Implementation = t
-                });
 
-            foreach(var reg in handlerRegistrations)
-                container.Register(reg.Service,reg.Implementation,Lifestyle.Singleton);*/
-
-            container.Register<ICommandHandler<CreateAccountCommand>, CreateAccountHandler>(Lifestyle.Singleton);
-            container.Register<ICommandHandler<ChangeAccountCommand>, ChangeAccountHandler>(Lifestyle.Singleton);
-            container.Register<ICommandHandler<DepositCashCommand>, DepositCash>(Lifestyle.Singleton);
-            container.Register<ICommandHandler<WithdrawCashCommand>,WithdrawCashHandler>(Lifestyle.Singleton);
-            container.Register<ICommandHandler<CreatePurchaseCommand>, CreatePurchaseHandler>(Lifestyle.Singleton);
-            container.Register<ICommandHandler<ScheduleCommand>,ScheduleCommandHandler>(Lifestyle.Singleton);
+            container.Register(typeof(ICommandHandler<>),new[] {
+                typeof(CreateAccountHandler),
+                typeof(ChangeAccountHandler),
+                typeof(DepositCashHandler),
+                typeof(WithdrawCashHandler),
+                typeof(CreatePurchaseHandler),
+                typeof(ScheduleCommandHandler)
+                } ,Lifestyle.Singleton);
+            //container.Register<ICommandHandler<CreateAccountCommand>, CreateAccountHandler>(Lifestyle.Singleton);
+            //container.Register<ICommandHandler<ChangeAccountCommand>, ChangeAccountHandler>(Lifestyle.Singleton);
+            //container.Register<ICommandHandler<DepositCashCommand>, DepositCash>(Lifestyle.Singleton);
+            //container.Register<ICommandHandler<WithdrawCashCommand>,WithdrawCashHandler>(Lifestyle.Singleton);
+            //container.Register<ICommandHandler<CreatePurchaseCommand>, CreatePurchaseHandler>(Lifestyle.Singleton);
+            //container.Register<ICommandHandler<ScheduleCommand>,ScheduleCommandHandler>(Lifestyle.Singleton);
             container.Register<IQueryHandler<GetAccountInfo,AccountInfo>,GetAccountInfoHandler>(Lifestyle.Singleton);
 
             container.Register<IProjector<AccountInfo>,AccountInfoProjector>(Lifestyle.Singleton);

@@ -10,18 +10,18 @@ using Chronos.Infrastructure.Logging;
 
 namespace Chronos.Tests
 {
-    public class TestsBase
+    public class TestBase
     {
         protected static readonly IClock Clock;
         private readonly ITestOutputHelper _output;
         private readonly object _lock = new object();
 
-        static TestsBase()
+        static TestBase()
         {
             Clock = SystemClock.Instance;
         }
 
-        public TestsBase(ITestOutputHelper output)
+        protected TestBase(ITestOutputHelper output)
         {
             _output = output;
         }
@@ -31,7 +31,13 @@ namespace Chronos.Tests
             lock(_lock)
             {
                 var container = new Container();
-                new CompositionRoot().ComposeApplication(container, dbName, false, true);
+                CompositionRoot.WithDatabase(new CompositionRoot.DbConfiguration {
+                        Name = dbName,
+                        IsPersistent = true,
+                        InMemory = true
+                    })
+                    .ComposeApplication(container);
+
                 container.Register<IDebugLog,DebugLogXUnit>(Lifestyle.Singleton);
                 container.Verify();
                 container.GetInstance<IEventStoreConnection>().Initialise();

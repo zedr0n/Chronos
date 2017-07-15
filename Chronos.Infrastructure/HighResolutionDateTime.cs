@@ -3,12 +3,16 @@ using System.Runtime.InteropServices;
 
 namespace  Chronos.Infrastructure
 {
+
     public static class HighResolutionDateTime
     {
-        public static bool IsAvailable { get; private set; }
+        private static class NativeMethods
+        {
+            [DllImport("Kernel32.dll", CallingConvention = CallingConvention.Winapi)]
+            internal static extern void GetSystemTimePreciseAsFileTime(out long filetime);
+        }
 
-        [DllImport("Kernel32.dll", CallingConvention = CallingConvention.Winapi)]
-        private static extern void GetSystemTimePreciseAsFileTime(out long filetime);
+        public static bool IsAvailable { get; private set; }
 
         public static DateTime UtcNow
         {
@@ -20,8 +24,7 @@ namespace  Chronos.Infrastructure
                         "High resolution clock isn't available.");
                 }
 
-                long filetime;
-                GetSystemTimePreciseAsFileTime(out filetime);
+                NativeMethods.GetSystemTimePreciseAsFileTime(out long filetime);
 
                 return DateTime.FromFileTimeUtc(filetime);
             }
@@ -32,7 +35,7 @@ namespace  Chronos.Infrastructure
             try
             {
                 long filetime;
-                GetSystemTimePreciseAsFileTime(out filetime);
+                NativeMethods.GetSystemTimePreciseAsFileTime(out filetime);
                 IsAvailable = true;
             }
             catch (Exception)

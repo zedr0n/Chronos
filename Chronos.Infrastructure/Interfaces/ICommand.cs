@@ -1,7 +1,6 @@
 ﻿using System;
-using Chronos.Infrastructure.Interfaces;
 
-namespace Chronos.Infrastructure.Commands
+namespace Chronos.Infrastructure.Interfaces
 {
     public interface ICommand : IMessage
     {

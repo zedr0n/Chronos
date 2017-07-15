@@ -1,5 +1,6 @@
 using System;
 using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure.Projections
 {

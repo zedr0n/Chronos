@@ -13,9 +13,9 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             _container = container;
         }
 
-        public IProjector Get(Type t)
+        public T Get<T>() where T : class,IProjector
         {
-            return  (IProjector) _container.GetInstance(typeof(IProjector<>).MakeGenericType(t));
+            return   _container.GetInstance<T>();
         }
     }
 }

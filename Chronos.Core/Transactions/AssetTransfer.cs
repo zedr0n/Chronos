@@ -28,8 +28,8 @@ namespace Chronos.Core.Transactions
             if (e.SourceId != Id)
                 return;
 
-            AccountFrom = e.FromAccount;
-            AccountTo = e.ToAccount;
+            TransferDetails = new TransferDetails(e.FromAccount,e.ToAccount);
+
             _assetId = e.AssetId;
             Description = e.Description;
         }

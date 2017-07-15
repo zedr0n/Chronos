@@ -1,4 +1,5 @@
 ﻿using System;
+using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure.Events
 {

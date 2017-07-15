@@ -26,8 +26,7 @@ namespace Chronos.Core.Transactions
 
         public void When(CashTransferCreated e)
         {
-            AccountFrom = e.FromAccount;
-            AccountTo = e.ToAccount;
+            TransferDetails = new TransferDetails(e.FromAccount,e.ToAccount);
             _cash = new Cash(e.Currency,e.Amount);
         }
     }

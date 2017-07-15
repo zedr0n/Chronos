@@ -5,8 +5,7 @@ namespace Chronos.Core.Transactions
 {
     public abstract class Transfer : AggregateBase
     {
-        protected Guid AccountFrom { get; set; }
-        protected Guid AccountTo { get; set; }
+        protected TransferDetails TransferDetails { get; set; }
         protected string Description { get; set; }
 
         protected Transfer() { }

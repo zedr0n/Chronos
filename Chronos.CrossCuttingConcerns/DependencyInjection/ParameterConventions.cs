@@ -26,7 +26,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             private readonly IParameterConvention _convention;
             private readonly Container _container;
 
-            public ConventionDependencyInjectionBehavior(
+            internal ConventionDependencyInjectionBehavior(
                 IDependencyInjectionBehavior decoratee, IParameterConvention convention, Container container)
             {
                 _decoratee = decoratee;

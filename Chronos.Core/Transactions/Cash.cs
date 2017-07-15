@@ -7,7 +7,7 @@ namespace Chronos.Core.Transactions
         public string Currency { get; private set; }
         public double Amount { get; private set; }
 
-        public Cash() { }
+        private Cash() { }
 
         public Cash WithAmount(double amount)
         {

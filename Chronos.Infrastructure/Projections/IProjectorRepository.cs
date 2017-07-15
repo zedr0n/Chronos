@@ -4,6 +4,6 @@ namespace Chronos.Infrastructure.Projections
 {
     public interface IProjectorRepository
     {
-        IProjector Get(Type t);
+        T Get<T>() where T : class,IProjector;
     }
 }

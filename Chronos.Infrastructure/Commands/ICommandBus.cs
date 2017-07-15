@@ -1,4 +1,6 @@
-﻿namespace Chronos.Infrastructure.Commands
+﻿using Chronos.Infrastructure.Interfaces;
+
+namespace Chronos.Infrastructure.Commands
 {
     public interface ICommandBus
     {

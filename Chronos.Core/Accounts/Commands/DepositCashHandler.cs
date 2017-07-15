@@ -4,10 +4,10 @@ using Chronos.Infrastructure.Commands;
 
 namespace Chronos.Core.Accounts.Commands
 {
-    public class DepositCash : CommandHandlerBase,ICommandHandler<DepositCashCommand>
+    public class DepositCashHandler : CommandHandlerBase,ICommandHandler<DepositCashCommand>
     {
 
-        public DepositCash(IDomainRepository domainRepository)
+        public DepositCashHandler(IDomainRepository domainRepository)
             : base(domainRepository)
         {
         }
