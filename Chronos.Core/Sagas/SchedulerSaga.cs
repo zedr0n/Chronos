@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 using NodaTime;
@@ -28,10 +28,6 @@ namespace Chronos.Core.Sagas
 
         public SchedulerSaga() { }
 
-        public SchedulerSaga(Guid sagaId) : base(sagaId)
-        {
-        }
-
         protected override void ConfigureStateMachine()
         {
             StateMachine = new StateMachine<STATE, TRIGGER>(STATE.OPEN);
@@ -47,8 +43,9 @@ namespace Chronos.Core.Sagas
             StateMachine.Configure(STATE.COMPLETED)
                 .Ignore(TRIGGER.COMMAND_SCHEDULED)
                 .Ignore(TRIGGER.COMMAND_DUE)
-                .OnEntry(ExecuteCommand)
-                .OnEntry(OnComplete);
+                .OnEntry(ExecuteCommand);
+
+            base.ConfigureStateMachine();
         }
 
         private void ExecuteCommand()
@@ -58,41 +55,26 @@ namespace Chronos.Core.Sagas
 
         private void RequestTimeout()
         {
-            SendMessage(new TimeoutRequested
+            SendMessage(new RequestTimeoutCommand
             {
-                SourceId = SagaId,
+                AggregateId = SagaId,
                 When = _scheduledOn
             });
         }
 
-        protected override bool IsComplete()
-        {
-            return StateMachine.IsInState(STATE.COMPLETED);
-        }
-
         public void When(CommandScheduled e)
         {
-            if(!base.When(e))
-                return;
-
             _command = e.Command;
             _scheduledOn = e.Time;
 
             StateMachine.Fire(TRIGGER.COMMAND_SCHEDULED);
+            base.When(e);
         }
-
 
         public void When(TimeoutCompleted e)
         {
-            if (!base.When(e))
-                return;
-
-            // remove the timeout request if any
-            // there will be one when saga is rebuilt from events
-            ClearUndispatchedMessages();
-
             StateMachine.Fire(TRIGGER.COMMAND_DUE);
-
+            base.When(e);
         }
     }
 }

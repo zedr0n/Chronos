@@ -1,61 +1,29 @@
-﻿using System;
+﻿using System.Diagnostics;
 using Chronos.Core.Transactions.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
-using Chronos.Infrastructure.Sagas;
+using Chronos.Infrastructure.Logging;
 
 namespace Chronos.Core.Sagas
 {
-    public class SagaManager : ISagaManager,
+    public class SagaManager : SagaManagerBase,
         IConsumer<PurchaseCreated>,
         IConsumer<CommandScheduled>,
         IConsumer<TimeoutCompleted>,
         IConsumer<CashTransferCreated>
     {
-        private readonly ISagaRepository _repository;
 
-        public SagaManager(IEventBus eventBus, ISagaRepository repository)
+        [DebuggerStepThrough]
+        public void When(PurchaseCreated e) => When<PurchaseCreated,TransactionSaga>(e);
+        [DebuggerStepThrough]
+        public void When(CommandScheduled e) => When<CommandScheduled, SchedulerSaga>(e);
+        [DebuggerStepThrough]
+        public void When(TimeoutCompleted e) => When<TimeoutCompleted, SchedulerSaga>(e);
+        [DebuggerStepThrough]
+        public void When(CashTransferCreated e) => When<CashTransferCreated, TransferSaga>(e);
+
+        public SagaManager(ISagaRepository repository, IEventBus eventBus, IDebugLog debugLog) : base(repository, eventBus, debugLog)
         {
-            _repository = repository;
-            this.RegisterAll(eventBus);
-        }
-        public void When(PurchaseCreated e)
-        {
-            var sagaId = e.SourceId;
-            var saga = _repository.Find<TransactionSaga>(sagaId) ?? new TransactionSaga(sagaId);
-
-            saga.Dispatch(e);
-
-            _repository.Save(saga);
-        }
-
-        public void When(CommandScheduled e)
-        {
-            var sagaId = e.ScheduleId;
-            var saga = _repository.Find<SchedulerSaga>(sagaId) ?? new SchedulerSaga(sagaId);
-
-            saga.Dispatch(e);
-
-            _repository.Save(saga);
-        }
-
-
-        public void When(TimeoutCompleted e)
-        {
-            var sagaId = e.SourceId;
-            var saga = _repository.Find<SchedulerSaga>(sagaId) ?? new SchedulerSaga(sagaId);
-
-            saga.Dispatch(e);
-
-            _repository.Save(saga);
-        }
-
-        public void When(CashTransferCreated e)
-        {
-            var sagaId = e.SourceId;
-            var saga = _repository.Find<TransferSaga>(sagaId) ?? new TransferSaga(sagaId);
-            saga.Dispatch(e);
-            _repository.Save(saga);
         }
     }
 }

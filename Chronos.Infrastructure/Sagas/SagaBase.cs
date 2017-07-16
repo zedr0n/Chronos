@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
+using Chronos.Infrastructure.Logging;
 
 namespace Chronos.Infrastructure.Sagas
 {
-    public abstract class SagaBase : ISaga, IConsumer<SagaCompleted>
+    public abstract class SagaBase : ISaga
     {
+        public IDebugLog DebugLog { get; set; }
         public Guid SagaId { get; private set; }
         public int Version { get; private set; }
-
-        protected abstract bool IsComplete();
 
         private readonly List<IEvent> _uncommitedEvents = new List<IEvent>();
         private readonly List<IMessage> _undispatchedMessages = new List<IMessage>();
@@ -24,37 +24,18 @@ namespace Chronos.Infrastructure.Sagas
             SagaId = sagaId;
         }
 
-        protected void OnComplete()
-        {
-            _uncommitedEvents.Add(new SagaCompleted { SourceId = SagaId } );
-        }
-
-        /// <summary>
-        /// If the saga is in completed state there's no need to dispatch messages anymore
-        /// </summary>
-        public void When(SagaCompleted e)
-        {
-            ClearUndispatchedMessages();
-        }
-
         public T LoadFrom<T>(Guid id,IEnumerable<IEvent> pastEvents) where T : class, ISaga,new()
         {
             SagaId = id;
             Version = 0;
             foreach (var e in pastEvents)
-            {
-                if (this.Dispatch(e))
-                    Version++;
-            }
-            // as the events for sagas flow through event bus reloading saga will recommit events again
-            _uncommitedEvents.Clear();
+                this.Dispatch(e);
 
             return this as T;
         }
 
         public void ClearUncommittedEvents()
         {
-            Version += _uncommitedEvents.Count;
             _uncommitedEvents.Clear();
         }
 
@@ -63,15 +44,12 @@ namespace Chronos.Infrastructure.Sagas
             _undispatchedMessages.Clear();
         }
 
-        protected bool When(IEvent e)
+        protected void When(IEvent e)
         {
-            if (!IsComplete())
-            {
-                if(!e.Replaying)
-                    _uncommitedEvents.Add(e);
-                return true;
-            }
-            return false;
+            Version++;
+
+            if (!e.Replaying)
+                _uncommitedEvents.Add(e);
         }
 
         /// <summary>

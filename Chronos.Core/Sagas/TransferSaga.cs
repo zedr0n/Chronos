@@ -39,8 +39,9 @@ namespace Chronos.Core.Sagas
 
             StateMachine.Configure(STATE.COMPLETED)
                 .OnEntryFrom(TRIGGER.ASSETTRANSFER_CREATED, TransferAsset)
-                .OnEntryFrom(TRIGGER.CASHTRANSFER_CREATED, TransferCash)
-                .OnEntry(OnComplete);
+                .OnEntryFrom(TRIGGER.CASHTRANSFER_CREATED, TransferCash);
+
+            base.ConfigureStateMachine();
         }
 
         private void TransferCash()
@@ -67,27 +68,20 @@ namespace Chronos.Core.Sagas
 
         public void When(AssetTransferCreated e)
         {
-            if (!base.When(e))
-                return;
-
             _transferDetails = new TransferDetails(e.FromAccount,e.ToAccount);
             _assetId = e.AssetId;
 
             StateMachine.Fire(TRIGGER.ASSETTRANSFER_CREATED);
+            base.When(e);
         }
 
         public void When(CashTransferCreated e)
         {
-            if (!base.When(e))
-                return;
-
             _transferDetails = new TransferDetails(e.FromAccount, e.ToAccount);
             _amount = e.Amount;
 
             StateMachine.Fire(TRIGGER.CASHTRANSFER_CREATED);
+            base.When(e);
         }
-
-        protected override bool IsComplete() => StateMachine.IsInState(STATE.COMPLETED);
-
     }
 }

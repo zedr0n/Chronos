@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure
 {
@@ -12,6 +13,7 @@ namespace Chronos.Infrastructure
         private readonly ITimeline _timeline;
         private readonly Dictionary<Guid,Timer> _timers = new Dictionary<Guid, Timer>();
         private const int PollingFrequency = 100;
+
 
         public TimerService(IEventBus eventBus, ITimeline timeline)
         {
@@ -50,7 +52,7 @@ namespace Chronos.Infrastructure
             lock (_timers)
             {
                 if (!_timers.ContainsKey(e.SourceId))
-                    _timers[e.SourceId] = new Timer(obj => CheckTimeout(e) , null, PollingFrequency, PollingFrequency);
+                    _timers[e.SourceId] = new Timer(obj => CheckTimeout(e), null, PollingFrequency, PollingFrequency);
                 else
                     throw new InvalidOperationException("Timeout has already been requested for this id");
             }

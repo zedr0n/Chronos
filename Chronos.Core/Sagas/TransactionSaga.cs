@@ -22,8 +22,6 @@ namespace Chronos.Core.Sagas
         private double _amount;
         private Guid _accountId;
 
-        protected override bool IsComplete() => StateMachine.IsInState(STATE.COMPLETED);
-
         protected override void ConfigureStateMachine()
         {
             StateMachine = new StateMachine<STATE, TRIGGER>(STATE.OPEN);
@@ -32,17 +30,15 @@ namespace Chronos.Core.Sagas
                 .Permit(TRIGGER.PURCHASE_CREATED, STATE.COMPLETED);
 
             StateMachine.Configure(STATE.COMPLETED)
-                .OnEntry(WithdrawCash)
-                .OnEntry(OnComplete);
+                .Ignore(TRIGGER.PURCHASE_CREATED)
+                .OnEntry(WithdrawCash);
+
+            base.ConfigureStateMachine();
         }
 
         public TransactionSaga() { }
 
-        public TransactionSaga(Guid id) : base(id)
-        {
-        }
-
-       private void WithdrawCash()
+        private void WithdrawCash()
         {
             SendMessage(new WithdrawCashCommand
             {
@@ -53,13 +49,11 @@ namespace Chronos.Core.Sagas
 
         public void When(PurchaseCreated e)
         {
-            if(!base.When(e))
-                return;
-
             _amount = e.Amount;
             _accountId = e.AccountId;
 
             StateMachine.Fire(TRIGGER.PURCHASE_CREATED);
+            base.When(e);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using Chronos.Infrastructure.Logging;
 using Chronos.Infrastructure.Sagas;
 using Stateless;
 
@@ -23,8 +24,14 @@ namespace Chronos.Core.Sagas
         {
         }
 
-        protected abstract void ConfigureStateMachine();
+        protected void OnTransition(StateMachine<TState, TTrigger>.Transition transition)
+        {
+            DebugLog?.WriteLine("    " + transition.Source + " :: " + transition.Destination);
+        }
 
-        protected abstract override bool IsComplete();
+        protected virtual void ConfigureStateMachine()
+        {
+            StateMachine.OnTransitioned(OnTransition);
+        }
     }
 }
