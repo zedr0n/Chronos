@@ -9,7 +9,8 @@ namespace Chronos.Core.Sagas
     public class SagaManager : ISagaManager,
         IConsumer<PurchaseCreated>,
         IConsumer<CommandScheduled>,
-        IConsumer<TimeoutCompleted>
+        IConsumer<TimeoutCompleted>,
+        IConsumer<CashTransferCreated>
     {
         private readonly ISagaRepository _repository;
 
@@ -46,6 +47,14 @@ namespace Chronos.Core.Sagas
 
             saga.Dispatch(e);
 
+            _repository.Save(saga);
+        }
+
+        public void When(CashTransferCreated e)
+        {
+            var sagaId = e.SourceId;
+            var saga = _repository.Find<TransferSaga>(sagaId) ?? new TransferSaga(sagaId);
+            saga.Dispatch(e);
             _repository.Save(saga);
         }
     }

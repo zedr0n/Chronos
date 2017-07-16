@@ -71,7 +71,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(DepositAssetHandler),
                 typeof(WithdrawCashHandler),
                 typeof(CreatePurchaseHandler),
-                typeof(ScheduleCommandHandler)
+                typeof(ScheduleCommandHandler),
+                typeof(CreateCashTransferHandler)
                 } ,Lifestyle.Singleton);
             //container.Register<ICommandHandler<CreateAccountCommand>, CreateAccountHandler>(Lifestyle.Singleton);
             //container.Register<ICommandHandler<ChangeAccountCommand>, ChangeAccountHandler>(Lifestyle.Singleton);

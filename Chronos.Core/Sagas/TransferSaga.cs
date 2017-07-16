@@ -26,12 +26,16 @@ namespace Chronos.Core.Sagas
         private double _amount;
         private Guid _assetId;
 
+        public TransferSaga() { }
+        public TransferSaga(Guid id) : base(id) { }
+
         protected override void ConfigureStateMachine()
         {
             StateMachine = new StateMachine<STATE, TRIGGER>(STATE.OPEN);
 
             StateMachine.Configure(STATE.OPEN)
-                .Permit(TRIGGER.ASSETTRANSFER_CREATED, STATE.COMPLETED);
+                .Permit(TRIGGER.ASSETTRANSFER_CREATED, STATE.COMPLETED)
+                .Permit(TRIGGER.CASHTRANSFER_CREATED, STATE.COMPLETED);
 
             StateMachine.Configure(STATE.COMPLETED)
                 .OnEntryFrom(TRIGGER.ASSETTRANSFER_CREATED, TransferAsset)
@@ -63,7 +67,7 @@ namespace Chronos.Core.Sagas
 
         public void When(AssetTransferCreated e)
         {
-            if (base.When(e))
+            if (!base.When(e))
                 return;
 
             _transferDetails = new TransferDetails(e.FromAccount,e.ToAccount);
@@ -74,7 +78,7 @@ namespace Chronos.Core.Sagas
 
         public void When(CashTransferCreated e)
         {
-            if (base.When(e))
+            if (!base.When(e))
                 return;
 
             _transferDetails = new TransferDetails(e.FromAccount, e.ToAccount);

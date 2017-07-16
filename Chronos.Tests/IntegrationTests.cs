@@ -42,7 +42,7 @@ namespace Chronos.Tests
         [Fact]
         public void CanCreateMultipleAccounts()
         {
-            var container = CreateContainer(nameof(CanCreateAccount));
+            var container = CreateContainer(nameof(CanCreateMultipleAccounts));
             var bus = container.GetInstance<ICommandBus>();
             var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
 
@@ -459,6 +459,56 @@ namespace Chronos.Tests
             }, null, 500, 500);
 
             waitHandle.WaitOne();
+        }
+
+        [Fact]
+        public void CanCreateTransfer()
+        {
+            var container = CreateContainer(nameof(CanCreatePurchase));
+            var bus = container.GetInstance<ICommandBus>();
+
+            var accountId = Guid.NewGuid();
+            var createAccountCommand = new CreateAccountCommand
+            {
+                AggregateId = accountId,
+                Currency = "GBP",
+                Name = "Account"
+            };
+
+            bus.Send(createAccountCommand);
+
+            var otherAccountId = Guid.NewGuid();
+            var createOtherAccountCommand = new CreateAccountCommand
+            {
+                AggregateId = otherAccountId,
+                Currency = "GBP",
+                Name = "OtherAccount"
+            };
+
+            bus.Send(createOtherAccountCommand);
+
+            var transferId = Guid.NewGuid();
+
+            var transferCommand = new CreateCashTransferCommand
+            {
+                AggregateId = transferId,
+                Amount = 100,
+                Currency = "GBP",
+                FromAccount = accountId,
+                ToAccount = otherAccountId
+            };
+
+            bus.Send(transferCommand);
+
+            var query = new GetAccountInfo { AccountId = accountId };
+            var otherQuery = new GetAccountInfo {AccountId = otherAccountId};
+
+            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var accountInfo = queryHandler.Handle(query);
+            var otherAccountInfo = queryHandler.Handle(otherQuery);
+
+            Assert.Equal(-100, accountInfo.Balance);
+            Assert.Equal(100, otherAccountInfo.Balance);
         }
 
         public IntegrationTests(ITestOutputHelper output) : base(output)
