@@ -47,9 +47,7 @@ namespace Chronos.Infrastructure.Sagas
         protected void When(IEvent e)
         {
             Version++;
-
-            if (!e.Replaying)
-                _uncommitedEvents.Add(e);
+            _uncommitedEvents.Add(e);
         }
 
         /// <summary>
