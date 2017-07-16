@@ -33,8 +33,8 @@ namespace Chronos.Tests
                 var container = new Container();
                 CompositionRoot.WithDatabase(new CompositionRoot.DbConfiguration {
                         Name = dbName,
-                        IsPersistent = true,
-                        InMemory = true
+                        IsPersistent = false,
+                        InMemory = false
                     })
                     .ComposeApplication(container);
 

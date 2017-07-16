@@ -25,13 +25,9 @@ namespace Chronos.Infrastructure
         /// <returns></returns>
         IEnumerable<IEvent> ReadStreamEventsForward(string streamName, long start, int count);
 
-        void Initialise();
+        bool Exists(string streamName);
 
-        /// <summary>
-        /// Aggregate and return events from all streams
-        /// </summary>
-        /// <returns></returns>
-        IEnumerable<IEvent> GetAllEvents();
+        void Initialise();
 
         IEnumerable<IEvent> GetAggregateEvents();
     }

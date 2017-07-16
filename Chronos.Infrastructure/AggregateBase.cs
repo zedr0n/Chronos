@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 
@@ -7,6 +9,7 @@ namespace Chronos.Infrastructure
 {
     public abstract class AggregateBase : IAggregate
     {
+        private readonly Dictionary<Type,Action<IEvent>> _handlers = new Dictionary<Type, Action<IEvent>>();
         private readonly List<IEvent> _uncommitedEvents = new List<IEvent>();
 
         public Guid Id { get; private set; }
@@ -16,11 +19,18 @@ namespace Chronos.Infrastructure
         public void ClearUncommitedEvents()
         {
             _uncommitedEvents.Clear();
-        } 
+        }
 
-        protected AggregateBase() { }
+        protected AggregateBase()
+        {
+            foreach (var m in GetType().GetTypeInfo().GetDeclaredMethods("When"))
+            {
+                _handlers.Add(m.GetParameters().Single().ParameterType,e => m.Invoke(this,new object[] { e }));
+            }
+        }
 
         protected AggregateBase(Guid id)
+            : this()
         {
             Id = id;
         }
@@ -35,6 +45,16 @@ namespace Chronos.Infrastructure
                     Version++;
             }
             return this as T;
+        }
+
+        private bool Dispatch(IEvent e)
+        {
+            if (_handlers.ContainsKey(e.GetType()))
+            {
+                _handlers[e.GetType()].Invoke(e);
+                return true;
+            }
+            return false;
         }
 
         protected void RaiseEvent(IEvent e)

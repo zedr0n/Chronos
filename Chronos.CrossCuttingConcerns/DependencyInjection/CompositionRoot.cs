@@ -68,6 +68,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(CreateAccountHandler),
                 typeof(ChangeAccountHandler),
                 typeof(DepositCashHandler),
+                typeof(DepositAssetHandler),
                 typeof(WithdrawCashHandler),
                 typeof(CreatePurchaseHandler),
                 typeof(ScheduleCommandHandler)

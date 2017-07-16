@@ -4,6 +4,7 @@ namespace Chronos.Infrastructure.Commands
 {
     public interface ICommandBus
     {
-        void Send<T>(T e) where T : ICommand;
+        void Send<T>(T e) where T : class,ICommand;
+        void Send(ICommand command);
     }
 }

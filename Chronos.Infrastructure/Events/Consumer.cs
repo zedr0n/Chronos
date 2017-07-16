@@ -37,7 +37,7 @@ namespace Chronos.Infrastructure.Events
         }
 
         public static void Register<TEvent>(this IConsumer<TEvent> consumer, IEventBus eventBus)
-            where TEvent : IEvent
+            where TEvent : class,IEvent
         {
             eventBus.Subscribe<TEvent>(consumer.When);
         }

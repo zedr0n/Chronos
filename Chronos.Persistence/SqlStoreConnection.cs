@@ -34,16 +34,19 @@ namespace Chronos.Persistence
                 e.Timestamp = timestamp;
         }
 
+        public bool Exists(string streamName)
+        {
+            using (var db = _eventDb.GetContext())
+            {
+                //db.LogToConsole();
+                var streamId = streamName.GetHashCode();
+                return db.Set<Stream>().AsNoTracking().Any(x => x.HashId == streamId);
+            }
+        }
+
         public void Initialise()
         {
             _eventDb.Init();
-            //return;
-            using (var db = _eventDb.GetContext())
-            {
-                var streams = db.Set<Stream>().AsNoTracking().ToList();
-                foreach (var stream in streams)
-                    _streamVersions[stream.Name] = stream.Version;
-            }
         }
 
         private Stream OpenStreamForWriting(DbContext context, string streamName)
@@ -57,6 +60,7 @@ namespace Chronos.Persistence
                 // create a new stream if none exists
                 stream = new Stream
                 {
+                    HashId = streamName.GetHashCode(),
                     Name = streamName,
                     Version = 0
                 };
@@ -65,7 +69,7 @@ namespace Chronos.Persistence
             else
             {
                 // create a dummy stream to avoid loading all events from database
-                stream = new Stream { Name = streamName, Version = version };
+                stream = new Stream { HashId = streamName.GetHashCode(), Name = streamName, Version = version };
                 context.Set<Stream>().Attach(stream);
             }
 
@@ -148,19 +152,15 @@ namespace Chronos.Persistence
 
         private int GetStreamVersion(string name)
         {
-            if (!_streamVersions.ContainsKey(name))
+            using (var db = _eventDb.GetContext())
             {
-                return -1;
-                using (var db = _eventDb.GetContext())
-                {
-                    var streams = db.Set<Stream>().AsNoTracking().ToList();
-                    var stream = streams.SingleOrDefault(s => s.Name == name);
-                    if (stream == null)
-                        return -1;
-                    _streamVersions[name] = stream.Version;
-                }
+                var streamId = name.GetHashCode();
+                var streams = db.Set<Stream>().AsNoTracking().Where(x => x.HashId == streamId).Select(x => x.Version).ToList();
+
+                if (!streams.Any())
+                    return -1;
+                return streams.Single();
             }
-            return _streamVersions[name];
         }
 
         public IEnumerable<IEvent> ReadStreamEventsForward(string streamName, long start, int count)
@@ -170,13 +170,18 @@ namespace Chronos.Persistence
 
             using (var context = _eventDb.GetContext())
             {
-                var streamQuery = context.Set<Stream>().Where(x => x.Name == streamName);
+                //context.LogToConsole();
+                var streamId = streamName.GetHashCode();
+                var streamQuery = context.Set<Stream>().Where(x => x.HashId == streamId);
 
                 if (_inMemory)
                     streamQuery = streamQuery.Include(x => x.Events);
 
                 var stream = streamQuery.SingleOrDefault();
-                var events = context.Entry(stream).Collection(x => x.Events).Query().Skip((int)start).Take(count)
+
+                var allEvents = _inMemory ? stream.Events : context.Entry(stream).Collection(x => x.Events).Query().AsEnumerable();
+
+                var events = allEvents.Skip((int)start).Take(count)
                         .ToList();
 
                 var now = _timeline.Now();
@@ -185,19 +190,6 @@ namespace Chronos.Persistence
                     .Where(e => e.Timestamp.CompareTo(now) <= 0)
                     .OrderBy(e => e.Timestamp);
             }
-        }
-
-        public IEnumerable<IEvent> GetAllEvents()
-        {
-            using (var context = _eventDb.GetContext())
-            {               
-                var events = new List<IEvent>();
-                foreach (var stream in context.Set<Stream>()/*.Where(s => !s.Name.Contains("Saga"))*/.Include(x => x.Events).AsEnumerable())
-                    events.AddRange(stream.Events.Select(Deserialize));
-
-                return events;
-            }
-
         }
 
         public IEnumerable<IEvent> GetAggregateEvents()

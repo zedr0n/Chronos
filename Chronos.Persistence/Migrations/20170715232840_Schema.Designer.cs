@@ -8,7 +8,7 @@ using Chronos.Persistence;
 namespace Chronos.Persistence.Migrations
 {
     [DbContext(typeof(EventContext))]
-    [Migration("20170708222420_Schema")]
+    [Migration("20170715232840_Schema")]
     partial class Schema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,25 +25,27 @@ namespace Chronos.Persistence.Migrations
 
                     b.Property<string>("Payload");
 
-                    b.Property<string>("StreamName");
+                    b.Property<int?>("StreamHashId");
 
                     b.Property<DateTime>("TimestampUtc");
 
                     b.HasKey("EventNumber");
 
-                    b.HasIndex("StreamName");
+                    b.HasIndex("StreamHashId");
 
                     b.ToTable("Events");
                 });
 
             modelBuilder.Entity("Chronos.Persistence.Stream", b =>
                 {
-                    b.Property<string>("Name")
+                    b.Property<int>("HashId")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Name");
 
                     b.Property<int>("Version");
 
-                    b.HasKey("Name");
+                    b.HasKey("HashId");
 
                     b.ToTable("Streams");
                 });
@@ -52,7 +54,7 @@ namespace Chronos.Persistence.Migrations
                 {
                     b.HasOne("Chronos.Persistence.Stream")
                         .WithMany("Events")
-                        .HasForeignKey("StreamName");
+                        .HasForeignKey("StreamHashId");
                 });
         }
     }

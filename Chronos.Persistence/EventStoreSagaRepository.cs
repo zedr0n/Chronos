@@ -36,10 +36,8 @@ namespace Chronos.Persistence
 
             foreach (var e in saga.UndispatchedMessages)
             {
-                if(typeof(ICommand).GetTypeInfo().IsAssignableFrom(e.GetType().GetTypeInfo()))
-                    _commandBus.Send((dynamic) e);
-                else
-                    _eventBus.Publish((dynamic) e);
+                _commandBus.Send(e as ICommand);
+                _eventBus.Publish(e as IEvent);
             }
 
             saga.ClearUncommittedEvents();

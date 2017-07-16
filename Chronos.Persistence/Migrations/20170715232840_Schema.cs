@@ -12,12 +12,14 @@ namespace Chronos.Persistence.Migrations
                 name: "Streams",
                 columns: table => new
                 {
-                    Name = table.Column<string>(nullable: false),
+                    HashId = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(nullable: true),
                     Version = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Streams", x => x.Name);
+                    table.PrimaryKey("PK_Streams", x => x.HashId);
                 });
 
             migrationBuilder.CreateTable(
@@ -28,24 +30,24 @@ namespace Chronos.Persistence.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Guid = table.Column<Guid>(nullable: false),
                     Payload = table.Column<string>(nullable: true),
-                    StreamName = table.Column<string>(nullable: true),
+                    StreamHashId = table.Column<int>(nullable: true),
                     TimestampUtc = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Events", x => x.EventNumber);
                     table.ForeignKey(
-                        name: "FK_Events_Streams_StreamName",
-                        column: x => x.StreamName,
+                        name: "FK_Events_Streams_StreamHashId",
+                        column: x => x.StreamHashId,
                         principalTable: "Streams",
-                        principalColumn: "Name",
+                        principalColumn: "HashId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Events_StreamName",
+                name: "IX_Events_StreamHashId",
                 table: "Events",
-                column: "StreamName");
+                column: "StreamHashId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -5,6 +5,9 @@ namespace Chronos.Infrastructure.Commands
 {
     public interface ICommandRegistry
     {
-        ICommandHandler<T> GetHandler<T>() where T : ICommand;
+        Action<T> GetHandler<T>() where T : class,ICommand;
+        Action<ICommand> GetHandler(ICommand command);
+        string GetHandlerName(ICommand command);
+
     }
 }

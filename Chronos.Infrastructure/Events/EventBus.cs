@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
@@ -11,7 +12,30 @@ namespace Chronos.Infrastructure.Events
 {
     public class EventBus : IEventBus
     {
-        private readonly Dictionary<Type, List<object>> _subscribers = new Dictionary<Type, List<object>>();
+        private class Handler
+        {
+            private Type _target;
+            public string FullName => _target.FullName;
+            public string Name => _target.Name;
+            public Action<IEvent> Action { get; private set; }
+
+            public static Handler Create<T>(Action<T> action) where T : class, IEvent
+            {
+                return new Handler
+                {
+                    _target = action.Target.GetType(),
+                    Action = e => action(e as T)
+                };
+            }
+
+            public bool Is<T>(Action<T> handler) where T : class, IEvent
+            {
+                return FullName == handler.Target.GetType().FullName;
+            }
+
+        }
+
+        private readonly Dictionary<Type, List<Handler>> _subscribers = new Dictionary<Type, List<Handler>>();
         private readonly IDebugLog _debugLog;
 
         public EventBus(IDebugLog debugLog)
@@ -19,27 +43,29 @@ namespace Chronos.Infrastructure.Events
             _debugLog = debugLog;
         }
 
-        public void Subscribe<TEvent>(Action<TEvent> handler) where TEvent : IEvent
+        public void Subscribe<TEvent>(Action<TEvent> handler) where TEvent : class,IEvent
         {
             if (_subscribers.ContainsKey(typeof(TEvent)))
             {
                 var handlers = _subscribers[typeof(TEvent)];
-                if(!handlers.Contains(handler))
-                    handlers.Add(handler);
+                if (handlers.Any(x => x.Is(handler)))
+                    return;
+
+                handlers.Add(Handler.Create(handler));
             }
             else
             {
-                var handlers = new List<object> { handler };
+                var handlers = new List<Handler> { Handler.Create(handler) };
                 _subscribers[typeof(TEvent)] = handlers;
             }
         }
 
-        public void Unsubscribe<TEvent>(Action<TEvent> handler) where TEvent : IEvent
+        public void Unsubscribe<TEvent>(Action<TEvent> handler) where TEvent : class,IEvent
         {
             if (_subscribers.ContainsKey(typeof(TEvent)))
             {
                 var handlers = _subscribers[typeof(TEvent)];
-                handlers.Remove(handler);
+                handlers.Remove(handlers.SingleOrDefault(x => x.Is(handler)));
 
                 if (handlers.Count == 0)
                 {
@@ -48,19 +74,39 @@ namespace Chronos.Infrastructure.Events
             }
         }
 
-        public void Publish<TEvent>(TEvent e) where TEvent : IEvent
+        public void Publish<TEvent>(TEvent e) where TEvent : class,IEvent
         {
             if (_subscribers.ContainsKey(typeof(TEvent)))
             {
                 var handlers = _subscribers[typeof(TEvent)];
                 _debugLog.WriteLine(e.GetType().Name + (e.Replaying ? "[R]" : "") + "( " + InstantPattern.ExtendedIso.Format(e.Timestamp) + " )");
-                foreach (Action<TEvent> handler in handlers.AsReadOnly())
+                foreach (var handler in handlers)
                 {
-                    _debugLog.WriteLine(" -> " + handler?.Target.GetType().Name);
-                    handler?.Invoke(e);
+                    _debugLog.WriteLine(" -> " + handler?.Name);
+                    handler?.Action?.Invoke(e);
                 }
                 _debugLog.WriteLine("");
             }
+        }
+
+        public void Publish(IEvent e)
+        {
+            if (e == null)
+                return;
+            var type = e.GetType();
+            if (_subscribers.ContainsKey(type))
+            {
+                var handlers = _subscribers[type];
+                _debugLog.WriteLine(e.GetType().Name + (e.Replaying ? "[R]" : "") + "( " +
+                                    InstantPattern.ExtendedIso.Format(e.Timestamp) + " )");
+                foreach (var handler in handlers)
+                {
+                    _debugLog.WriteLine(" -> " + handler?.Name);
+                    handler?.Action?.Invoke(e);
+                }
+                _debugLog.WriteLine("");
+            }
+
         }
 
         /*public void Publish(object message)
@@ -77,5 +123,5 @@ namespace Chronos.Infrastructure.Events
                 }
             }
         }*/
-    }
+        }
 }

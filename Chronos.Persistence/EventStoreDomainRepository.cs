@@ -45,31 +45,29 @@ namespace Chronos.Persistence
             //var expectedVersion = aggregate.ExpectedVersion(events);
 
             _connection.AppendToStream(aggregate.StreamName(), aggregate.Version - events.Count, events);
-            _lastAggregates[typeof(T)] = aggregate;
+            //_lastAggregates[typeof(T)] = aggregate;
 
             aggregate.ClearUncommitedEvents();
 
             _debugLog.WriteLine("@" + typeof(T).Name + " : ");
-            foreach (dynamic e in events)
+            foreach (var e in events)
                 _eventBus.Publish(e);
         }
 
         public T Find<T>(Guid id) where T : class,IAggregate, new()
         {
-            if (_lastAggregates.ContainsKey(typeof(T)) && _lastAggregates[typeof(T)].Id == id)
-                return (T) _lastAggregates[typeof(T)];
+            //if (_lastAggregates.ContainsKey(typeof(T)) && _lastAggregates[typeof(T)].Id == id)
+            //    return (T) _lastAggregates[typeof(T)];
 
             var streamName = StreamExtensions.StreamName<T>(id);
             var events = _connection.ReadStreamEventsForward(streamName, 0, int.MaxValue).ToList();
 
-            if (events.Any())
-            {
-                var aggregate = new T().LoadFrom<T>(id,events);
-                _lastAggregates[typeof(T)] = aggregate;
-                return aggregate;
-            }
+            if (!events.Any())
+                return null;
 
-            return default(T);
+            var aggregate = new T().LoadFrom<T>(id,events);
+            //_lastAggregates[typeof(T)] = aggregate;
+            return aggregate;
         }
 
         public T Get<T>(Guid id) where T : class,IAggregate,new()
@@ -83,12 +81,12 @@ namespace Chronos.Persistence
 
         public bool Exists<T>(Guid id) where T : class,IAggregate,new()
         {
-            if (_lastAggregates.ContainsKey(typeof(T)) && _lastAggregates[typeof(T)].Id == id || _existingAggregates.Contains(id))
+            /*if (_lastAggregates.ContainsKey(typeof(T)) && _lastAggregates[typeof(T)].Id == id || _existingAggregates.Contains(id))
             {
                 _existingAggregates.Add(id);
                 return true;
-            }
-            return Find<T>(id) != null;
+            }*/
+            return _connection.Exists(StreamExtensions.StreamName<T>(id));
         }
 
         public void Replay(Instant date)
