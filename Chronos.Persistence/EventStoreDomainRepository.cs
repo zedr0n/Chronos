@@ -26,8 +26,6 @@ namespace Chronos.Persistence
     {
         private readonly IEventBus _eventBus;
         private readonly IEventStoreConnection _connection;
-        private readonly HashSet<Guid> _existingAggregates = new HashSet<Guid>();
-        private readonly Dictionary<Type, IAggregate> _lastAggregates = new Dictionary<Type, IAggregate>();
         private readonly IDebugLog _debugLog;
 
         public EventStoreDomainRepository(IEventBus eventBus, IEventStoreConnection connection, IDebugLog debugLog)
@@ -42,10 +40,8 @@ namespace Chronos.Persistence
             var events = aggregate.UncommitedEvents.ToList();
             if (!events.Any())
                 return;
-            //var expectedVersion = aggregate.ExpectedVersion(events);
 
             _connection.AppendToStream(aggregate.StreamName(), aggregate.Version - events.Count, events);
-            //_lastAggregates[typeof(T)] = aggregate;
 
             aggregate.ClearUncommitedEvents();
 
@@ -56,9 +52,6 @@ namespace Chronos.Persistence
 
         public T Find<T>(Guid id) where T : class,IAggregate, new()
         {
-            //if (_lastAggregates.ContainsKey(typeof(T)) && _lastAggregates[typeof(T)].Id == id)
-            //    return (T) _lastAggregates[typeof(T)];
-
             var streamName = StreamExtensions.StreamName<T>(id);
             var events = _connection.ReadStreamEventsForward(streamName, 0, int.MaxValue).ToList();
 
@@ -66,7 +59,6 @@ namespace Chronos.Persistence
                 return null;
 
             var aggregate = new T().LoadFrom<T>(id,events);
-            //_lastAggregates[typeof(T)] = aggregate;
             return aggregate;
         }
 
@@ -81,11 +73,6 @@ namespace Chronos.Persistence
 
         public bool Exists<T>(Guid id) where T : class,IAggregate,new()
         {
-            /*if (_lastAggregates.ContainsKey(typeof(T)) && _lastAggregates[typeof(T)].Id == id || _existingAggregates.Contains(id))
-            {
-                _existingAggregates.Add(id);
-                return true;
-            }*/
             return _connection.Exists(StreamExtensions.StreamName<T>(id));
         }
 

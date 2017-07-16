@@ -126,7 +126,7 @@ namespace Chronos.Tests
                 Name = "Account"
             };
 
-            var container = CreateContainer(nameof(CanProjectAccountInfo));
+            var container = CreateContainer(nameof(CanChangeAccount));
             var bus = container.GetInstance<ICommandBus>();
             bus.Send(command);
             
@@ -198,7 +198,7 @@ namespace Chronos.Tests
                 Name = "Account"
             };
 
-            var container = CreateContainer(nameof(CanProjectAccountInfo));
+            var container = CreateContainer(nameof(CanRebuildAccountInfo));
             var bus = container.GetInstance<ICommandBus>();
 
             var createPurchaseCommand = new CreatePurchaseCommand
