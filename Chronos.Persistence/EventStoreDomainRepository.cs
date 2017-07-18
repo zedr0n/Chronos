@@ -90,6 +90,7 @@ namespace Chronos.Persistence
                 _eventBus.Publish(e);
                 e.Replaying = false;
             }
+            _eventBus.Publish(new ReplayCompleted { Timestamp = date });
         }
     }
 }

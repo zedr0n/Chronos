@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using Chronos.Infrastructure.Misc;
+using NodaTime;
 
 namespace Chronos.Infrastructure.Projections
 {
     public class ProjectionRepository : IProjectionRepository
     {
         private readonly Dictionary<Type,List<IProjection>> _dictionary = new Dictionary<Type, List<IProjection>>();
+        
         public IEnumerable<T> Find<T>(Func<T, bool> criteria) where T : class, IProjection
         {
             if (!_dictionary.TryGetValue(typeof(T), out var projections) || !projections.Any())
@@ -15,6 +17,15 @@ namespace Chronos.Infrastructure.Projections
 
             var satifyingProjections = projections.Where(x => criteria(x as T)).Cast<T>().AsCachedAnyEnumerable();
             return satifyingProjections.Any() ? satifyingProjections : null;
+        }
+
+        public T Find<TKey, T>(TKey key) where T : class, IProjection<TKey>
+        {
+            if (!_dictionary.TryGetValue(typeof(T), out var projections) || !projections.Any())
+                return null;
+
+            var projection = projections.Cast<T>().SingleOrDefault(p => p.Key.Equals(key));
+            return projection;
         }
 
         public IEnumerable<T> Get<T>(Func<T, bool> criteria) where T : class, IProjection

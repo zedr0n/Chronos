@@ -30,5 +30,7 @@ namespace Chronos.Infrastructure
         void Initialise();
 
         IEnumerable<IEvent> GetAggregateEvents();
+        void SubscribeToStream(string streamName, int eventNumber, Action<IEvent> action);
+        void DropSubscription(string streamName, Action<IEvent> action);
     }
 }

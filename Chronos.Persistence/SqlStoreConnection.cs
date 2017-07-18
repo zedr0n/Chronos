@@ -11,13 +11,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chronos.Persistence
 {
+    public class EventAppendedArgs : EventArgs
+    {
+        public string StreamName { get; private set; }
+        public IEvent Event { get; private set; }
+
+        public EventAppendedArgs(string name, IEvent e)
+        {
+            StreamName = name;
+            Event = e;
+        }
+    }
+
     public class SqlStoreConnection : IEventStoreConnection
     {
         private readonly IEventDb _eventDb;
         private readonly bool _inMemory;
         private readonly ISerializer _serializer;
         private readonly ITimeline _timeline;
-        private readonly Dictionary<string,int> _streamVersions = new Dictionary<string, int>();
+        private readonly Dictionary<Action<IEvent>, EventAppendedHandler> _subscriptions = new Dictionary<Action<IEvent>,EventAppendedHandler>();
+
+        public delegate void EventAppendedHandler(object sender, EventAppendedArgs e);
+        private event EventAppendedHandler EventAppended;
 
         public SqlStoreConnection(IEventDb eventDb, ISerializer serializer, bool inMemory, ITimeline timeline)
         {
@@ -104,7 +119,7 @@ namespace Chronos.Persistence
             }
         }
 
-        private void WriteStream(Stream stream, IEnumerable<IEvent> events)
+        private void WriteStream(Stream stream, IList<IEvent> events)
         {
             var eventsDto = events.Select(Serialize).ToList();
 
@@ -114,7 +129,12 @@ namespace Chronos.Persistence
                 stream.Version++;
                 Debug.WriteLine(stream.Name + " : " + e.Payload);
             }
-            _streamVersions[stream.Name] = stream.Version;
+
+        }
+
+        private void UpdateSubscribers(Stream stream, IEvent e)
+        {
+            EventAppended?.Invoke(this, new EventAppendedArgs(stream.Name, e));
         }
 
         public void AppendToStream(string streamName, int expectedVersion, IEnumerable<IEvent> enumerable)
@@ -147,6 +167,9 @@ namespace Chronos.Persistence
 
                 // set the event numbers based on database generated id
                 ForEach(events,stream.Events,(e1,e2) => e1.EventNumber = e2.EventNumber);
+
+                foreach (var e in events)
+                    UpdateSubscribers(stream, e);
             }
         }
 
@@ -202,6 +225,29 @@ namespace Chronos.Persistence
 
                 return events;
             }
+        }
+
+        public void SubscribeToStream(string streamName, int eventNumber, Action<IEvent> action)
+        {
+            var now = _timeline.Now();
+            var events = ReadStreamEventsForward(streamName,eventNumber,int.MaxValue).Where(e => now.CompareTo(e.Timestamp) >= 0)
+                .ToList().OrderBy(e => e.Timestamp);
+
+            foreach (var e in events)
+                action(e);
+
+            _subscriptions[action] = (o, e) =>
+            {
+                if (e.StreamName == streamName && _timeline.Now().CompareTo(e.Event.Timestamp) >= 0)
+                    action(e.Event);
+            };
+
+            EventAppended += _subscriptions[action];
+        }
+
+        public void DropSubscription(string streamName, Action<IEvent> action)
+        {
+            EventAppended -= _subscriptions[action];
         }
 
         private Event Serialize(IEvent e)

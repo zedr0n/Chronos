@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Accounts.Queries;
@@ -53,7 +54,6 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<IDomainRepository,EventStoreDomainRepository>(Lifestyle.Singleton);
             container.Register<ISagaRepository,EventStoreSagaRepository>(Lifestyle.Singleton);
             container.Register<IProjectionRepository,ProjectionRepository>(Lifestyle.Singleton);
-            container.Register<IProjectionManager,ProjectionManager>(Lifestyle.Singleton);
             container.Register<IProjectorRepository,ProjectorRepository>(Lifestyle.Singleton);
             container.Register<ITimeline,Timeline>(Lifestyle.Singleton);
             container.Register<ITimeNavigator, TimeNavigator>(Lifestyle.Singleton);
@@ -62,7 +62,9 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<ISagaManager,SagaManager>(Lifestyle.Singleton);
             container.Register<ITimerService,TimerService>(Lifestyle.Singleton);
             container.Register<IClock,HighPrecisionClock>(Lifestyle.Singleton);
+            container.Register<IProjectionWriter,ProjectionWriter>(Lifestyle.Singleton);
 
+            container.RegisterSingleton<AccountInfoProjector>();
 
             container.Register(typeof(ICommandHandler<>),new[] {
                 typeof(CreateAccountHandler),
@@ -83,7 +85,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             //container.Register<ICommandHandler<ScheduleCommand>,ScheduleCommandHandler>(Lifestyle.Singleton);
             container.Register<IQueryHandler<GetAccountInfo,AccountInfo>,GetAccountInfoHandler>(Lifestyle.Singleton);
 
-            container.Register<IProjector<AccountInfo>,AccountInfoProjector>(Lifestyle.Singleton);
+            container.Register<IProjector<Guid,AccountInfo>,AccountInfoProjector>(Lifestyle.Singleton);
         }
     }
 }

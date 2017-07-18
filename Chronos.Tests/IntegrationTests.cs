@@ -79,6 +79,9 @@ namespace Chronos.Tests
         [Fact]
         public void CanProjectAccountInfo()
         {
+            var container = CreateContainer(nameof(CanProjectAccountInfo));
+            var bus = container.GetInstance<ICommandBus>();
+
             var id = Guid.NewGuid();
             var command = new CreateAccountCommand
             {
@@ -87,8 +90,6 @@ namespace Chronos.Tests
                 Name = "Account"
             };
 
-            var container = CreateContainer(nameof(CanProjectAccountInfo));
-            var bus = container.GetInstance<ICommandBus>();
             bus.Send(command);
 
             var query = new GetAccountInfo { AccountId = id };
@@ -185,44 +186,6 @@ namespace Chronos.Tests
 
             Assert.NotNull(purchase);
             Assert.Equal(-100, accountInfo.Balance);
-        }
-
-        [Fact]
-        public void CanRebuildAccountInfo()
-        {
-            var accountId = Guid.NewGuid();
-            var createAccountCommand = new CreateAccountCommand
-            {
-                AggregateId = accountId,
-                Currency = "GBP",
-                Name = "Account"
-            };
-
-            var container = CreateContainer(nameof(CanRebuildAccountInfo));
-            var bus = container.GetInstance<ICommandBus>();
-
-            var createPurchaseCommand = new CreatePurchaseCommand
-            {
-                AggregateId = Guid.NewGuid(),
-                AccountId = accountId,
-                Amount = 100,
-                Currency = "GBP",
-                Payee = "Payee"
-            };
-            bus.Send(createAccountCommand);
-            bus.Send(createPurchaseCommand);
-    
-            var query = new GetAccountInfo { AccountId = accountId };
-
-            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
-            var accountInfo = queryHandler.Handle(query);
-
-            Assert.Equal("Account", accountInfo.Name);
-
-            var projectionManager = container.GetInstance<IProjectionManager>();
-            projectionManager.Rebuild<AccountInfo>(x => x.AccountId == accountId);
-            var otherInfo = queryHandler.Handle(query);
-            Assert.True(accountInfo.LastEvent == otherInfo.LastEvent);
         }
 
         [Fact]
