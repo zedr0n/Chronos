@@ -26,13 +26,13 @@ namespace Chronos.Infrastructure.Projections
         IEventBus EventBus { get; }
 
         void When(IEvent e);
+        void Start();
     }
 
     public interface IProjector<TKey, T> : IProjector  where T : class, IProjection
     {
         TKey Key { get; }
         Subscription Subscription { get; }
-        void Start();
         void When(IEvent e, T p);
         IProjector<TKey, T> Assign<TAggregate>(TKey key) where TAggregate : class, IAggregate;
 

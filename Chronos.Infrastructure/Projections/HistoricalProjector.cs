@@ -7,12 +7,15 @@ namespace Chronos.Infrastructure.Projections
 {
     public static class ProjectorExtensions
     {
-        public static HistoricalProjector<TKey, TProjection> AsOf<TKey, TProjection>(
+        public static IProjector AsOf<TKey, TProjection>(
             this IProjector<TKey,TProjection> projector, Instant date)
             where TProjection : class, IProjection<TKey>, new()
             where TKey : IEquatable<TKey>
         {
-            return new HistoricalProjector<TKey, TProjection>(projector.Writer,projector.Repository,projector.Connection, projector.EventBus)
+            if (date == Instant.MaxValue)
+                return projector;
+            else
+                return new HistoricalProjector<TKey, TProjection>(projector.Writer,projector.Repository,projector.Connection, projector.EventBus)
                             .AsOf(projector,date);
         }
     }

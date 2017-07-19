@@ -29,6 +29,9 @@ namespace Chronos.Infrastructure.Projections
 
         public IProjector<TKey,T> Assign<TAggregate>(TKey key) where TAggregate : class, IAggregate
         {
+            if (!Key.Equals(default(TKey)))
+                throw new InvalidOperationException("The projector has already been assigned");
+
             var projector = MemberwiseClone() as ProjectorBase<TKey, T>;
             Debug.Assert(projector != null, "projector != null");
             projector.Key = key;

@@ -6,13 +6,13 @@ namespace Chronos.Infrastructure.Projections
 {
     public class HistoricalKey<TKey> : IEquatable<HistoricalKey<TKey>> 
     {
-        private readonly TKey _key;
-        private readonly Instant _asOf;
+        public TKey Key { get; }
+        public Instant AsOf { get; }
 
         public HistoricalKey(TKey key, Instant asOf)
         {
-            _key = key;
-            _asOf = asOf;
+            Key = key;
+            AsOf = asOf;
         }
 
         public static bool operator == (HistoricalKey<TKey> left, HistoricalKey<TKey> right)
@@ -30,7 +30,7 @@ namespace Chronos.Infrastructure.Projections
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return _key.Equals(other._key) && _asOf == other._asOf;
+            return Key.Equals(other.Key) && AsOf == other.AsOf;
         }
 
         public override bool Equals(object obj)
@@ -45,7 +45,7 @@ namespace Chronos.Infrastructure.Projections
         {
             unchecked
             {
-                return (EqualityComparer<TKey>.Default.GetHashCode(_key) * 397) ^ _asOf.GetHashCode();
+                return (EqualityComparer<TKey>.Default.GetHashCode(Key) * 397) ^ AsOf.GetHashCode();
             }
         }
     }

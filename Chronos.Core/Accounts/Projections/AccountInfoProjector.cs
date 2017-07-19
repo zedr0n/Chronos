@@ -17,16 +17,6 @@ namespace Chronos.Core.Accounts.Projections
         public AccountInfoProjector(IProjectionWriter writer, IProjectionRepository repository, IEventStoreConnection connection, IEventBus eventBus)
             : base(writer, repository, connection, eventBus) { }
 
-        public AccountInfoProjector WithAccount(Guid accountId)
-        {
-            var projector = new AccountInfoProjector(Writer, Repository, Connection, EventBus) { Key = accountId };
-            
-            var projection = Repository.Find<Guid,AccountInfo>(accountId);
-            var afterEvent = projection?.LastEvent ?? -1;
-            projector.Subscription = new Subscription(StreamExtensions.StreamName<Account>(accountId),afterEvent,projector.When);
-            return projector;
-        }
-
         private void When(AccountChanged e,AccountInfo v)
         {
             v.Name = e.Name;

@@ -21,21 +21,8 @@ namespace Chronos.Core.Accounts.Queries
 
         public AccountInfo Handle(GetAccountInfo query)
         {
-            AccountInfo projection;
-
-            var projector = _projector.Assign<Account>(query.AccountId);
-
-            if (query.AsOf != Instant.MaxValue)
-            {
-                projector.AsOf(query.AsOf).Start();
-
-                projection = _projections.Find<Guid, AccountInfo>(new HistoricalKey<Guid>(query.AccountId, query.AsOf));
-            }
-            else
-            {
-                projector.Start();
-                projection = _projections.Find<Guid, AccountInfo>(query.AccountId);
-            }
+            _projector.Assign<Account>(query.AccountId).AsOf(query.AsOf).Start();
+            var projection = _projections.Find<Guid, AccountInfo>(new HistoricalKey<Guid>(query.AccountId, query.AsOf));
 
             return projection;
         }

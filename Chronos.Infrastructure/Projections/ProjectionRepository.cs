@@ -31,7 +31,8 @@ namespace Chronos.Infrastructure.Projections
 
         public T Find<TKey, T>(HistoricalKey<TKey> key) where TKey : IEquatable<TKey> where T : class, IProjection<TKey>, new()
         {
-            return Find<HistoricalKey<TKey>, HistoricalProjection<TKey,T>>(key)?.Projection;
+            return key.AsOf == Instant.MaxValue ? 
+                Find<TKey, T>(key.Key) : Find<HistoricalKey<TKey>, HistoricalProjection<TKey,T>>(key)?.Projection;
         }
 
         public IEnumerable<T> Get<T>(Func<T, bool> criteria) where T : class, IProjection
