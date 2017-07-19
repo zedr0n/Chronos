@@ -11,7 +11,7 @@ namespace Chronos.Core.Accounts.Queries
     {
         private readonly IProjectionRepository _projections;
 
-        private readonly AccountInfoProjector _projector;
+        private readonly IProjector<Guid,AccountInfo> _projector;
 
         public GetAccountInfoHandler(IProjectionRepository projections, AccountInfoProjector projector)
         {
@@ -21,41 +21,23 @@ namespace Chronos.Core.Accounts.Queries
 
         public AccountInfo Handle(GetAccountInfo query)
         {
-            if (!query.AsOf.Equals(Instant.MaxValue))
+            AccountInfo projection;
+
+            var projector = _projector.Assign<Account>(query.AccountId);
+
+            if (query.AsOf != Instant.MaxValue)
             {
-                var projection = _projections.Find<HistoricalKey<Guid>, HistoricalProjection<Guid,AccountInfo>>(new HistoricalKey<Guid>
-                {
-                    AsOf = query.AsOf,
-                    Key = query.AccountId
-                });
+                projector.AsOf(query.AsOf).Start();
 
-                if (projection == null)
-                {
-                    var projector = _projector.WithAccount(query.AccountId)
-                        .AsOf<AccountInfoProjector, Guid, AccountInfo>(query.AsOf);
-                    projector.Start();
-
-                    projection = _projections.Find<HistoricalKey<Guid>, HistoricalProjection<Guid, AccountInfo>>(new HistoricalKey<Guid>
-                    {
-                        AsOf = query.AsOf,
-                        Key = query.AccountId
-                    });
-                }
-
-                return projection.Projection;
+                projection = _projections.Find<Guid, AccountInfo>(new HistoricalKey<Guid>(query.AccountId, query.AsOf));
             }
             else
             {
-                var projection = _projections.Find<Guid, AccountInfo>(query.AccountId);
-
-                if (projection == null)
-                {
-                    _projector.WithAccount(query.AccountId).Start();
-                    projection = _projections.Find<Guid, AccountInfo>(query.AccountId);
-                }
-
-                return projection;
+                projector.Start();
+                projection = _projections.Find<Guid, AccountInfo>(query.AccountId);
             }
+
+            return projection;
         }
     }
 }

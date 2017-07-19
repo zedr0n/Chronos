@@ -13,8 +13,11 @@ namespace Chronos.Infrastructure.Projections
         /// <returns>All projections satisfying the criteria or null if none found</returns>
         IEnumerable<T> Find<T>(Func<T, bool>  criteria) where T : class,IProjection;
 
-        T Find<TKey, T>(TKey key) where T : class, IProjection<TKey>;
+        T Find<TKey, T>(TKey key) where T : class, IProjection<TKey>
+                                  where TKey : IEquatable<TKey>;
 
+        T Find<TKey, T>(HistoricalKey<TKey> key) where TKey : IEquatable<TKey>
+            where T : class, IProjection<TKey>, new();
 
         IEnumerable<T> Get<T>(Func<T,bool> criteria) where T : class, IProjection;
         /// <summary>

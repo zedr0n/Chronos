@@ -9,6 +9,11 @@ namespace Chronos.Infrastructure
             return $"{aggregate.GetType().Name}-{aggregate.Id}";
         }
 
+        public static string StreamName<TKey, T>(TKey key)
+        {
+            return $"{typeof(T).Name}-{key}";
+        }
+
         public static string StreamName<T>(Guid id)
         {
             return $"{typeof(T).Name}-{id}";

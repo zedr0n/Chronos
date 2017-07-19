@@ -6,7 +6,8 @@ namespace Chronos.Infrastructure.Projections
     public interface IProjectionWriter
     {
         void UpdateOrThrow<TKey, TProjection>(TKey key, Action<TProjection> action)
-            where TProjection : class,IProjection<TKey>;
+            where TProjection : class, IProjection<TKey>
+            where TKey : IEquatable<TKey>;
 
         void Add<TProjection>(TProjection projection)
             where TProjection : class, IProjection;
@@ -23,6 +24,7 @@ namespace Chronos.Infrastructure.Projections
 
         public void UpdateOrThrow<TKey, TProjection>(TKey key, Action<TProjection> action)
             where TProjection : class, IProjection<TKey>
+            where TKey : IEquatable<TKey>
         {
             var projection = _repository.Find<TKey,TProjection>(key);
             if (projection == null)

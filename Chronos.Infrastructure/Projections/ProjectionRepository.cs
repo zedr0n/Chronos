@@ -20,12 +20,18 @@ namespace Chronos.Infrastructure.Projections
         }
 
         public T Find<TKey, T>(TKey key) where T : class, IProjection<TKey>
+                                         where TKey : IEquatable<TKey>
         {
             if (!_dictionary.TryGetValue(typeof(T), out var projections) || !projections.Any())
                 return null;
 
-            var projection = projections.Cast<T>().SingleOrDefault(p => p.Key.Equals(key));
+            var projection = projections.Cast<T>()?.SingleOrDefault(p => p.Key.Equals(key));
             return projection;
+        }
+
+        public T Find<TKey, T>(HistoricalKey<TKey> key) where TKey : IEquatable<TKey> where T : class, IProjection<TKey>, new()
+        {
+            return Find<HistoricalKey<TKey>, HistoricalProjection<TKey,T>>(key)?.Projection;
         }
 
         public IEnumerable<T> Get<T>(Func<T, bool> criteria) where T : class, IProjection

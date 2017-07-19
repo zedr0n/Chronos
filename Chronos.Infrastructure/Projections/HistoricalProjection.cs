@@ -4,23 +4,40 @@ using NodaTime;
 
 namespace Chronos.Infrastructure.Projections
 {
-    public class HistoricalKey<TKey> : IEquatable<HistoricalKey<TKey>>
+    public class HistoricalKey<TKey> : IEquatable<HistoricalKey<TKey>> 
     {
-        public TKey Key { get; set; }
-        public Instant AsOf { get; set; }
+        private readonly TKey _key;
+        private readonly Instant _asOf;
+
+        public HistoricalKey(TKey key, Instant asOf)
+        {
+            _key = key;
+            _asOf = asOf;
+        }
+
+        public static bool operator == (HistoricalKey<TKey> left, HistoricalKey<TKey> right)
+        {
+            return ReferenceEquals(null,left) ? ReferenceEquals(null,right) : left.Equals(right);
+        }
+
+        public static bool operator !=(HistoricalKey<TKey> left, HistoricalKey<TKey> right)
+        {
+            return !(left == right);
+        }
+
 
         public bool Equals(HistoricalKey<TKey> other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return EqualityComparer<TKey>.Default.Equals(Key, other.Key) && AsOf.Equals(other.AsOf);
+            return _key.Equals(other._key) && _asOf == other._asOf;
         }
 
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((HistoricalKey<TKey>) obj);
         }
 
@@ -28,21 +45,19 @@ namespace Chronos.Infrastructure.Projections
         {
             unchecked
             {
-                return (EqualityComparer<TKey>.Default.GetHashCode(Key) * 397) ^ AsOf.GetHashCode();
+                return (EqualityComparer<TKey>.Default.GetHashCode(_key) * 397) ^ _asOf.GetHashCode();
             }
         }
     }
 
-    public class HistoricalProjection<TKey,T> : IProjection<HistoricalKey<TKey>> where T : class,IProjection<TKey>, new()
+    public class HistoricalProjection<TKey,T> : ProjectionBase<HistoricalKey<TKey>> 
+                                                    where T : class,IProjection<TKey>, new()
     {
-        public HistoricalKey<TKey> Key { get; set; }
         public T Projection { get; }
-        public int LastEvent { get; set; }
 
-        public HistoricalProjection(TKey key, Instant asOf)
+        public HistoricalProjection()
         {
-            Projection = new T { Key = key };
-            Key = new HistoricalKey<TKey> { Key = key, AsOf = asOf };
+            Projection = new T();
         }
     }
 }

@@ -6,9 +6,9 @@ namespace Chronos.Infrastructure.Projections
 {
     public class Subscription
     {
-        public string StreamName { get; private set; }
-        public int EventNumber { get; private set; }
-        public Action<IEvent> OnEvent { get; private set; }
+        public string StreamName { get; }
+        public int EventNumber { get; }
+        public Action<IEvent> OnEvent { get; }
 
         public Subscription(string streamName, int eventNumber, Action<IEvent> onEvent)
         {
@@ -23,24 +23,18 @@ namespace Chronos.Infrastructure.Projections
         IProjectionRepository Repository { get; }
         IEventStoreConnection Connection { get; }
         IProjectionWriter Writer { get; }
+        IEventBus EventBus { get; }
 
         void When(IEvent e);
     }
 
-    public interface IKeyedProjector<TKey> : IProjector
+    public interface IProjector<TKey, T> : IProjector  where T : class, IProjection
     {
         TKey Key { get; }
-    }
-
-    public interface IProjector<TKey, T> : IKeyedProjector<TKey> where T : class, IProjection
-    {
         Subscription Subscription { get; }
+        void Start();
         void When(IEvent e, T p);
-    }
+        IProjector<TKey, T> Assign<TAggregate>(TKey key) where TAggregate : class, IAggregate;
 
-    public interface IProjector<T> : IProjector
-        where T : IProjection
-    {
-        void UpdateProjection(IEvent e, Action<T> action, Func<T, bool> where);
     }
 }
