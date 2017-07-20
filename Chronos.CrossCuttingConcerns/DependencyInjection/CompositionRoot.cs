@@ -2,6 +2,7 @@
 using System.Reflection;
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
+using Chronos.Core.Accounts.Projections.New;
 using Chronos.Core.Accounts.Queries;
 using Chronos.Core.Sagas;
 using Chronos.Core.Transactions.Commands;
@@ -9,6 +10,7 @@ using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Projections;
+using Chronos.Infrastructure.Projections.New;
 using Chronos.Infrastructure.Queries;
 using Chronos.Infrastructure.Sagas;
 using Chronos.Persistence;
@@ -53,8 +55,6 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<IEventStoreConnection,SqlStoreConnection>(Lifestyle.Singleton);
             container.Register<IDomainRepository,EventStoreDomainRepository>(Lifestyle.Singleton);
             container.Register<ISagaRepository,EventStoreSagaRepository>(Lifestyle.Singleton);
-            container.Register<IProjectionRepository,ProjectionRepository>(Lifestyle.Singleton);
-            container.Register<IProjectorRepository,ProjectorRepository>(Lifestyle.Singleton);
             container.Register<ITimeline,Timeline>(Lifestyle.Singleton);
             container.Register<ITimeNavigator, TimeNavigator>(Lifestyle.Singleton);
             container.Register<ICommandRegistry,CommandRegistry>(Lifestyle.Singleton);
@@ -62,9 +62,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<ISagaManager,SagaManager>(Lifestyle.Singleton);
             container.Register<ITimerService,TimerService>(Lifestyle.Singleton);
             container.Register<IClock,HighPrecisionClock>(Lifestyle.Singleton);
-            container.Register<IProjectionWriter,ProjectionWriter>(Lifestyle.Singleton);
-
-            container.RegisterSingleton<AccountInfoProjector>();
+            container.Register<IReadRepository, ReadRepository>(Lifestyle.Singleton);
+            container.Register<IStateWriter,StateWriter>(Lifestyle.Singleton);
 
             container.Register(typeof(ICommandHandler<>),new[] {
                 typeof(CreateAccountHandler),
@@ -85,7 +84,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             //container.Register<ICommandHandler<ScheduleCommand>,ScheduleCommandHandler>(Lifestyle.Singleton);
             container.Register<IQueryHandler<GetAccountInfo,AccountInfo>,GetAccountInfoHandler>(Lifestyle.Singleton);
 
-            container.Register<IProjector<Guid,AccountInfo>,AccountInfoProjector>(Lifestyle.Singleton);
+            container.Register<Infrastructure.Projections.New.IProjection<Guid,AccountInfo>,AccountInfoProjection>(Lifestyle.Singleton);
         }
     }
 }

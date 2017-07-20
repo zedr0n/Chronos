@@ -11,6 +11,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chronos.Persistence
 {
+    public class StreamAddedArgs : EventArgs
+    {
+        public string StreamName { get; private set; }
+
+        public StreamAddedArgs(string name)
+        {
+            StreamName = name;
+        }
+    }
+
     public class EventAppendedArgs : EventArgs
     {
         public string StreamName { get; private set; }
@@ -32,7 +42,10 @@ namespace Chronos.Persistence
         private readonly Dictionary<Action<IEvent>, EventAppendedHandler> _subscriptions = new Dictionary<Action<IEvent>,EventAppendedHandler>();
 
         public delegate void EventAppendedHandler(object sender, EventAppendedArgs e);
+
+        public delegate void StreamAddedHandler(object sender, StreamAddedArgs e);
         private event EventAppendedHandler EventAppended;
+        public event StreamAddedHandler StreamAdded;
 
         public SqlStoreConnection(IEventDb eventDb, ISerializer serializer, bool inMemory, ITimeline timeline)
         {
@@ -80,6 +93,7 @@ namespace Chronos.Persistence
                     Version = 0
                 };
                 context.Set<Stream>().Add(stream);
+                StreamAdded?.Invoke(this,new StreamAddedArgs(streamName));
             }
             else
             {
