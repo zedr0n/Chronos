@@ -1,15 +1,11 @@
-﻿using System;
-using System.Reflection;
-using Chronos.Core.Accounts.Commands;
+﻿using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
-using Chronos.Core.Accounts.Projections.New;
 using Chronos.Core.Accounts.Queries;
 using Chronos.Core.Sagas;
 using Chronos.Core.Transactions.Commands;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Events;
-using Chronos.Infrastructure.Projections;
 using Chronos.Infrastructure.Projections.New;
 using Chronos.Infrastructure.Queries;
 using Chronos.Infrastructure.Sagas;
@@ -84,7 +80,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             //container.Register<ICommandHandler<ScheduleCommand>,ScheduleCommandHandler>(Lifestyle.Singleton);
             container.Register<IQueryHandler<GetAccountInfo,AccountInfo>,GetAccountInfoHandler>(Lifestyle.Singleton);
 
-            container.Register<Infrastructure.Projections.New.IProjection<Guid,AccountInfo>,AccountInfoProjection>(Lifestyle.Singleton);
+            container.Register<IProjectionHandler<AccountInfo>,AccountInfoHandler>(Lifestyle.Singleton);
+            container.Register<IProjectionManager,ProjectionManager>(Lifestyle.Singleton);
         }
     }
 }

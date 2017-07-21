@@ -6,7 +6,7 @@ namespace Chronos.Infrastructure.Projections.New
     {
         void Write<TKey, T>(TKey key, Action<T> action)
             where TKey : IEquatable<TKey>
-            where T : class, IReadModel<TKey>, new();
+            where T : class, IReadModel, new();
 
     }
 }

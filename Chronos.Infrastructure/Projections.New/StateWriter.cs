@@ -13,13 +13,14 @@ namespace Chronos.Infrastructure.Projections.New
 
         public void Write<TKey, T>(TKey key, Action<T> action)
             where TKey : IEquatable<TKey>
-            where T : class,IReadModel<TKey>,new()
+            where T : class,IReadModel,new()
         {
             var state = _repository.Find<TKey, T>(key);
             if (state == null)
             {
-                state = new T() { Key = key };
-                _repository.Add(state);
+                var instance = (IReadModel<TKey>) new T();
+                instance.Key = key;
+                _repository.Add(instance);
             }
 
             action(state);

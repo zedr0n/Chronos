@@ -8,14 +8,14 @@ namespace Chronos.Infrastructure
     {
         private readonly Dictionary<Type, List<IReadModel>> _dictionary = new Dictionary<Type, List<IReadModel>>();
 
-        public T Find<TKey, T>(TKey key) where T : class,IReadModel<TKey>
+        public T Find<TKey, T>(TKey key) where T : class,IReadModel
             where TKey: IEquatable<TKey>
         {
-            if (!_dictionary.TryGetValue(typeof(T), out var readModels) || !Enumerable.Any<IReadModel>(readModels))
+            if (!_dictionary.TryGetValue(typeof(T), out var readModels) || !readModels.Any<IReadModel>())
                 return null;
 
-            var readModel = Enumerable.Cast<T>(readModels)?.SingleOrDefault(p => p.Key.Equals(key));
-            return readModel;
+            var readModel = readModels.Cast<IReadModel<TKey>>()?.SingleOrDefault(p => p.Key.Equals(key));
+            return readModel as T;
 
         }
 

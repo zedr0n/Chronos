@@ -4,20 +4,24 @@ using NodaTime;
 
 namespace Chronos.Infrastructure.Projections.New
 {
-    public class HistoricalProjection<TKey,T> : ProjectionBase<TKey,T> where T : class,IReadModel<TKey>, new()
-                                                                       where TKey : IEquatable<TKey>
+    public partial class Projection<T>
     {
-        public Instant Date { get; set; }
-        public IProjection<TKey,T> Projection { get; set; }
-
-        public HistoricalProjection(IStateWriter stateWriter, IEventStoreConnection connection) : base(stateWriter, connection)
+        private class HistoricalProjection : TransientProjection
         {
-        }
+            private readonly Instant _date;
 
-        public override void When(IEvent e)
-        {
-            if(e.Timestamp <= Date)
-                Projection.When(State, e);
+            public HistoricalProjection(Projection<T> projection, Instant date) 
+                : base(projection)
+            {
+                _date = date;
+            }
+
+            protected override void When(IEvent e)
+            {
+                if (e.Timestamp <= _date)
+                    base.When(e);
+            }
         }
     }
+
 }
