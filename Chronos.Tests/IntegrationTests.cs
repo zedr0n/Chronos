@@ -199,7 +199,7 @@ namespace Chronos.Tests
                 Name = "Account"
             };
 
-            var container = CreateContainer(nameof(CanProjectAccountInfo));
+            var container = CreateContainer(nameof(CanGetAccountInfoAsOf));
             var bus = container.GetInstance<ICommandBus>();
             bus.Send(createAccountCommand);    
 

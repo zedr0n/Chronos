@@ -31,8 +31,7 @@ namespace Chronos.Persistence
         {
             var events = saga.UncommitedEvents.ToList();
 
-            var streamName = StreamExtensions.StreamName<T>(saga.SagaId);
-            _connection.AppendToStream(streamName,saga.Version - events.Count,events);
+            _connection.AppendToStream(saga.StreamDetails(),saga.Version - events.Count,events);
 
             foreach (var e in saga.UndispatchedMessages)
             {

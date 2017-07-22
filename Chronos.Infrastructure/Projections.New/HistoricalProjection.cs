@@ -22,6 +22,8 @@ namespace Chronos.Infrastructure.Projections.New
                     base.When(e);
             }
         }
+
+        public ITransientProjection<T> AsOf(Instant date) => new HistoricalProjection(this, date);
     }
 
 }

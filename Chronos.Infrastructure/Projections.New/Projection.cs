@@ -1,17 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Chronos.Infrastructure.Interfaces;
 using NodaTime;
 
 namespace Chronos.Infrastructure.Projections.New
 {
-    public partial class Projection<T> : IProjection<T> where T : class, IReadModel, new()
+    public partial class Projection<T> : IProjectionFrom<T>, IProjection<T> where T : class, IReadModel, new()
     {
         private readonly IEventStoreConnection _connection;
         private readonly IStateWriter _writer;
-        private IProjectionHandler<T> _handler;
 
-        private IEnumerable<string> Streams { get; set; } = new List<string>();
+        private List<string> _streams = new List<string>();
+
+        private Projection(Projection<T> projection)
+            : this(projection._connection, projection._writer)
+        {
+            _streams = projection._streams;
+        }
 
         public Projection(IEventStoreConnection connection, IStateWriter writer)
         {
@@ -19,35 +25,33 @@ namespace Chronos.Infrastructure.Projections.New
             _writer = writer;
         }
 
-        public IProjection<T> Transient() => new TransientProjection(this);
-        public ITransientProjection<T> AsOf(Instant date) => new HistoricalProjection(this,date);
-        public virtual IProjection<TKey, T> OutputState<TKey>(TKey key) where TKey : IEquatable<TKey>
+        public IProjection<T> From(string streamName)
         {
-            return new PersistentProjection<TKey, T>(this, key);
+            _streams.Add(streamName);
+            return this;
         }
 
         public IProjection<T> From(IEnumerable<string> streams)
         {
-            Streams = streams;
+            _streams = streams.ToList();
             return this;
         }
 
-        public IProjection<T> When(IProjectionHandler<T> handler)
+        public IProjection<T> From<TAggregate>() where TAggregate : IAggregate
         {
-            _handler = handler;
-            return this;
+            return From(_connection.GetStreams<TAggregate>());
         }
 
-        private void When(T state, IEvent e)
+        public IProjection<T> From<TKey, TAggregate>(TKey key) where TAggregate : IAggregate
         {
-            _handler?.When(state,e);
+            return From(StreamExtensions.StreamName<TKey, TAggregate>(key));
         }
 
         protected virtual void When(IEvent e) { }
 
         public void Start()
         {
-            foreach (var s in Streams)
+            foreach (var s in _streams)
                 _connection.SubscribeToStream(s, -1, When);
         }
     }

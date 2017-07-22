@@ -13,11 +13,9 @@ namespace Chronos.Core.Accounts.Queries
         private readonly IReadRepository _repository;
         private readonly IProjectionManager _projectionManager;
 
-        private readonly IProjectionHandler<AccountInfo> _projector;
 
-        public GetAccountInfoHandler(IProjectionHandler<AccountInfo> projector, IReadRepository repository, IProjectionManager projectionManager)
+        public GetAccountInfoHandler(IReadRepository repository, IProjectionManager projectionManager)
         {
-            _projector = projector;
             _repository = repository;
             _projectionManager = projectionManager;
         }
@@ -25,8 +23,7 @@ namespace Chronos.Core.Accounts.Queries
         public AccountInfo Handle(GetAccountInfo query)
         {
             var projection = _projectionManager.Create<AccountInfo>()
-                .From(new List<string> { StreamExtensions.StreamName<Account>(query.AccountId)})
-                .When(_projector)
+                .From<Guid,Account>(query.AccountId)
                 .OutputState(query.AccountId);
 
             projection.Start();
@@ -35,7 +32,10 @@ namespace Chronos.Core.Accounts.Queries
 
             if (query.AsOf != Instant.MaxValue)
             {
-                var historicalProjection = projection.AsOf(query.AsOf);
+                var historicalProjection = _projectionManager.Create<AccountInfo>()
+                    .From<Guid,Account>(query.AccountId)
+                    .AsOf(query.AsOf);
+
                 projection.Start();
                 accountInfo = historicalProjection.State;
             }

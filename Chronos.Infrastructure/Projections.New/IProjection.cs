@@ -1,38 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
-using Chronos.Infrastructure.Interfaces;
 using NodaTime;
 
 namespace Chronos.Infrastructure.Projections.New
 {
-    public interface IProjectionHandler<T> where T : class, IReadModel, new()
+    public interface IProjectionFrom<T> where T : class, IReadModel, new()
     {
-        void When(T s, IEvent e);
+        IProjection<T> From<TAggregate>() where TAggregate : IAggregate;
+        IProjection<T> From<TKey, TAggregate>(TKey key) where TAggregate : IAggregate;
+        IProjection<T> From(string streamName);
+        IProjection<T> From(IEnumerable<string> streams);
     }
 
     public interface IProjection<T> where T : class, IReadModel, new()
     {
-        IProjection<T> From(IEnumerable<string> streams);
-
-        void Start();
+        ITransientProjection<T> Transient();
         ITransientProjection<T> AsOf(Instant date);
-        IProjection<T> When(IProjectionHandler<T> handler);
-
-        IProjection<TKey, T> OutputState<TKey>(TKey key) where TKey : IEquatable<TKey>;
+        IPersistentProjection<T> OutputState<TKey>(TKey key) where TKey : IEquatable<TKey>;
+        IPersistentProjection<T> OutputState<TKey>(Func<string,TKey> map) where TKey : IEquatable<TKey>;
 
     }
 
-    public interface ITransientProjection<T> : IProjection<T> where T : class,IReadModel, new()
+    public interface ITransientProjection<T>  where T : class,IReadModel, new()
     {
-        new ITransientProjection<T> From(IEnumerable<string> streams);
         T State { get; }
+        void Start();
     }
 
-    public interface IProjection<TKey,T> : IProjection<T> where T : class, IReadModel, new()
+    public interface IPersistentProjection<T> where T : class, IReadModel, new()
+    {
+        void Start();
+    }
+
+    public interface IProjection<TKey,T> where T : class, IReadModel, new()
                                                           where TKey : IEquatable<TKey>
     {
-        new IProjection<TKey,T> When(IProjectionHandler<T> handler);
-        new IProjection<TKey, T> From(IEnumerable<string> streams);
         IProjection<TKey,T> ForEachStream(Func<string, TKey> map);
     }
 }

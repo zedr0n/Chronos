@@ -80,7 +80,6 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             //container.Register<ICommandHandler<ScheduleCommand>,ScheduleCommandHandler>(Lifestyle.Singleton);
             container.Register<IQueryHandler<GetAccountInfo,AccountInfo>,GetAccountInfoHandler>(Lifestyle.Singleton);
 
-            container.Register<IProjectionHandler<AccountInfo>,AccountInfoHandler>(Lifestyle.Singleton);
             container.Register<IProjectionManager,ProjectionManager>(Lifestyle.Singleton);
         }
     }

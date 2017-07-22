@@ -77,8 +77,21 @@ namespace Chronos.Persistence
             _eventDb.Init();
         }
 
-        private Stream OpenStreamForWriting(DbContext context, string streamName)
+        public IEnumerable<string> GetStreams<T>()
         {
+            using (var context = _eventDb.GetContext())
+                return context.Set<Stream>().Where(x => x.SourceType == typeof(T).Name).Select( x => x.Name ).ToList();
+        }
+
+        private IEnumerable<Stream> GetStreams(Type sourceType)
+        {
+            using (var context = _eventDb.GetContext())
+                return context.Set<Stream>().Where(x => x.SourceType == sourceType.Name);
+        }
+
+        private Stream OpenStreamForWriting(DbContext context, StreamDetails details)
+        {
+            var streamName = details.Name;
             var version = GetStreamVersion(streamName);
 
             Stream stream;
@@ -90,15 +103,16 @@ namespace Chronos.Persistence
                 {
                     HashId = streamName.GetHashCode(),
                     Name = streamName,
+                    SourceType = details.SourceType?.Name,
                     Version = 0
                 };
                 context.Set<Stream>().Add(stream);
-                StreamAdded?.Invoke(this,new StreamAddedArgs(streamName));
+                StreamAdded?.Invoke(this, new StreamAddedArgs(streamName));
             }
             else
             {
                 // create a dummy stream to avoid loading all events from database
-                stream = new Stream { HashId = streamName.GetHashCode(), Name = streamName, Version = version };
+                stream = new Stream { HashId = streamName.GetHashCode(), Name = streamName, SourceType = details.SourceType?.Name, Version = version };
                 context.Set<Stream>().Attach(stream);
             }
 
@@ -121,16 +135,24 @@ namespace Chronos.Persistence
             if (!events.Any())
                 return;
 
-            const string streamName = "Null";
-
             using (var context = _eventDb.GetContext())
             {
-                var stream = OpenStreamForWriting(context, streamName);
+                var stream = OpenStreamForWriting(context, new StreamDetails { Name = "Null" });
                 TimestampEvents(events);
                 WriteStream(stream, events);
 
                 context.SaveChanges();
             }
+        }
+
+        public void AppendToStream(StreamDetails details,int expectedVersion, IEnumerable<IEvent> enumerable)
+        {
+            AppendToStream(c => OpenStreamForWriting(c,details), expectedVersion, enumerable);
+        }
+
+        public void AppendToStream(string streamName, int expectedVersion, IEnumerable<IEvent> enumerable)
+        {
+            AppendToStream(c => OpenStreamForWriting(c, new StreamDetails { Name = streamName }), expectedVersion, enumerable);
         }
 
         private void WriteStream(Stream stream, IList<IEvent> events)
@@ -151,7 +173,7 @@ namespace Chronos.Persistence
             EventAppended?.Invoke(this, new EventAppendedArgs(stream.Name, e));
         }
 
-        public void AppendToStream(string streamName, int expectedVersion, IEnumerable<IEvent> enumerable)
+        private void AppendToStream(Func<DbContext,Stream> streamSelector, int expectedVersion, IEnumerable<IEvent> enumerable)
         {
             var events = enumerable as IList<IEvent> ?? enumerable.ToList();
             if (!events.Any())
@@ -159,7 +181,7 @@ namespace Chronos.Persistence
 
             using (var context = _eventDb.GetContext())
             {
-                var stream = OpenStreamForWriting(context, streamName);
+                var stream = streamSelector(context);
 
                 if (stream.Version < expectedVersion)
                     throw new InvalidOperationException("Stream version is not consistent with events : "
@@ -167,10 +189,10 @@ namespace Chronos.Persistence
                 if (stream.Version > expectedVersion)
                 {
                     // check event numbers to see if we are trying to write a past event again
-                    var futureEvents = ReadStreamEventsForward(streamName, expectedVersion,events.Count()).ToList();
+                    var futureEvents = ReadStreamEventsForward(stream.Name, expectedVersion,events.Count()).ToList();
                     var futureEventIds = futureEvents.Select(e => e.EventNumber);
                     if(!events.Select(e => e.EventNumber).SequenceEqual(futureEventIds))
-                        throw new InvalidOperationException("Trying to change past for stream " + streamName + " : "
+                        throw new InvalidOperationException("Trying to change past for stream " + stream.Name + " : "
                                                             + stream.Version + " > " + expectedVersion);
                 }
 
@@ -240,11 +262,17 @@ namespace Chronos.Persistence
                 return events;
             }
         }
+        
+        public void SubscribeToStreams<T>(int eventNumber, Action<IEvent> action)
+        {
+            foreach(var streamName in GetStreams(typeof(T)).Select(x => x.Name))
+                SubscribeToStream(streamName,eventNumber,action);
+        }
 
         public void SubscribeToStream(string streamName, int eventNumber, Action<IEvent> action)
         {
             var now = _timeline.Now();
-            var events = ReadStreamEventsForward(streamName,eventNumber,int.MaxValue).Where(e => now.CompareTo(e.Timestamp) >= 0)
+            var events = ReadStreamEventsForward(streamName, eventNumber, int.MaxValue).Where(e => now.CompareTo(e.Timestamp) >= 0)
                 .ToList().OrderBy(e => e.Timestamp);
 
             foreach (var e in events)
@@ -258,6 +286,7 @@ namespace Chronos.Persistence
 
             EventAppended += _subscriptions[action];
         }
+
 
         public void DropSubscription(string streamName, Action<IEvent> action)
         {

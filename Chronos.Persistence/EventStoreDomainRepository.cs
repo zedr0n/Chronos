@@ -41,7 +41,7 @@ namespace Chronos.Persistence
             if (!events.Any())
                 return;
 
-            _connection.AppendToStream(aggregate.StreamName(), aggregate.Version - events.Count, events);
+            _connection.AppendToStream(aggregate.StreamDetails(), aggregate.Version - events.Count, events);
 
             aggregate.ClearUncommitedEvents();
 

@@ -18,9 +18,9 @@ namespace Chronos.Infrastructure.Projections.New
             var state = _repository.Find<TKey, T>(key);
             if (state == null)
             {
-                var instance = (IReadModel<TKey>) new T();
-                instance.Key = key;
-                _repository.Add(instance);
+                state = new T();
+                ((IReadModel<TKey>)state).Key = key;
+                _repository.Add(state);
             }
 
             action(state);

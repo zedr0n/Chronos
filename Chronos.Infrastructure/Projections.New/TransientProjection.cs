@@ -9,30 +9,17 @@ namespace Chronos.Infrastructure.Projections.New
         private class TransientProjection : Projection<T>, ITransientProjection<T>
         {
             public TransientProjection(Projection<T> projection)
-                : base(projection._connection, projection._writer)
-            {
-                _handler = projection._handler;
-                Streams = projection.Streams;
-            }
+                : base(projection) { }
 
             public T State { get; } = new T();
 
-            public new ITransientProjection<T> From(IEnumerable<string> streams)
-            {
-                base.From(streams);
-                return this;
-            }
-
-            public override IProjection<TKey,T> OutputState<TKey>(TKey key)
-            {
-                throw new InvalidOperationException("Transient projections don't output state");
-            }
-
             protected override void When(IEvent e)
             {
-                When(State, e);
+                State.When(e);
             }
         }
+
+        public ITransientProjection<T> Transient() => new TransientProjection(this);
 
     }
 }

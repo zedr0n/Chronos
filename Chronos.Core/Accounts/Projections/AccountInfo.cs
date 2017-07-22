@@ -20,13 +20,11 @@ namespace Chronos.Core.Accounts.Projections
             Balance = 0;
             CreatedAt = e.Timestamp;
         }
-
         private void When(AccountChanged e)
         {
             Name = e.Name;
             Currency = e.Currency;
         }
-
         private void When( CashDeposited e)
         {
             Balance += e.Amount;

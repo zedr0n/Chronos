@@ -8,30 +8,17 @@ namespace Chronos.Infrastructure
 {
     public interface IReadModel
     {
-            
+        void When(IEvent e);
     }
 
-    public class ReadModelBase : IReadModel
+    public abstract class ReadModelBase : IReadModel
     {
-
-    }
-
-    public interface IReadModel<TKey> : IReadModel
-    {
-        TKey Key { get; set; }
-    }
-
-    public class ReadModelBase<TKey> : ReadModelBase, IReadModel<TKey>
-    {
-        public TKey Key { get; set; }
-
         private readonly Dictionary<Type, Action<IEvent>> _when = new Dictionary<Type, Action<IEvent>>();
 
         protected ReadModelBase()
         {
             foreach (var m in GetType().GetRuntimeMethods()
                 .Where(m => m.Name == "When")
-                .Where(m => m.GetParameters().Length == 2)
                 .Where(m => m.GetParameters().First().ParameterType != typeof(IEvent)))
             {
                 _when.Add(m.GetParameters().First().ParameterType, (e) => m.Invoke(this, new object[] { e }));
@@ -42,5 +29,15 @@ namespace Chronos.Infrastructure
             if (_when.ContainsKey(e.GetType()))
                 _when[e.GetType()](e);
         }
+    }
+
+    public interface IReadModel<TKey> : IReadModel
+    {
+        TKey Key { get; set; }
+    }
+
+    public abstract class ReadModelBase<TKey> : ReadModelBase, IReadModel<TKey>
+    {
+        public TKey Key { get; set; }
     }
 }

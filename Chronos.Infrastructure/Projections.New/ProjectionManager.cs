@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Chronos.Infrastructure.Projections.New
 {
@@ -13,10 +14,12 @@ namespace Chronos.Infrastructure.Projections.New
             _writer = writer;
         }
 
-        public IProjection<T> Create<T>() where T : class, IReadModel, new()
+        [DebuggerStepThrough]
+        public IProjectionFrom<T> Create<T>() where T : class, IReadModel, new()
         {
             return new Projection<T>(_connection,_writer);
             //return new ProjectionBase();
         }
+
     }
 }
