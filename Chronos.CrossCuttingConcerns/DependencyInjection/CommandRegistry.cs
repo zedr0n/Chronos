@@ -10,11 +10,9 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
 {
     public class CommandRegistry : ICommandRegistry
     {
-
-        private readonly Container _container;
         private readonly Dictionary<Type, Handler> _registry = new Dictionary<Type, Handler>();
 
-        private class Handler
+        private struct Handler
         {
             private Type _type;
             public string Name => _type.Name;
@@ -33,7 +31,6 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
 
         public CommandRegistry(Container container)
         {
-            _container = container;
             foreach(var handler in container.GetCurrentRegistrations()
                 .Where(x => x.ServiceType.IsClosedTypeOf(typeof(ICommandHandler<>)))
                 .Select(x => new

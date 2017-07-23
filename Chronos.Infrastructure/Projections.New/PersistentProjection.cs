@@ -29,6 +29,8 @@ namespace Chronos.Infrastructure.Projections.New
             {
                 foreach (var key in _streams.Select(s => _map(s)).Distinct())
                     _writer.Write<TKey, T>(key, x => x.When(e));
+
+                base.When(e);
             }
 
         }

@@ -15,6 +15,7 @@ namespace Chronos.Infrastructure.Projections.New
 
             protected override void When(IEvent e)
             {
+                base.When(e);
                 State.When(e);
             }
         }

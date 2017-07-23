@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Chronos.Persistence
+namespace Chronos.Persistence.Types
 {
     public class Stream
     {

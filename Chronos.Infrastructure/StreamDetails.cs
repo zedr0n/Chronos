@@ -1,7 +1,16 @@
 ﻿using System;
 
-public class StreamDetails
+namespace Chronos.Infrastructure
 {
-    public string Name { get; set; }
-    public Type SourceType { get; set; }
+    public struct StreamDetails
+    {
+        public string Name { get; }
+        public Type SourceType { get; }
+
+        public StreamDetails(string name, Type sourceType = null)
+        {
+            Name = name;
+            SourceType = sourceType;
+        }
+    }
 }

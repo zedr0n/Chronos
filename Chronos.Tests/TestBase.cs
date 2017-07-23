@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using Chronos.CrossCuttingConcerns.DependencyInjection;
+﻿using Chronos.CrossCuttingConcerns.DependencyInjection;
 using Chronos.Infrastructure;
 using NodaTime;
 using SimpleInjector;
@@ -31,12 +28,8 @@ namespace Chronos.Tests
             lock(_lock)
             {
                 var container = new Container();
-                CompositionRoot.WithDatabase(new CompositionRoot.DbConfiguration {
-                        Name = dbName,
-                        IsPersistent = false,
-                        InMemory = true
-                    })
-                    .ComposeApplication(container);
+                var root = new CompositionRoot().WithDatabase(dbName).InMemory();
+                root.ComposeApplication(container);
 
                 container.Register<IDebugLog,DebugLogXUnit>(Lifestyle.Singleton);
                 container.Verify();

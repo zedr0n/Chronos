@@ -1,5 +1,4 @@
 ﻿using System;
-using Chronos.Infrastructure.Logging;
 using Chronos.Infrastructure.Sagas;
 using Stateless;
 

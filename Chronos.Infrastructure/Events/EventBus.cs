@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
-using NodaTime;
 using NodaTime.Text;
 
 namespace Chronos.Infrastructure.Events
@@ -79,7 +76,7 @@ namespace Chronos.Infrastructure.Events
             if (_subscribers.ContainsKey(typeof(TEvent)))
             {
                 var handlers = _subscribers[typeof(TEvent)];
-                _debugLog.WriteLine(e.GetType().Name + (e.Replaying ? "[R]" : "") + "( " + InstantPattern.ExtendedIso.Format(e.Timestamp) + " )");
+                _debugLog.WriteLine(e.GetType().Name + "( " + InstantPattern.ExtendedIso.Format(e.Timestamp) + " )");
                 foreach (var handler in handlers)
                 {
                     _debugLog.WriteLine(" -> " + handler?.Name);
@@ -97,7 +94,7 @@ namespace Chronos.Infrastructure.Events
             if (_subscribers.ContainsKey(type))
             {
                 var handlers = _subscribers[type];
-                _debugLog.WriteLine(e.GetType().Name + (e.Replaying ? "[R]" : "") + "( " +
+                _debugLog.WriteLine(e.GetType().Name  + "( " +
                                     InstantPattern.ExtendedIso.Format(e.Timestamp) + " )");
                 foreach (var handler in handlers)
                 {

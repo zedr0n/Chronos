@@ -8,6 +8,7 @@ using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Persistence.Serialization;
 using Microsoft.EntityFrameworkCore;
+using Stream = Chronos.Persistence.Types.Stream;
 
 namespace Chronos.Persistence
 {
@@ -33,26 +34,25 @@ namespace Chronos.Persistence
         }
     }
 
-    public class SqlStoreConnection : IEventStoreConnection
+    public partial class SqlStoreConnection : IEventStoreConnection, IEventStoreReader, IEventStoreWriter
     {
         private readonly IEventDb _eventDb;
         private readonly bool _inMemory;
-        private readonly ISerializer _serializer;
+        private readonly IEventSerializer _serializer;
         private readonly ITimeline _timeline;
-        private readonly Dictionary<Action<IEvent>, EventAppendedHandler> _subscriptions = new Dictionary<Action<IEvent>,EventAppendedHandler>();
 
-        public delegate void EventAppendedHandler(object sender, EventAppendedArgs e);
+        public IEventStoreSubscriptions Subscriptions => _subscriptions;
+        public IEventStoreWriter Writer => this;
+        public IEventStoreReader Reader => this;
+        private readonly EventStoreSubscriptions _subscriptions;
 
-        public delegate void StreamAddedHandler(object sender, StreamAddedArgs e);
-        private event EventAppendedHandler EventAppended;
-        public event StreamAddedHandler StreamAdded;
-
-        public SqlStoreConnection(IEventDb eventDb, ISerializer serializer, bool inMemory, ITimeline timeline)
+        public SqlStoreConnection(IEventDb eventDb, IEventSerializer serializer, bool inMemory, ITimeline timeline)
         {
             _eventDb = eventDb;
             _inMemory = inMemory;
             _timeline = timeline;
             _serializer = serializer;
+            _subscriptions = new EventStoreSubscriptions(this);
         }
 
         private void TimestampEvents(IEnumerable<IEvent> events)
@@ -107,7 +107,7 @@ namespace Chronos.Persistence
                     Version = 0
                 };
                 context.Set<Stream>().Add(stream);
-                StreamAdded?.Invoke(this, new StreamAddedArgs(streamName));
+                _subscriptions.OnStreamAdded(streamName);
             }
             else
             {
@@ -137,7 +137,7 @@ namespace Chronos.Persistence
 
             using (var context = _eventDb.GetContext())
             {
-                var stream = OpenStreamForWriting(context, new StreamDetails { Name = "Null" });
+                var stream = OpenStreamForWriting(context, new StreamDetails("Null"));
                 TimestampEvents(events);
                 WriteStream(stream, events);
 
@@ -152,12 +152,12 @@ namespace Chronos.Persistence
 
         public void AppendToStream(string streamName, int expectedVersion, IEnumerable<IEvent> enumerable)
         {
-            AppendToStream(c => OpenStreamForWriting(c, new StreamDetails { Name = streamName }), expectedVersion, enumerable);
+            AppendToStream(c => OpenStreamForWriting(c, new StreamDetails(streamName)), expectedVersion, enumerable);
         }
 
-        private void WriteStream(Stream stream, IList<IEvent> events)
+        private void WriteStream(Stream stream, IEnumerable<IEvent> events)
         {
-            var eventsDto = events.Select(Serialize).ToList();
+            var eventsDto = events.Select(_serializer.Serialize).ToList();
 
             foreach (var e in eventsDto)
             {
@@ -166,11 +166,6 @@ namespace Chronos.Persistence
                 Debug.WriteLine(stream.Name + " : " + e.Payload);
             }
 
-        }
-
-        private void UpdateSubscribers(Stream stream, IEvent e)
-        {
-            EventAppended?.Invoke(this, new EventAppendedArgs(stream.Name, e));
         }
 
         private void AppendToStream(Func<DbContext,Stream> streamSelector, int expectedVersion, IEnumerable<IEvent> enumerable)
@@ -205,7 +200,7 @@ namespace Chronos.Persistence
                 ForEach(events,stream.Events,(e1,e2) => e1.EventNumber = e2.EventNumber);
 
                 foreach (var e in events)
-                    UpdateSubscribers(stream, e);
+                    _subscriptions.OnEventAppended(stream.Name,e);
             }
         }
 
@@ -245,8 +240,8 @@ namespace Chronos.Persistence
 
                 var now = _timeline.Now();
 
-                return events.Select(Deserialize)
-                    .Where(e => e.Timestamp.CompareTo(now) <= 0)
+                return events.Select(_serializer.Deserialize)
+                    .Where(e => e.Timestamp <= now)
                     .OrderBy(e => e.Timestamp);
             }
         }
@@ -257,68 +252,11 @@ namespace Chronos.Persistence
             {
                 var events = new List<IEvent>();
                 foreach (var stream in context.Set<Stream>().Where(s => !s.Name.Contains("Saga")).Include(x => x.Events).AsEnumerable())
-                    events.AddRange(stream.Events.Select(Deserialize));
+                    events.AddRange(stream.Events.Select(_serializer.Deserialize));
 
                 return events;
             }
         }
         
-        public void SubscribeToStreams<T>(int eventNumber, Action<IEvent> action)
-        {
-            foreach(var streamName in GetStreams(typeof(T)).Select(x => x.Name))
-                SubscribeToStream(streamName,eventNumber,action);
-        }
-
-        public void SubscribeToStream(string streamName, int eventNumber, Action<IEvent> action)
-        {
-            var now = _timeline.Now();
-            var events = ReadStreamEventsForward(streamName, eventNumber, int.MaxValue).Where(e => now.CompareTo(e.Timestamp) >= 0)
-                .ToList().OrderBy(e => e.Timestamp);
-
-            foreach (var e in events)
-                action(e);
-
-            _subscriptions[action] = (o, e) =>
-            {
-                if (e.StreamName == streamName && _timeline.Now().CompareTo(e.Event.Timestamp) >= 0)
-                    action(e.Event);
-            };
-
-            EventAppended += _subscriptions[action];
-        }
-
-
-        public void DropSubscription(string streamName, Action<IEvent> action)
-        {
-            EventAppended -= _subscriptions[action];
-        }
-
-        private Event Serialize(IEvent e)
-        {
-            Event serialized;
-
-            using (var writer = new StringWriter())
-            {
-                _serializer.Serialize(writer, e);
-
-                serialized = new Event
-                {
-                    Guid = e.SourceId,
-                    TimestampUtc = e.Timestamp.ToDateTimeUtc(),
-                    Payload = writer.ToString()
-                };
-            }
-
-            return serialized;
-        }
-        private IEvent Deserialize(Event e)
-        {
-            using (var reader = new StringReader(e.Payload))
-            {
-                var @event = _serializer.Deserialize<IEvent>(reader);
-                @event.EventNumber = e.EventNumber;
-                return @event;
-            }
-        }
     }
 }

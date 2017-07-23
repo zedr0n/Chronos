@@ -25,7 +25,7 @@ namespace Chronos.Infrastructure.Commands
                 }
             };
 
-            _connection.AppendToNull(events);
+            _connection.Writer.AppendToNull(events);
 
             _eventBus.Publish(events[0]);
         }

@@ -2,7 +2,7 @@
 using Chronos.Core.Assets.Events;
 using Chronos.Infrastructure.Events;
 
-namespace Chronos.Core
+namespace Chronos.Core.Assets
 {
     public class Equity : Asset, IConsumer<EquityCreated>
     {

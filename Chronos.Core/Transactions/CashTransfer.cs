@@ -1,4 +1,5 @@
 ﻿using System;
+using Chronos.Core.Assets;
 using Chronos.Core.Transactions.Events;
 using Chronos.Infrastructure.Events;
 

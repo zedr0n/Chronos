@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Chronos.Core.Assets;
 using Chronos.Core.Transactions.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;

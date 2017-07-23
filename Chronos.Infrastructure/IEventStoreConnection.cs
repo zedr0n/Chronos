@@ -5,7 +5,14 @@ using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure
 {
-    public interface IEventStoreConnection
+    public interface IEventStoreSubscriptions
+    {
+        void SubscribeToStreams<TAggregate>(int eventNumber, Action<IEvent> action);
+        void SubscribeToStream(string streamName, int eventNumber, Action<IEvent> action);
+        void DropSubscription(string streamName, Action<IEvent> action);
+    }
+
+    public interface IEventStoreWriter
     {
         void AppendToNull(IEnumerable<IEvent> enumerable);
 
@@ -25,6 +32,10 @@ namespace Chronos.Infrastructure
         /// <param name="enumerable"></param>
         /// <exception cref="System.InvalidOperationException">If the stream is not at expected version</exception>
         void AppendToStream(string streamName, int expectedVersion, IEnumerable<IEvent> enumerable);
+    }
+
+    public interface IEventStoreReader
+    {
         /// <summary>
         /// Read specified number events from the stream forward from starting position
         /// </summary>
@@ -33,16 +44,20 @@ namespace Chronos.Infrastructure
         /// <param name="count"></param>
         /// <returns></returns>
         IEnumerable<IEvent> ReadStreamEventsForward(string streamName, long start, int count);
+        IEnumerable<IEvent> GetAggregateEvents();
+    }
+
+    public interface IEventStoreConnection
+    {
+        IEventStoreSubscriptions Subscriptions { get; }
+        IEventStoreWriter Writer { get; }
+        IEventStoreReader Reader { get; }
 
         bool Exists(string streamName);
 
         void Initialise();
 
-        IEnumerable<IEvent> GetAggregateEvents();
         IEnumerable<string> GetStreams<T>();
 
-        void SubscribeToStreams<TAggregate>(int eventNumber, Action<IEvent> action);
-        void SubscribeToStream(string streamName, int eventNumber, Action<IEvent> action);
-        void DropSubscription(string streamName, Action<IEvent> action);
     }
 }

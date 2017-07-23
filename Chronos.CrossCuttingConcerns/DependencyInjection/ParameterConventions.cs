@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using SimpleInjector;
 using SimpleInjector.Advanced;
@@ -13,6 +14,11 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
 
     public static class ParameterConventionExtensions
     {
+        public static void RegisterParameterConventions(this ContainerOptions options,IEnumerable<IParameterConvention> conventions)
+        {
+            foreach(var c in conventions)
+                RegisterParameterConvention(options,c);
+        }
         public static void RegisterParameterConvention(this ContainerOptions options,
             IParameterConvention convention)
         {

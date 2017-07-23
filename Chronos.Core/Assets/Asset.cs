@@ -1,7 +1,7 @@
 ﻿using System;
 using Chronos.Infrastructure;
 
-namespace Chronos.Core
+namespace Chronos.Core.Assets
 {
     public class Asset : AggregateBase
     {

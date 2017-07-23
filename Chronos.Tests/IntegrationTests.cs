@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Threading;
 using Chronos.Core.Accounts;
 using Chronos.Core.Accounts.Commands;
@@ -9,7 +8,6 @@ using Chronos.Core.Transactions;
 using Chronos.Core.Transactions.Commands;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
-using Chronos.Infrastructure.Projections;
 using Chronos.Infrastructure.Queries;
 using NodaTime;
 using Xunit;
@@ -375,6 +373,7 @@ namespace Chronos.Tests
 
             waitHandle.WaitOne();
             Assert.True(repository.Find<Account>(id) != null);
+            timer.Dispose();
         }
 
         [Fact]
@@ -422,6 +421,7 @@ namespace Chronos.Tests
             }, null, 500, 500);
 
             waitHandle.WaitOne();
+            timer.Dispose();
         }
 
         [Fact]

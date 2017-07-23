@@ -11,6 +11,7 @@ using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Misc;
 using Chronos.Infrastructure.Sagas;
 using NodaTime;
+using StreamExtensions = Chronos.Infrastructure.StreamExtensions;
 
 namespace Chronos.Persistence
 {
@@ -31,7 +32,7 @@ namespace Chronos.Persistence
         {
             var events = saga.UncommitedEvents.ToList();
 
-            _connection.AppendToStream(saga.StreamDetails(),saga.Version - events.Count,events);
+            _connection.Writer.AppendToStream(saga.StreamDetails(),saga.Version - events.Count,events);
 
             foreach (var e in saga.UndispatchedMessages)
             {
@@ -46,7 +47,7 @@ namespace Chronos.Persistence
         public T Find<T>(Guid id) where T : class,ISaga, new()
         {
             var streamName = StreamExtensions.StreamName<T>(id);
-            var events = _connection.ReadStreamEventsForward(streamName, 0, int.MaxValue).ToList();
+            var events = _connection.Reader.ReadStreamEventsForward(streamName, 0, int.MaxValue).ToList();
 
             if (!events.Any())
                 return null;

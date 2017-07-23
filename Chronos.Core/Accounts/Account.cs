@@ -5,6 +5,7 @@ using Chronos.Core.Transactions;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
 using NodaTime;
+using Chronos.Core.Assets;
 
 namespace Chronos.Core.Accounts
 {

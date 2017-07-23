@@ -1,4 +1,5 @@
-﻿using Chronos.Core.Accounts.Commands;
+﻿using System.Collections.Generic;
+using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Accounts.Queries;
 using Chronos.Core.Sagas;
@@ -16,33 +17,100 @@ using SimpleInjector;
 
 namespace Chronos.CrossCuttingConcerns.DependencyInjection
 {
-    public class CompositionRoot
-
+    public class DbConfiguration
     {
-        public class DbConfiguration
+        private void BuildConventions()
         {
-            public string Name { get; set; }
-            public bool IsPersistent { get; set; }
-            public bool InMemory { get; set; }
+            _conventions = new List<IParameterConvention>
+            {
+                new DbNameStringConvention(_name + ".db"),
+                new InMemoryConvention(_inMemory),
+                new PersistentDbConvention(_isPersistent)
+            };
         }
 
-        private DbConfiguration Database { get; set; } = new DbConfiguration
+        private List<IParameterConvention> _conventions;
+
+        public IEnumerable<IParameterConvention> Conventions
         {
-            InMemory = false,
-            IsPersistent = false,
-            Name = "Default"
-        };
+            get
+            {
+                if (_conventions == null)
+                    BuildConventions();
+                return _conventions;
+            }
+        }
+
+        private readonly string _name;
+        private bool _inMemory;
+        private bool _isPersistent;
+
+        public DbConfiguration(string name)
+        {
+            _name = name;
+        }
+
+        public DbConfiguration InMemory()
+        {
+            return new DbConfiguration(_name)
+            {
+                _isPersistent = false,
+                _inMemory = true
+            };
+        }
+        public DbConfiguration Persistent()
+        {
+            return new DbConfiguration(_name)
+            {
+                _isPersistent = true
+            };
+        }
+    }
+
+    public interface ICompositionRoot
+    {
+        ICompositionRootWithDatabase WithDatabase(string dbName);
+        void ComposeApplication(Container container);
+    }
+
+    public interface ICompositionRootWithDatabase
+    {
+        ICompositionRootWithDatabase InMemory();
+        ICompositionRootWithDatabase Persistent();
+        void ComposeApplication(Container container);
+    }
+
+    public class CompositionRoot : ICompositionRoot, ICompositionRootWithDatabase
+    {
+
+        private DbConfiguration Database { get; set; } = new DbConfiguration("Default");
+
+        public ICompositionRootWithDatabase WithDatabase(string dbName)
+        {
+            var database = new DbConfiguration(dbName);
+            return new CompositionRoot {Database = database};
+        }
 
         public static CompositionRoot WithDatabase(DbConfiguration configuration)
         {
             return new CompositionRoot() {Database = configuration};
         }
 
+        public ICompositionRootWithDatabase InMemory()
+        {
+            Database = Database.InMemory();
+            return this;
+        }
+
+        public ICompositionRootWithDatabase Persistent()
+        {
+            Database = Database.Persistent();
+            return this;
+        }
+
         public virtual void ComposeApplication(Container container)
         {
-            container.Options.RegisterParameterConvention(new InMemoryConvention(Database.InMemory));
-            container.Options.RegisterParameterConvention(new DbNameStringConvention(Database.Name + ".db"));
-            container.Options.RegisterParameterConvention(new PersistentDbConvention(Database.IsPersistent));
+            container.Options.RegisterParameterConventions(Database.Conventions);
             
             // register infrastructure
             container.Register<IEventBus,EventBus>(Lifestyle.Singleton);
@@ -60,6 +128,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<IClock,HighPrecisionClock>(Lifestyle.Singleton);
             container.Register<IReadRepository, ReadRepository>(Lifestyle.Singleton);
             container.Register<IStateWriter,StateWriter>(Lifestyle.Singleton);
+            container.Register<IEventSerializer,EventSerializer>(Lifestyle.Singleton);
 
             container.Register(typeof(ICommandHandler<>),new[] {
                 typeof(CreateAccountHandler),

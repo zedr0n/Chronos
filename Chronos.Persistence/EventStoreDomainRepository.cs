@@ -1,24 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
-using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
-using Chronos.Infrastructure.Misc;
 using NodaTime;
-using NodaTime.Text;
+using StreamExtensions = Chronos.Infrastructure.StreamExtensions;
 
 namespace Chronos.Persistence
 {
-
-    public static class AggregateExtensions
-    {
-        public static int ExpectedVersion(this IAggregate aggregate, IEnumerable<IEvent> events)
-        {
-            return aggregate.Version - events.Count();
-        }
-    }
     /// <summary>
     /// The event sourcing store
     /// </summary>
@@ -41,7 +30,7 @@ namespace Chronos.Persistence
             if (!events.Any())
                 return;
 
-            _connection.AppendToStream(aggregate.StreamDetails(), aggregate.Version - events.Count, events);
+            _connection.Writer.AppendToStream(aggregate.StreamDetails(), aggregate.Version - events.Count, events);
 
             aggregate.ClearUncommitedEvents();
 
@@ -53,7 +42,7 @@ namespace Chronos.Persistence
         public T Find<T>(Guid id) where T : class,IAggregate, new()
         {
             var streamName = StreamExtensions.StreamName<T>(id);
-            var events = _connection.ReadStreamEventsForward(streamName, 0, int.MaxValue).ToList();
+            var events = _connection.Reader.ReadStreamEventsForward(streamName, 0, int.MaxValue).ToList();
 
             if (!events.Any())
                 return null;
@@ -79,16 +68,16 @@ namespace Chronos.Persistence
         public void Replay(Instant date)
         {
             // the events should be resorted by timestamp as we might have modified the past
-            var events = _connection.GetAggregateEvents().Where(e => e.Timestamp.CompareTo(date) <= 0)
+            var events = _connection.Reader.GetAggregateEvents().Where(e => e.Timestamp.CompareTo(date) <= 0)
                 .ToList()
                 .OrderBy(e => e.Timestamp)
                 .ThenBy(e => e.EventNumber);          
 
             foreach (dynamic e in events)
             {
-                e.Replaying = true;
+                //e.Replaying = true;
                 _eventBus.Publish(e);
-                e.Replaying = false;
+                //e.Replaying = false;
             }
             _eventBus.Publish(new ReplayCompleted { Timestamp = date });
         }

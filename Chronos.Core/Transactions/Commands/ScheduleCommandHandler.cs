@@ -32,7 +32,7 @@ namespace Chronos.Core.Transactions.Commands
                     Timestamp = _timeline.Now()
                 }
             };
-            _connection.AppendToNull(events);
+            _connection.Writer.AppendToNull(events);
 
             _eventBus.Publish(events[0]);
         }

@@ -6,9 +6,25 @@ namespace Chronos.Infrastructure.Events
 {
     public class EventBase : IEvent
     {
+        private readonly EventInfo _eventInfo = new EventInfo();
         public Guid SourceId { get; set; }
-        public Instant Timestamp { get; set; }
-        public int EventNumber { get; set; } = -1;
-        public bool Replaying { get; set; } = false;
+
+        private class EventInfo
+        {
+            public Instant Timestamp { get; set; }
+            public int EventNumber { get; set; } = -1;
+        }
+
+        public Instant Timestamp
+        {
+            set => _eventInfo.Timestamp = value;
+            get => _eventInfo.Timestamp;
+        }
+
+        public int EventNumber
+        {
+            set => _eventInfo.EventNumber = value;
+            get => _eventInfo.EventNumber;
+        }
     }
 }

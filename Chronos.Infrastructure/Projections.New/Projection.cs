@@ -52,7 +52,7 @@ namespace Chronos.Infrastructure.Projections.New
         public void Start()
         {
             foreach (var s in _streams)
-                _connection.SubscribeToStream(s, -1, When);
+                _connection.Subscriptions.SubscribeToStream(s, -1, When);
         }
     }
 }

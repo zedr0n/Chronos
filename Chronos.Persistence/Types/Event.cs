@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Chronos.Persistence
+namespace Chronos.Persistence.Types
 {
     public class Event
     {

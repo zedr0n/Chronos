@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Chronos.Persistence.Types;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chronos.Persistence
 {
