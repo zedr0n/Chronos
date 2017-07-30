@@ -8,7 +8,7 @@ namespace Chronos.Infrastructure.Projections.New
     {
         private class TransientProjection : Projection<T>, ITransientProjection<T>
         {
-            public TransientProjection(Projection<T> projection)
+            internal TransientProjection(Projection<T> projection)
                 : base(projection) { }
 
             public T State { get; } = new T();

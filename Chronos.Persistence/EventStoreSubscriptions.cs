@@ -19,7 +19,7 @@ namespace Chronos.Persistence
             private readonly Dictionary<Action<StreamDetails>, StreamAddedHandler> _streamAdded = new Dictionary<Action<StreamDetails>, StreamAddedHandler>();
             private readonly SqlStoreConnection _connection;
 
-            public EventStoreSubscriptions(SqlStoreConnection connection)
+            internal EventStoreSubscriptions(SqlStoreConnection connection)
             {
                 _connection = connection;
             }
@@ -58,12 +58,12 @@ namespace Chronos.Persistence
                 EventAppended -= _eventAppended[action];
             }
 
-            public void OnEventAppended(StreamDetails stream,IEvent e)
+            internal void OnEventAppended(StreamDetails stream,IEvent e)
             {
                 EventAppended?.Invoke(null, new EventAppendedArgs(stream, e));
             }
 
-            public void OnStreamAdded(StreamDetails details)
+            internal void OnStreamAdded(StreamDetails details)
             {
                 StreamAdded?.Invoke(null, new StreamAddedArgs(details));
             }

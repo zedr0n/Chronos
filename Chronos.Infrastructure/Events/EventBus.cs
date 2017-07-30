@@ -12,11 +12,11 @@ namespace Chronos.Infrastructure.Events
         private class Handler
         {
             private Type _target;
-            public string FullName => _target.FullName;
-            public string Name => _target.Name;
-            public Action<IEvent> Action { get; private set; }
+            private string FullName => _target.FullName;
+            internal string Name => _target.Name;
+            internal Action<IEvent> Action { get; private set; }
 
-            public static Handler Create<T>(Action<T> action) where T : class, IEvent
+            internal static Handler Create<T>(Action<T> action) where T : class, IEvent
             {
                 return new Handler
                 {
@@ -25,7 +25,7 @@ namespace Chronos.Infrastructure.Events
                 };
             }
 
-            public bool Is<T>(Action<T> handler) where T : class, IEvent
+            internal bool Is<T>(Action<T> handler) where T : class, IEvent
             {
                 return FullName == handler.Target.GetType().FullName;
             }

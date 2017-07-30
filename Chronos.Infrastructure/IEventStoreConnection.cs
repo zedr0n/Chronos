@@ -44,7 +44,7 @@ namespace Chronos.Infrastructure
         IEventStoreWriter Writer { get; }
         IEventStoreReader Reader { get; }
 
-        bool Exists(string streamName);
+        bool Exists(StreamDetails stream);
 
         void Initialise();
 

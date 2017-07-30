@@ -9,8 +9,8 @@ namespace Chronos.Infrastructure.Events
 
         private class EventInfo
         {
-            public Instant Timestamp { get; set; }
-            public int EventNumber { get; set; } = -1;
+            internal Instant Timestamp { get; set; }
+            internal int EventNumber { get; set; } = -1;
         }
 
         public Instant Timestamp

@@ -22,7 +22,7 @@ namespace Chronos.Persistence
 
     public class EventAppendedArgs : EventArgs
     {
-        public StreamDetails Stream { get; private set; }
+        public StreamDetails Stream { get; }
         public IEvent Event { get; private set; }
 
         public EventAppendedArgs(StreamDetails stream, IEvent e)
@@ -60,12 +60,12 @@ namespace Chronos.Persistence
                 e.Timestamp = timestamp;
         }
 
-        public bool Exists(string streamName)
+        public bool Exists(StreamDetails stream)
         {
             using (var db = _eventDb.GetContext())
             {
                 //db.LogToConsole();
-                var streamId = streamName.GetHashCode();
+                var streamId = stream.Name.GetHashCode();
                 return db.Set<Stream>().AsNoTracking().Any(x => x.HashId == streamId);
             }
         }
@@ -100,12 +100,6 @@ namespace Chronos.Persistence
             }
         }
 
-        private IEnumerable<Stream> GetStreams(Type sourceType)
-        {
-            using (var context = _eventDb.GetContext())
-                return context.Set<Stream>().Where(x => x.SourceType == sourceType.Name);
-        }
-
         private Stream OpenStreamForWriting(DbContext context, StreamDetails details)
         {
             var streamName = details.Name;
@@ -125,7 +119,6 @@ namespace Chronos.Persistence
                     Version = 0
                 };
                 context.Set<Stream>().Add(stream);
-                //_subscriptions.OnStreamAdded(details);
             }
             else
             {

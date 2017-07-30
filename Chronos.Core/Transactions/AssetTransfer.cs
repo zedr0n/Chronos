@@ -16,7 +16,7 @@ namespace Chronos.Core.Transactions
         {
             RaiseEvent(new AssetTransferCreated
             {
-                TransactionId = id,
+                TransferId = id,
                 FromAccount = accountFrom,
                 ToAccount = accountTo,
                 AssetId = assetId,

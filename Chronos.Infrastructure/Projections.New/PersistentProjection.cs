@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure.Projections.New
@@ -11,7 +10,7 @@ namespace Chronos.Infrastructure.Projections.New
         {
             private readonly TKey _key;
             
-            public PersistentProjection(Projection<T> projection, TKey key)
+            internal PersistentProjection(Projection<T> projection, TKey key)
                 : base(projection)
             {
                 _key = key;
@@ -20,20 +19,20 @@ namespace Chronos.Infrastructure.Projections.New
             protected override void When(IEvent e)
             {
                 _writer.Write<TKey,T>(_key, x => x.When(e));
-
                 base.When(e);
             }
         }
 
         private class PersistentPartitionedProjection : Projection<T>, IPartitionedProjection<T>, IPersistentProjection<T>
         {
-            public PersistentPartitionedProjection(Projection<T> projection) : base(projection)
+            internal PersistentPartitionedProjection(Projection<T> projection) : base(projection)
             {
             }
 
             protected override void When(StreamDetails stream, IEvent e)
             {
                 _writer.Write<Guid, T>(stream.Id, x => x.When(e));
+                base.When(e);
             }
 
             public IPersistentProjection<T> OutputState() => this;

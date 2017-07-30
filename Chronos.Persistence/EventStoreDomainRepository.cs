@@ -65,7 +65,7 @@ namespace Chronos.Persistence
 
         public bool Exists<T>(Guid id) where T : class,IAggregate,new()
         {
-            return _connection.Exists(StreamExtensions.StreamName<T>(id));
+            return _connection.Exists(new StreamDetails(typeof(T),id));
         }
 
         public void Replay(Instant date)

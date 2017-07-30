@@ -14,17 +14,14 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
 
         private struct Handler
         {
-            private Type _type;
-            public string Name => _type.Name;
-            public Action<ICommand> Action { get; private set; } 
+            private readonly Type _type;
+            internal string Name => _type.Name;
+            internal Action<ICommand> Action { get; }
 
-            public static Handler Create(ICommandHandler handler, Action<ICommand> action) 
+            internal Handler(ICommandHandler handler, Action<ICommand> action)
             {
-                return new Handler
-                {
-                    _type = handler.GetType(),
-                    Action = action
-                };
+                _type = handler.GetType();
+                Action = action;
             }
         }
 
@@ -40,7 +37,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             {
                 var methodInfo = handler.Instance.GetType().GetMethod("Handle");
 
-                _registry[handler.CommandType] = Handler.Create(handler.Instance,
+                _registry[handler.CommandType] = new Handler(handler.Instance,
                     c => methodInfo.Invoke(handler.Instance,new object[] { c })); //c => methodInfo.Invoke(handler,new object[] { c });
             }
         }

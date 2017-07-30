@@ -20,7 +20,7 @@ namespace Chronos.Core.Sagas
         [DebuggerStepThrough]
         public void When(TimeoutCompleted e) => When<TimeoutCompleted, SchedulerSaga>(e, x => x.ScheduleId);
         [DebuggerStepThrough]
-        public void When(CashTransferCreated e) => When<CashTransferCreated, TransferSaga>(e, x => x.TransactionId);
+        public void When(CashTransferCreated e) => When<CashTransferCreated, TransferSaga>(e, x => x.TransferId);
 
         public SagaManager(ISagaRepository repository, IEventBus eventBus, IDebugLog debugLog) : base(repository, eventBus, debugLog)
         {

@@ -10,7 +10,7 @@ namespace Chronos.Infrastructure.Projections.New
         {
             private readonly Instant _date;
 
-            public HistoricalProjection(Projection<T> projection, Instant date) 
+            internal HistoricalProjection(Projection<T> projection, Instant date) 
                 : base(projection)
             {
                 _date = date;

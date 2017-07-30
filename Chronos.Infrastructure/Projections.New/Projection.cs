@@ -1,8 +1,6 @@
 using System;
-using System.Linq;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
-using NodaTime;
 
 namespace Chronos.Infrastructure.Projections.New
 {
@@ -26,8 +24,6 @@ namespace Chronos.Infrastructure.Projections.New
             _connection = connection;
             _writer = writer;
             _eventBus = eventBus;
-
-            _eventBus.Subscribe<ReplayCompleted>(When);
         }
 
         public IProjection<T> From<TAggregate>() where TAggregate : IAggregate
@@ -64,6 +60,8 @@ namespace Chronos.Infrastructure.Projections.New
                 if (_from(s))
                     Subscribe(s);
             });
+
+            _eventBus.Subscribe<ReplayCompleted>(When);
         }
     }
 }
