@@ -23,8 +23,13 @@ namespace Chronos.Infrastructure
         { }
 
         public StreamDetails(Type sourceType, Guid id)
+            : this(sourceType.Name,id)
         {
-            SourceType = sourceType.Name;
+        }
+
+        public StreamDetails(string sourceType, Guid id)
+        {
+            SourceType = sourceType;
             Id = id;
             Name = $"{SourceType}-{id}";
         }

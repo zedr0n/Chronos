@@ -31,7 +31,7 @@ namespace Chronos.Infrastructure.Projections.New
             {
             }
 
-            protected override void When(IEvent e, StreamDetails stream)
+            protected override void When(StreamDetails stream, IEvent e)
             {
                 _writer.Write<Guid, T>(stream.Id, x => x.When(e));
             }

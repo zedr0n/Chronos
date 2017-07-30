@@ -6,9 +6,9 @@ namespace Chronos.Infrastructure
 {
     public interface IEventStoreSubscriptions
     {
-        void SubscribeToStreams<TAggregate>(int eventNumber, Action<IEvent> action);
-        void SubscribeToStream(string streamName, int eventNumber, Action<IEvent> action);
-        void DropSubscription(string streamName, Action<IEvent> action);
+        void OnStreamAdded(Action<StreamDetails> action);
+        void SubscribeToStream(StreamDetails stream, int eventNumber, Action<StreamDetails,IEvent> action);
+        void DropSubscription(StreamDetails stream, Action<StreamDetails,IEvent> action);
     }
 
     public interface IEventStoreWriter
@@ -48,6 +48,7 @@ namespace Chronos.Infrastructure
 
         void Initialise();
 
+        IEnumerable<StreamDetails> GetStreams(Func<StreamDetails, bool> predicate);
         IEnumerable<StreamDetails> GetStreams<T>();
 
     }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Chronos.Infrastructure.Projections.New
+﻿namespace Chronos.Infrastructure.Projections.New
 {
     public interface IProjectionManager
     {

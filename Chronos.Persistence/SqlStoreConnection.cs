@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using Chronos.Infrastructure;
-using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Persistence.Serialization;
 using Microsoft.EntityFrameworkCore;
@@ -14,22 +12,22 @@ namespace Chronos.Persistence
 {
     public class StreamAddedArgs : EventArgs
     {
-        public string StreamName { get; private set; }
+        public StreamDetails Details { get; }
 
-        public StreamAddedArgs(string name)
+        public StreamAddedArgs(StreamDetails details)
         {
-            StreamName = name;
+            Details = details;
         }
     }
 
     public class EventAppendedArgs : EventArgs
     {
-        public string StreamName { get; private set; }
+        public StreamDetails Stream { get; private set; }
         public IEvent Event { get; private set; }
 
-        public EventAppendedArgs(string name, IEvent e)
+        public EventAppendedArgs(StreamDetails stream, IEvent e)
         {
-            StreamName = name;
+            Stream = stream;
             Event = e;
         }
     }
@@ -76,14 +74,28 @@ namespace Chronos.Persistence
         {
             _eventDb.Init();
         }
-
-        public IEnumerable<StreamDetails> GetStreams<T>()
+        
+        public IEnumerable<StreamDetails> GetStreams(Func<StreamDetails, bool> predicate)
         {
             using (var context = _eventDb.GetContext())
             {
                 var streams = context.Set<Stream>()
+                    .Select(s => new StreamDetails(s.SourceType, s.Key))
+                    .Where(predicate)
+                    .ToList();
+
+                return streams;
+            }
+        }
+
+        public IEnumerable<StreamDetails> GetStreams<T>()
+        { 
+            using (var context = _eventDb.GetContext())
+            {
+                var streams = context.Set<Stream>()
                     .Where(x => x.SourceType == typeof(T).Name)
-                    .Select(s => new StreamDetails(typeof(T), s.Key));
+                    .Select(s => new StreamDetails(typeof(T), s.Key))
+                    .ToList();
                 return streams;
             }
         }
@@ -113,7 +125,7 @@ namespace Chronos.Persistence
                     Version = 0
                 };
                 context.Set<Stream>().Add(stream);
-                _subscriptions.OnStreamAdded(streamName);
+                //_subscriptions.OnStreamAdded(details);
             }
             else
             {
@@ -158,11 +170,6 @@ namespace Chronos.Persistence
             }
         }
 
-        public void AppendToStream(StreamDetails details,int expectedVersion, IEnumerable<IEvent> enumerable)
-        {
-            AppendToStream(c => OpenStreamForWriting(c,details), expectedVersion, enumerable);
-        }
-
         private void WriteStream(Stream stream, IEnumerable<IEvent> events)
         {
             var eventsDto = events.Select(_serializer.Serialize).ToList();
@@ -176,7 +183,7 @@ namespace Chronos.Persistence
 
         }
 
-        private void AppendToStream(Func<DbContext,Stream> streamSelector, int expectedVersion, IEnumerable<IEvent> enumerable)
+        public void AppendToStream(StreamDetails streamDetails, int expectedVersion, IEnumerable<IEvent> enumerable)
         {
             var events = enumerable as IList<IEvent> ?? enumerable.ToList();
             if (!events.Any())
@@ -184,7 +191,8 @@ namespace Chronos.Persistence
 
             using (var context = _eventDb.GetContext())
             {
-                var stream = streamSelector(context);
+                var stream = OpenStreamForWriting(context, streamDetails);
+                var streamAdded = stream.Version == 0;
 
                 if (stream.Version < expectedVersion)
                     throw new InvalidOperationException("Stream version is not consistent with events : "
@@ -207,8 +215,11 @@ namespace Chronos.Persistence
                 // set the event numbers based on database generated id
                 ForEach(events,stream.Events,(e1,e2) => e1.EventNumber = e2.EventNumber);
 
+                // if no other events were present in the stream
+                if(streamAdded)
+                    _subscriptions.OnStreamAdded(streamDetails);
                 foreach (var e in events)
-                    _subscriptions.OnEventAppended(stream.Name,e);
+                    _subscriptions.OnEventAppended(streamDetails, e);
             }
         }
 

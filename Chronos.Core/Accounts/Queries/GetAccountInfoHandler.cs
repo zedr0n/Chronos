@@ -18,16 +18,13 @@ namespace Chronos.Core.Accounts.Queries
         {
             _repository = repository;
             _projectionManager = projectionManager;
+
+            var projection = _projectionManager.Create<AccountInfo>().From<Account>().ForEachStream().OutputState();
+            projection.Start();
         }
 
         public AccountInfo Handle(GetAccountInfo query)
         {
-            var projection = _projectionManager.Create<AccountInfo>()
-                .From<Account>(query.AccountId)
-                .OutputState(query.AccountId);
-
-            projection.Start();
-
             var accountInfo = _repository.Find<Guid, AccountInfo>(query.AccountId);
 
             if (query.AsOf != Instant.MaxValue)
@@ -36,7 +33,7 @@ namespace Chronos.Core.Accounts.Queries
                     .From<Account>(query.AccountId)
                     .AsOf(query.AsOf);
 
-                projection.Start();
+                historicalProjection.Start();
                 accountInfo = historicalProjection.State;
             }
 

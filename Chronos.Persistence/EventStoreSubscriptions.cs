@@ -15,8 +15,8 @@ namespace Chronos.Persistence
             public event EventAppendedHandler EventAppended;
             public event StreamAddedHandler StreamAdded;
 
-            private readonly Dictionary<Action<IEvent>, EventAppendedHandler> _eventAppended = new Dictionary<Action<IEvent>, EventAppendedHandler>();
-            private readonly Dictionary<Action<IEvent>, StreamAddedHandler> _streamAdded = new Dictionary<Action<IEvent>, StreamAddedHandler>();
+            private readonly Dictionary<Action<StreamDetails,IEvent>, EventAppendedHandler> _eventAppended = new Dictionary<Action<StreamDetails,IEvent>, EventAppendedHandler>();
+            private readonly Dictionary<Action<StreamDetails>, StreamAddedHandler> _streamAdded = new Dictionary<Action<StreamDetails>, StreamAddedHandler>();
             private readonly SqlStoreConnection _connection;
 
             public EventStoreSubscriptions(SqlStoreConnection connection)
@@ -24,44 +24,48 @@ namespace Chronos.Persistence
                 _connection = connection;
             }
 
-            public void SubscribeToStreams<T>(int eventNumber, Action<IEvent> action)
+            public void OnStreamAdded(Action<StreamDetails> action)
             {
-                foreach (var streamName in _connection.GetStreams(typeof(T)).Select(x => x.Name))
-                    SubscribeToStream(streamName, eventNumber, action);
+                _streamAdded[action] = (o, e) =>
+                {
+                    action(e.Details);
+                };
+
+                StreamAdded += _streamAdded[action];
             }
 
-            public void SubscribeToStream(string streamName, int eventNumber, Action<IEvent> action)
+            public void SubscribeToStream(StreamDetails stream, int eventNumber, Action<StreamDetails,IEvent> action)
             {
                 var now = _connection._timeline.Now();
-                var events = _connection.ReadStreamEventsForward(streamName, eventNumber, int.MaxValue)
+                var events = _connection.ReadStreamEventsForward(stream.Name, eventNumber, int.MaxValue)
                     .Where(e => e.Timestamp <= now)
                     .ToList().OrderBy(e => e.Timestamp);
 
                 foreach (var e in events)
-                    action(e);
+                    action(stream,e);
 
                 _eventAppended[action] = (o, e) =>
                 {
-                    if (e.StreamName == streamName && _connection._timeline.Now() >= e.Event.Timestamp)
-                        action(e.Event);
+                    if (e.Stream.Name == stream.Name && _connection._timeline.Now() >= e.Event.Timestamp)
+                        action(e.Stream,e.Event);
                 };
 
                 EventAppended += _eventAppended[action];
             }
 
-            public void DropSubscription(string streamName, Action<IEvent> action)
+            public void DropSubscription(StreamDetails stream, Action<StreamDetails,IEvent> action)
             {
                 EventAppended -= _eventAppended[action];
             }
 
-            public void OnEventAppended(string streamName,IEvent e)
+            public void OnEventAppended(StreamDetails stream,IEvent e)
             {
-                EventAppended?.Invoke(null, new EventAppendedArgs(streamName, e));
+                EventAppended?.Invoke(null, new EventAppendedArgs(stream, e));
             }
 
-            public void OnStreamAdded(string streamName)
+            public void OnStreamAdded(StreamDetails details)
             {
-                StreamAdded?.Invoke(null, new StreamAddedArgs(streamName));
+                StreamAdded?.Invoke(null, new StreamAddedArgs(details));
             }
 
         }

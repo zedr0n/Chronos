@@ -77,11 +77,8 @@ namespace Chronos.Persistence
                 .ThenBy(e => e.EventNumber);          
 
             foreach (dynamic e in events)
-            {
-                //e.Replaying = true;
                 _eventBus.Publish(e);
-                //e.Replaying = false;
-            }
+
             _eventBus.Publish(new ReplayCompleted { Timestamp = date });
         }
     }
