@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Chronos.Core.Accounts.Events;
-using Chronos.Core.Transactions;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
 using NodaTime;
@@ -29,7 +28,7 @@ namespace Chronos.Core.Accounts
         {
             RaiseEvent(new AccountCreated
             {
-                SourceId = id,
+                AccountId = id,
                 Name = name,
                 Currency = ccy
             });
@@ -44,7 +43,7 @@ namespace Chronos.Core.Accounts
         {
             RaiseEvent(new AccountChanged
             {
-                SourceId = Id,
+                AccountId = Id,
                 Name = name,
                 Currency = currency
             });
@@ -58,7 +57,7 @@ namespace Chronos.Core.Accounts
         {
             RaiseEvent( new CashDeposited
             {
-                SourceId = Id,
+                AccountId = Id,
                 Amount = amount
             });
         }
@@ -66,7 +65,7 @@ namespace Chronos.Core.Accounts
         {
             RaiseEvent(new CashWithdrawn
             {
-                SourceId = Id,
+                AccountId = Id,
                 Amount = amount
             });
         }
@@ -74,7 +73,16 @@ namespace Chronos.Core.Accounts
         {
             RaiseEvent( new AssetDeposited
             {
-                SourceId = Id,
+                AccountId = Id,
+                AssetId = assetId
+            });
+        }
+
+        public void WithdrawAsset(Guid assetId)
+        {
+            RaiseEvent( new AssetWithdrawn
+            {
+                AccountId = Id,
                 AssetId = assetId
             });
         }

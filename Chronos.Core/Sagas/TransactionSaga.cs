@@ -42,7 +42,7 @@ namespace Chronos.Core.Sagas
         {
             SendMessage(new WithdrawCashCommand
             {
-                AggregateId = _accountId,
+                TargetId = _accountId,
                 Amount = _amount
             });
         }

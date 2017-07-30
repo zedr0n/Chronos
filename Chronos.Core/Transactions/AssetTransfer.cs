@@ -1,4 +1,5 @@
 ﻿using System;
+using Chronos.Core.Assets;
 using Chronos.Core.Transactions.Events;
 using Chronos.Infrastructure.Events;
 
@@ -15,7 +16,7 @@ namespace Chronos.Core.Transactions
         {
             RaiseEvent(new AssetTransferCreated
             {
-                SourceId = id,
+                TransactionId = id,
                 FromAccount = accountFrom,
                 ToAccount = accountTo,
                 AssetId = assetId,
@@ -25,9 +26,6 @@ namespace Chronos.Core.Transactions
 
         public void When(AssetTransferCreated e)
         {
-            if (e.SourceId != Id)
-                return;
-
             TransferDetails = new TransferDetails(e.FromAccount,e.ToAccount);
 
             _assetId = e.AssetId;

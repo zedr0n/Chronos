@@ -11,7 +11,7 @@ namespace Chronos.Core.Accounts.Commands
 
         public void Handle(WithdrawCashCommand command)
         {
-            var account = Repository.Get<Account>(command.AggregateId);
+            var account = Repository.Get<Account>(command.TargetId);
             account.Credit(command.Amount);
             Repository.Save(account);
         }

@@ -4,11 +4,6 @@ namespace Chronos.Infrastructure
 {
     public static class StreamExtensions
     {
-        public static StreamDetails StreamDetails(this IAggregate aggregate)
-        {
-            return new StreamDetails(name: $"{aggregate.GetType().Name}-{aggregate.Id}", sourceType: aggregate.GetType());
-        }
-
         public static string StreamName(this IAggregate aggregate)
         {
             return $"{aggregate.GetType().Name}-{aggregate.Id}";

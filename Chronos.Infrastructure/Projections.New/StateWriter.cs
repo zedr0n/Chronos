@@ -25,5 +25,18 @@ namespace Chronos.Infrastructure.Projections.New
 
             action(state);
         }
+
+        public void Write<T>(Func<T, bool> predicate, Action<T> action) where T : class, IReadModel, new()
+        {
+            var state = _repository.Find(predicate);
+            if (state == null)
+            {
+                state = new T();
+                action(state);
+                _repository.Add(state);
+            }
+            else
+                action(state);
+        }
     }
 }

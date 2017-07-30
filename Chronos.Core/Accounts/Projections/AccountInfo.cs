@@ -8,10 +8,10 @@ namespace Chronos.Core.Accounts.Projections
 {
     public class AccountInfo : ReadModelBase<Guid>
     {
-        public string Name { get; set; }
-        public string Currency { get; set; }
-        public double Balance { get; set; }
-        public Instant CreatedAt { get; set; }
+        public string Name { get; private set; }
+        public string Currency { get; private set; }
+        public double Balance { get; private set; }
+        public Instant CreatedAt { get; private set; }
 
         private void When( AccountCreated e)
         {

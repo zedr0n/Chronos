@@ -1,5 +1,4 @@
-﻿using System;
-using Chronos.Infrastructure.Interfaces;
+﻿using Chronos.Infrastructure.Interfaces;
 using NodaTime;
 
 namespace Chronos.Infrastructure.Events
@@ -7,7 +6,6 @@ namespace Chronos.Infrastructure.Events
     public class EventBase : IEvent
     {
         private readonly EventInfo _eventInfo = new EventInfo();
-        public Guid SourceId { get; set; }
 
         private class EventInfo
         {
@@ -27,4 +25,5 @@ namespace Chronos.Infrastructure.Events
             get => _eventInfo.EventNumber;
         }
     }
+
 }

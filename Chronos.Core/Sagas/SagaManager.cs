@@ -14,13 +14,13 @@ namespace Chronos.Core.Sagas
     {
 
         [DebuggerStepThrough]
-        public void When(PurchaseCreated e) => When<PurchaseCreated,TransactionSaga>(e);
+        public void When(PurchaseCreated e) => When<PurchaseCreated,TransactionSaga>(e, x => x.PurchaseId);
         [DebuggerStepThrough]
-        public void When(CommandScheduled e) => When<CommandScheduled, SchedulerSaga>(e);
+        public void When(CommandScheduled e) => When<CommandScheduled, SchedulerSaga>(e, x => x.ScheduleId);
         [DebuggerStepThrough]
-        public void When(TimeoutCompleted e) => When<TimeoutCompleted, SchedulerSaga>(e);
+        public void When(TimeoutCompleted e) => When<TimeoutCompleted, SchedulerSaga>(e, x => x.ScheduleId);
         [DebuggerStepThrough]
-        public void When(CashTransferCreated e) => When<CashTransferCreated, TransferSaga>(e);
+        public void When(CashTransferCreated e) => When<CashTransferCreated, TransferSaga>(e, x => x.TransactionId);
 
         public SagaManager(ISagaRepository repository, IEventBus eventBus, IDebugLog debugLog) : base(repository, eventBus, debugLog)
         {

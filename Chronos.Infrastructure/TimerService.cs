@@ -28,11 +28,11 @@ namespace Chronos.Infrastructure
                 return;
             lock (_timers)
             {
-                if (!_timers.ContainsKey(e.SourceId))
+                if (!_timers.ContainsKey(e.ScheduleId))
                     return;
                 
-                RemoveTimer(e.SourceId);
-                _eventBus.Publish(new TimeoutCompleted { SourceId = e.SourceId, Timestamp = e.When});
+                RemoveTimer(e.ScheduleId);
+                _eventBus.Publish(new TimeoutCompleted { ScheduleId = e.ScheduleId, Timestamp = e.When});
             }
         }
 
@@ -51,8 +51,8 @@ namespace Chronos.Infrastructure
         {
             lock (_timers)
             {
-                if (!_timers.ContainsKey(e.SourceId))
-                    _timers[e.SourceId] = new Timer(obj => CheckTimeout(e), null, PollingFrequency, PollingFrequency);
+                if (!_timers.ContainsKey(e.ScheduleId))
+                    _timers[e.ScheduleId] = new Timer(obj => CheckTimeout(e), null, PollingFrequency, PollingFrequency);
                 else
                     throw new InvalidOperationException("Timeout has already been requested for this id");
             }

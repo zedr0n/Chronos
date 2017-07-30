@@ -12,12 +12,8 @@ namespace Chronos.Infrastructure
 
         protected ReadModelBase()
         {
-            foreach (var m in GetType().GetRuntimeMethods()
-                .Where(m => m.Name == "When")
-                .Where(m => m.GetParameters().First().ParameterType != typeof(IEvent)))
-            {
+            foreach (var m in GetType().GetTypeInfo().GetDeclaredMethods("When"))
                 _when.Add(m.GetParameters().First().ParameterType, (e) => m.Invoke(this, new object[] { e }));
-            }
         }
         public void When(IEvent e)
         {

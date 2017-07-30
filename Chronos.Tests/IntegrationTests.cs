@@ -23,7 +23,7 @@ namespace Chronos.Tests
             var id = Guid.NewGuid();
             var command = new CreateAccountCommand
             {
-                AggregateId = id,
+                TargetId = id,
                 Currency = "GBP",
                 Name = "Account"
             };
@@ -47,7 +47,7 @@ namespace Chronos.Tests
             var id = Guid.NewGuid();
             var command = new CreateAccountCommand
             {
-                AggregateId = id,
+                TargetId = id,
                 Currency = "GBP",
                 Name = "Account"
             };
@@ -57,7 +57,7 @@ namespace Chronos.Tests
             var otherId = Guid.NewGuid();
             var otherCommand = new CreateAccountCommand
             {
-                AggregateId = otherId,
+                TargetId = otherId,
                 Currency = "GBP",
                 Name = "OtherAccount"
             };
@@ -83,7 +83,7 @@ namespace Chronos.Tests
             var id = Guid.NewGuid();
             var command = new CreateAccountCommand
             {
-                AggregateId = id,
+                TargetId = id,
                 Currency = "GBP",
                 Name = "Account"
             };
@@ -104,7 +104,7 @@ namespace Chronos.Tests
         {
             var command = new ChangeAccountCommand
             {
-                AggregateId = Guid.NewGuid(),
+                TargetId = Guid.NewGuid(),
                 Currency = "",
                 Name = ""
             };
@@ -120,7 +120,7 @@ namespace Chronos.Tests
             var id = Guid.NewGuid();
             var command = new CreateAccountCommand
             {
-                AggregateId = id,
+                TargetId = id,
                 Currency = "GBP",
                 Name = "Account"
             };
@@ -137,7 +137,7 @@ namespace Chronos.Tests
 
             var changeCommand = new ChangeAccountCommand
             {
-                AggregateId = id,
+                TargetId = id,
                 Name = "OtherAccount",
                 Currency = "GBP"
             };
@@ -153,7 +153,7 @@ namespace Chronos.Tests
             var accountId = Guid.NewGuid();
             var createAccountCommand = new CreateAccountCommand
             {
-                AggregateId = accountId,
+                TargetId = accountId,
                 Currency = "GBP",
                 Name = "Account"
             };
@@ -166,7 +166,7 @@ namespace Chronos.Tests
 
             var command = new CreatePurchaseCommand
             {
-                AggregateId = id,
+                TargetId = id,
                 AccountId = accountId,
                 Amount = 100,
                 Currency = "GBP",
@@ -192,7 +192,7 @@ namespace Chronos.Tests
             var accountId = Guid.NewGuid();
             var createAccountCommand = new CreateAccountCommand
             {
-                AggregateId = accountId,
+                TargetId = accountId,
                 Currency = "GBP",
                 Name = "Account"
             };
@@ -208,7 +208,7 @@ namespace Chronos.Tests
 
             var command = new CreatePurchaseCommand
             {
-                AggregateId = id,
+                TargetId = id,
                 AccountId = accountId,
                 Amount = 100,
                 Currency = "GBP",
@@ -238,7 +238,7 @@ namespace Chronos.Tests
             var id = Guid.NewGuid();
             var command = new CreateAccountCommand
             {
-                AggregateId = id,
+                TargetId = id,
                 Currency = "GBP",
                 Name = "Account"
             };
@@ -262,7 +262,7 @@ namespace Chronos.Tests
             var accountId = Guid.NewGuid();
             var createAccountCommand = new CreateAccountCommand
             {
-                AggregateId = accountId,
+                TargetId = accountId,
                 Currency = "GBP",
                 Name = "Account"
             };
@@ -276,7 +276,7 @@ namespace Chronos.Tests
 
             var command = new CreatePurchaseCommand
             {
-                AggregateId = id,
+                TargetId = id,
                 AccountId = accountId,
                 Amount = 100,
                 Currency = "GBP",
@@ -301,7 +301,7 @@ namespace Chronos.Tests
             var accountId = Guid.NewGuid();
             var createAccountCommand = new CreateAccountCommand
             {
-                AggregateId = accountId,
+                TargetId = accountId,
                 Currency = "GBP",
                 Name = "Account"
             };
@@ -316,7 +316,7 @@ namespace Chronos.Tests
 
             var command = new CreatePurchaseCommand
             {
-                AggregateId = id,
+                TargetId = id,
                 AccountId = accountId,
                 Amount = 100,
                 Currency = "GBP",
@@ -341,7 +341,7 @@ namespace Chronos.Tests
             var id = Guid.NewGuid();
             var command = new CreateAccountCommand
             {
-                AggregateId = id,
+                TargetId = id,
                 Currency = "GBP",
                 Name = "Account"
             };
@@ -350,7 +350,7 @@ namespace Chronos.Tests
 
             var scheduleCommand = new ScheduleCommand
             {
-                AggregateId = id,
+                TargetId = id,
                 Command = command,
                 Date = scheduledOn
             };
@@ -389,7 +389,7 @@ namespace Chronos.Tests
             var id = Guid.NewGuid();
             var command = new CreateAccountCommand
             {
-                AggregateId = id,
+                TargetId = id,
                 Currency = "GBP",
                 Name = "Account"
             };
@@ -433,7 +433,7 @@ namespace Chronos.Tests
             var accountId = Guid.NewGuid();
             var createAccountCommand = new CreateAccountCommand
             {
-                AggregateId = accountId,
+                TargetId = accountId,
                 Currency = "GBP",
                 Name = "Account"
             };
@@ -443,7 +443,7 @@ namespace Chronos.Tests
             var otherAccountId = Guid.NewGuid();
             var createOtherAccountCommand = new CreateAccountCommand
             {
-                AggregateId = otherAccountId,
+                TargetId = otherAccountId,
                 Currency = "GBP",
                 Name = "OtherAccount"
             };
@@ -454,7 +454,7 @@ namespace Chronos.Tests
 
             var transferCommand = new CreateCashTransferCommand
             {
-                AggregateId = transferId,
+                TargetId = transferId,
                 Amount = 100,
                 Currency = "GBP",
                 FromAccount = accountId,

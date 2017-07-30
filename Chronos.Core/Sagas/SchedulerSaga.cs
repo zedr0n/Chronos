@@ -57,7 +57,7 @@ namespace Chronos.Core.Sagas
         {
             SendMessage(new RequestTimeoutCommand
             {
-                AggregateId = SagaId,
+                TargetId = SagaId,
                 When = _scheduledOn
             });
         }

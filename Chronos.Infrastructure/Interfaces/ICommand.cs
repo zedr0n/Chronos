@@ -4,6 +4,6 @@ namespace Chronos.Infrastructure.Interfaces
 {
     public interface ICommand : IMessage
     {
-        Guid AggregateId { get; set; }
+        Guid TargetId { get; set; }
     }
 }

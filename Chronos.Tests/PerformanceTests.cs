@@ -18,7 +18,7 @@ namespace Chronos.Tests
             var accountId = Guid.NewGuid();
             var createAccountCommand = new CreateAccountCommand
             {
-                AggregateId = accountId,
+                TargetId = accountId,
                 Currency = "GBP",
                 Name = "Account"
             };
@@ -32,7 +32,7 @@ namespace Chronos.Tests
             {
                 var command = new CreatePurchaseCommand
                 {
-                    AggregateId = Guid.NewGuid(),
+                    TargetId = Guid.NewGuid(),
                     AccountId = accountId,
                     Amount = 100,
                     Currency = "GBP",

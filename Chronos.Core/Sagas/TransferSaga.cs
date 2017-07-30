@@ -48,12 +48,12 @@ namespace Chronos.Core.Sagas
         {
             SendMessage(new DepositCashCommand
             {
-                AggregateId = _transferDetails.AccountTo,
+                TargetId = _transferDetails.AccountTo,
                 Amount = _amount
             });
             SendMessage(new WithdrawCashCommand
             {
-                AggregateId = _transferDetails.AccountFrom,
+                TargetId = _transferDetails.AccountFrom,
                 Amount = _amount
             });
         }
@@ -61,7 +61,7 @@ namespace Chronos.Core.Sagas
         {
             SendMessage(new DepositAssetCommand
             {
-                AggregateId = _transferDetails.AccountTo,
+                TargetId = _transferDetails.AccountTo,
                 AssetId = _assetId
             });
         }

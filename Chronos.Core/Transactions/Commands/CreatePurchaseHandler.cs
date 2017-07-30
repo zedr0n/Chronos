@@ -17,10 +17,10 @@ namespace Chronos.Core.Transactions.Commands
 
         public void Handle(CreatePurchaseCommand command)
         {
-            if(_domainRepository.Exists<Purchase>(command.AggregateId))
+            if(_domainRepository.Exists<Purchase>(command.TargetId))
                 throw new InvalidOperationException("Transaction already exists");
 
-            var purchase = new Purchase(command.AggregateId,command.AccountId,command.Payee,
+            var purchase = new Purchase(command.TargetId,command.AccountId,command.Payee,
                 new Cash(command.Currency,command.Amount));
 
             _domainRepository.Save(purchase);

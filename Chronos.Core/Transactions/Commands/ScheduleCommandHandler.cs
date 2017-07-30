@@ -25,7 +25,6 @@ namespace Chronos.Core.Transactions.Commands
             {
                 new CommandScheduled
                 {
-                    SourceId = command.ScheduleId,
                     ScheduleId = command.ScheduleId,
                     Command = command.Command,
                     Time = command.Date,

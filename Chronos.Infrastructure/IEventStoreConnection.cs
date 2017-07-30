@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure
@@ -24,14 +23,6 @@ namespace Chronos.Infrastructure
         /// <param name="enumerable"></param>
         /// <exception cref="System.InvalidOperationException">If the stream is not at expected version</exception>
         void AppendToStream(StreamDetails streamDetails, int expectedVersion, IEnumerable<IEvent> enumerable);
-        /// <summary>
-        /// Appends events to the stream with the given name
-        /// </summary>
-        /// <param name="streamName">Name of the stream to read from</param>
-        /// <param name="expectedVersion"></param>
-        /// <param name="enumerable"></param>
-        /// <exception cref="System.InvalidOperationException">If the stream is not at expected version</exception>
-        void AppendToStream(string streamName, int expectedVersion, IEnumerable<IEvent> enumerable);
     }
 
     public interface IEventStoreReader
@@ -57,7 +48,7 @@ namespace Chronos.Infrastructure
 
         void Initialise();
 
-        IEnumerable<string> GetStreams<T>();
+        IEnumerable<StreamDetails> GetStreams<T>();
 
     }
 }

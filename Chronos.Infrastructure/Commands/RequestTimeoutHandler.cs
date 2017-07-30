@@ -20,7 +20,7 @@ namespace Chronos.Infrastructure.Commands
             {
                 new TimeoutRequested
                 {
-                    SourceId = command.AggregateId,
+                    ScheduleId = command.TargetId,
                     When = command.When
                 }
             };

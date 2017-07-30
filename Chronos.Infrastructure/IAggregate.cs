@@ -7,12 +7,12 @@ namespace Chronos.Infrastructure
 {
     public interface IAggregate : IConsumer
     {
-        Guid Id { get; }
         int Version { get; }
+        Guid Id { get; }
 
         IEnumerable<IEvent> UncommitedEvents { get; }
         void ClearUncommitedEvents();
+        T LoadFrom<T>(Guid id, IEnumerable<IEvent> pastEvents) where T : class, IAggregate, new();
 
-        T LoadFrom<T>(Guid id,IEnumerable<IEvent> pastEvents) where T : class,IAggregate, new();
     }
 }

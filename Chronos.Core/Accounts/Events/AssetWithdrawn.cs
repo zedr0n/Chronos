@@ -3,10 +3,9 @@ using Chronos.Infrastructure.Events;
 
 namespace Chronos.Core.Accounts.Events
 {
-    public class AccountCreated : EventBase
+    public class AssetWithdrawn : EventBase
     {
         public Guid AccountId { get; set; }
-        public string Name { get; set; }
-        public string Currency { get; set; }
+        public Guid AssetId { get; set; }
     }
 }

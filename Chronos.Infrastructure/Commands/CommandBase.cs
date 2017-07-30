@@ -5,6 +5,6 @@ namespace Chronos.Infrastructure.Commands
 {
     public class CommandBase : ICommand
     {
-        public Guid AggregateId { get; set; }
+        public Guid TargetId { get; set; }
     }
 }

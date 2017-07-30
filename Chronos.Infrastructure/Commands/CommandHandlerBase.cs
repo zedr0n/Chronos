@@ -1,6 +1,4 @@
-﻿using Chronos.Infrastructure.Interfaces;
-
-namespace Chronos.Infrastructure.Commands
+﻿namespace Chronos.Infrastructure.Commands
 {
     public abstract class CommandHandlerBase : ICommandHandler
     {

@@ -23,7 +23,7 @@ namespace Chronos.Core.Accounts.Queries
         public AccountInfo Handle(GetAccountInfo query)
         {
             var projection = _projectionManager.Create<AccountInfo>()
-                .From<Guid,Account>(query.AccountId)
+                .From<Account>(query.AccountId)
                 .OutputState(query.AccountId);
 
             projection.Start();
@@ -33,7 +33,7 @@ namespace Chronos.Core.Accounts.Queries
             if (query.AsOf != Instant.MaxValue)
             {
                 var historicalProjection = _projectionManager.Create<AccountInfo>()
-                    .From<Guid,Account>(query.AccountId)
+                    .From<Account>(query.AccountId)
                     .AsOf(query.AsOf);
 
                 projection.Start();

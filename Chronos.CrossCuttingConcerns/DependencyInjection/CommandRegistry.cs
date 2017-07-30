@@ -26,7 +26,6 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                     Action = action
                 };
             }
-
         }
 
         public CommandRegistry(Container container)

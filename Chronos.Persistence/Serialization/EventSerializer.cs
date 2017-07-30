@@ -23,7 +23,6 @@ namespace Chronos.Persistence.Serialization
 
                 serialized = new Event
                 {
-                    Guid = e.SourceId,
                     TimestampUtc = e.Timestamp.ToDateTimeUtc(),
                     Payload = writer.ToString()
                 };

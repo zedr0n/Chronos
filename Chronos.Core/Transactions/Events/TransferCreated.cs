@@ -3,7 +3,7 @@ using Chronos.Infrastructure.Events;
 
 namespace Chronos.Core.Transactions.Events
 {
-    public abstract class TransferCreated : EventBase
+    public abstract class TransferCreated : TransactionEvent
     {
         public Guid FromAccount { get; set; }
         public Guid ToAccount { get; set; }

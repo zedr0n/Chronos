@@ -16,10 +16,10 @@ namespace Chronos.Core.Transactions.Commands
 
         public void Handle(CreateCashTransferCommand command)
         {
-            if (_domainRepository.Exists<CashTransfer>(command.AggregateId))
+            if (_domainRepository.Exists<CashTransfer>(command.TargetId))
                 throw new InvalidOperationException("Transaction already exists");
 
-            var transfer = new CashTransfer(command.AggregateId, command.FromAccount,command.ToAccount,
+            var transfer = new CashTransfer(command.TargetId, command.FromAccount,command.ToAccount,
                 new Cash(command.Currency,command.Amount));
 
             _domainRepository.Save(transfer);

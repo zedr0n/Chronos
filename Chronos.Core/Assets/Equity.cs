@@ -14,7 +14,7 @@ namespace Chronos.Core.Assets
         {
             RaiseEvent(new EquityCreated
             {
-                SourceId = id,
+                EquityId = id,
                 Ticker = ticker,
                 Price = price
             });

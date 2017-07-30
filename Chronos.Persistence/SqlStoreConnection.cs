@@ -77,10 +77,15 @@ namespace Chronos.Persistence
             _eventDb.Init();
         }
 
-        public IEnumerable<string> GetStreams<T>()
+        public IEnumerable<StreamDetails> GetStreams<T>()
         {
             using (var context = _eventDb.GetContext())
-                return context.Set<Stream>().Where(x => x.SourceType == typeof(T).Name).Select( x => x.Name ).ToList();
+            {
+                var streams = context.Set<Stream>()
+                    .Where(x => x.SourceType == typeof(T).Name)
+                    .Select(s => new StreamDetails(typeof(T), s.Key));
+                return streams;
+            }
         }
 
         private IEnumerable<Stream> GetStreams(Type sourceType)
@@ -103,7 +108,8 @@ namespace Chronos.Persistence
                 {
                     HashId = streamName.GetHashCode(),
                     Name = streamName,
-                    SourceType = details.SourceType?.Name,
+                    SourceType = details.SourceType,
+                    Key = details.Id,
                     Version = 0
                 };
                 context.Set<Stream>().Add(stream);
@@ -112,7 +118,14 @@ namespace Chronos.Persistence
             else
             {
                 // create a dummy stream to avoid loading all events from database
-                stream = new Stream { HashId = streamName.GetHashCode(), Name = streamName, SourceType = details.SourceType?.Name, Version = version };
+                stream = new Stream
+                {
+                    HashId = streamName.GetHashCode(),
+                    Name = streamName,
+                    SourceType = details.SourceType,
+                    Key = details.Id,
+                    Version = version
+                };
                 context.Set<Stream>().Attach(stream);
             }
 
@@ -148,11 +161,6 @@ namespace Chronos.Persistence
         public void AppendToStream(StreamDetails details,int expectedVersion, IEnumerable<IEvent> enumerable)
         {
             AppendToStream(c => OpenStreamForWriting(c,details), expectedVersion, enumerable);
-        }
-
-        public void AppendToStream(string streamName, int expectedVersion, IEnumerable<IEvent> enumerable)
-        {
-            AppendToStream(c => OpenStreamForWriting(c, new StreamDetails(streamName)), expectedVersion, enumerable);
         }
 
         private void WriteStream(Stream stream, IEnumerable<IEvent> events)

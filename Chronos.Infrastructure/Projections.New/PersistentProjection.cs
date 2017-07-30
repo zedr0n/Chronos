@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Chronos.Infrastructure.Interfaces;
-using NodaTime;
 
 namespace Chronos.Infrastructure.Projections.New
 {
@@ -11,38 +9,44 @@ namespace Chronos.Infrastructure.Projections.New
         private class PersistentProjection<TKey> : Projection<T>, IPersistentProjection<T>
             where TKey : IEquatable<TKey>
         {
-            private readonly Func<string, TKey> _map;
-
-            private PersistentProjection(Projection<T> projection)
-                : base(projection) { }
-
+            private readonly TKey _key;
+            
             public PersistentProjection(Projection<T> projection, TKey key)
-                : this(projection, s => key) { }
-
-            public PersistentProjection(Projection<T> projection, Func<string,TKey> keymap)
-                : this(projection)
+                : base(projection)
             {
-                _map = keymap;
+                _key = key;
             }
 
             protected override void When(IEvent e)
             {
-                foreach (var key in _streams.Select(s => _map(s)).Distinct())
-                    _writer.Write<TKey, T>(key, x => x.When(e));
+                _writer.Write<TKey,T>(_key, x => x.When(e));
 
                 base.When(e);
             }
+        }
 
+        private class PersistentPartitionedProjection : Projection<T>, IPartitionedProjection<T>, IPersistentProjection<T>
+        {
+            public PersistentPartitionedProjection(Projection<T> projection) : base(projection)
+            {
+            }
+
+            protected override void When(IEvent e, StreamDetails stream)
+            {
+                _writer.Write<Guid, T>(stream.Id, x => x.When(e));
+            }
+
+            public IPersistentProjection<T> OutputState() => this;
         }
 
         public IPersistentProjection<T> OutputState<TKey>(TKey key) where TKey : IEquatable<TKey>
         {
-            return new PersistentProjection<TKey>(this, key);
+            return new PersistentProjection<TKey>(this,key);
         }
 
-        public IPersistentProjection<T> OutputState<TKey>(Func<string, TKey> map) where TKey : IEquatable<TKey>
+        public IPartitionedProjection<T> ForEachStream()
         {
-            return new PersistentProjection<TKey>(this,map);
+            return new PersistentPartitionedProjection(this);
         }
     }
 

@@ -24,13 +24,16 @@ namespace Chronos.Persistence
             _debugLog = debugLog;
         }
 
+
         public void Save<T>(T aggregate) where T :class,IAggregate,new()
         {
             var events = aggregate.UncommitedEvents.ToList();
             if (!events.Any())
                 return;
 
-            _connection.Writer.AppendToStream(aggregate.StreamDetails(), aggregate.Version - events.Count, events);
+            var stream = new StreamDetails(aggregate);
+
+            _connection.Writer.AppendToStream(stream, aggregate.Version - events.Count, events);
 
             aggregate.ClearUncommitedEvents();
 
@@ -41,8 +44,8 @@ namespace Chronos.Persistence
 
         public T Find<T>(Guid id) where T : class,IAggregate, new()
         {
-            var streamName = StreamExtensions.StreamName<T>(id);
-            var events = _connection.Reader.ReadStreamEventsForward(streamName, 0, int.MaxValue).ToList();
+            var streamDetails = new StreamDetails(typeof(T),id);
+            var events = _connection.Reader.ReadStreamEventsForward(streamDetails.Name, 0, int.MaxValue).ToList();
 
             if (!events.Any())
                 return null;

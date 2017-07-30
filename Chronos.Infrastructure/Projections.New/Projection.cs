@@ -11,7 +11,7 @@ namespace Chronos.Infrastructure.Projections.New
         private readonly IEventStoreConnection _connection;
         private readonly IStateWriter _writer;
 
-        private List<string> _streams = new List<string>();
+        private readonly List<StreamDetails> _streams = new List<StreamDetails>();
 
         private Projection(Projection<T> projection)
             : this(projection._connection, projection._writer)
@@ -25,34 +25,25 @@ namespace Chronos.Infrastructure.Projections.New
             _writer = writer;
         }
 
-        public IProjection<T> From(string streamName)
-        {
-            _streams.Add(streamName);
-            return this;
-        }
-
-        public IProjection<T> From(IEnumerable<string> streams)
-        {
-            _streams = streams.ToList();
-            return this;
-        }
-
         public IProjection<T> From<TAggregate>() where TAggregate : IAggregate
         {
-            return From(_connection.GetStreams<TAggregate>());
+            _streams.AddRange(_connection.GetStreams<TAggregate>());
+            return this;
         }
 
-        public IProjection<T> From<TKey, TAggregate>(TKey key) where TAggregate : IAggregate
+        public IProjection<T> From<TAggregate>(Guid id) where TAggregate : IAggregate
         {
-            return From(StreamExtensions.StreamName<TKey, TAggregate>(key));
+            _streams.Add(new StreamDetails(typeof(TAggregate),id));
+            return this;
         }
 
         protected virtual void When(IEvent e) { }
+        protected virtual void When(IEvent e, StreamDetails stream) => When(e);
 
         public void Start()
         {
             foreach (var s in _streams)
-                _connection.Subscriptions.SubscribeToStream(s, -1, When);
+                _connection.Subscriptions.SubscribeToStream(s.Name, -1, When);
         }
     }
 }

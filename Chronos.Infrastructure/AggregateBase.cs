@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure
@@ -12,8 +11,8 @@ namespace Chronos.Infrastructure
         private readonly Dictionary<Type,Action<IEvent>> _handlers = new Dictionary<Type, Action<IEvent>>();
         private readonly List<IEvent> _uncommitedEvents = new List<IEvent>();
 
-        public Guid Id { get; private set; }
         public int Version { get; private set; }
+        public Guid Id { get; private set; }
         public IEnumerable<IEvent> UncommitedEvents => _uncommitedEvents;
 
         public void ClearUncommitedEvents()
@@ -41,7 +40,7 @@ namespace Chronos.Infrastructure
             Version = 0;
             foreach (var e in pastEvents)
             {
-                if (this.Dispatch(e))
+                if (Dispatch(e))
                     Version++;
             }
             return this as T;
@@ -59,7 +58,7 @@ namespace Chronos.Infrastructure
 
         protected void RaiseEvent(IEvent e)
         {
-            if (this.Dispatch(e))
+            if (Dispatch(e))
             {
                 Version++;
                 _uncommitedEvents.Add(e);

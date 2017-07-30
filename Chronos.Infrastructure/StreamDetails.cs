@@ -1,16 +1,34 @@
 ﻿using System;
+using Chronos.Infrastructure.Sagas;
 
 namespace Chronos.Infrastructure
 {
-    public struct StreamDetails
+    public class StreamDetails
     {
         public string Name { get; }
-        public Type SourceType { get; }
+        public string SourceType { get; }
+        public Guid Id { get; }
 
-        public StreamDetails(string name, Type sourceType = null)
+        public StreamDetails(string name)
         {
             Name = name;
-            SourceType = sourceType;
+        }
+
+        public StreamDetails(IAggregate aggregate)
+            : this(aggregate.GetType(),aggregate.Id)
+        { }
+
+        public StreamDetails(ISaga saga)
+            : this(saga.GetType(),saga.SagaId)
+        { }
+
+        public StreamDetails(Type sourceType, Guid id)
+        {
+            SourceType = sourceType.Name;
+            Id = id;
+            Name = $"{SourceType}-{id}";
         }
     }
+
+
 }

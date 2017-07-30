@@ -19,6 +19,14 @@ namespace Chronos.Infrastructure
 
         }
 
+        public T Find<T>(Func<T, bool> predicate) where T : class, IReadModel
+        {
+            if (!_dictionary.TryGetValue(typeof(T), out var readModels) || !readModels.Any<IReadModel>())
+                return null;
+
+            return readModels.OfType<T>().SingleOrDefault(predicate);
+        }
+
         public void Add<T>(T readModel) where T : IReadModel
         {
             if(!_dictionary.ContainsKey(typeof(T)))

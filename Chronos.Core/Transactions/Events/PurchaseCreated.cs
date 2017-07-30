@@ -5,6 +5,7 @@ namespace Chronos.Core.Transactions.Events
 {
     public class PurchaseCreated : EventBase
     {
+        public Guid PurchaseId { get; set; }
         public Guid AccountId { get; set; }
 
         public string Payee { get; set; }
