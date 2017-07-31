@@ -1,20 +1,26 @@
 ﻿using System;
+using Chronos.Infrastructure.Projections.New;
 
 namespace Chronos.Infrastructure.Queries
 {
-    /*public class HistoricalQueryHandler<TQuery, TResult> : IQueryHandler<HistoricalQuery<TQuery,TResult>, TResult>>
-                                                            where TQuery : IQuery<TResult>
-    {
-        private readonly IQueryHandler<TQuery,TResult> _queryHandler;
+    public class HistoricalQueryHandler<TQuery, TResult> : IQueryHandler<HistoricalQuery<TQuery,TResult>, TResult>
+        where TResult : class, IReadModel, new()
+        where TQuery : IQuery<TResult>
 
+    {
         public HistoricalQueryHandler(IQueryHandler<TQuery, TResult> queryHandler)
         {
-            _queryHandler = queryHandler;
+            Projection = queryHandler.Projection;
         }
 
-        public TResult Handle(HistoricalQuery<TQuery, TResult> query)
+        public IProjection<TResult> Projection { get; }
+
+        public TResult Handle(HistoricalQuery<TQuery,TResult> query)
         {
-            throw new NotImplementedException();
+            var projection = Projection.AsOf(query.AsOf);
+            projection.Start();
+
+            return projection.State;
         }
-    }*/
+    }
 }

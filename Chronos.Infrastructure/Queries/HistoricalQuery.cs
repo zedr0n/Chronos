@@ -4,8 +4,9 @@ namespace Chronos.Infrastructure.Queries
 {
 
     public class HistoricalQuery<TQuery,TResult> : IQuery<TResult>
+        where TQuery : IQuery<TResult>
     {
-        public IQuery<TResult> Query { get; private set; }
-        public Instant AsOf { get; private set; }
+        public TQuery Query { get; set; }
+        public Instant AsOf { get; set; }
     }
 }

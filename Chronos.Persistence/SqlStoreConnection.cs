@@ -245,7 +245,7 @@ namespace Chronos.Persistence
 
                 var stream = streamQuery.SingleOrDefault();
 
-                var allEvents = _inMemory ? stream.Events : context.Entry(stream).Collection(x => x.Events).Query().AsEnumerable();
+                var allEvents = _inMemory ? stream.Events : context.Entry(stream).Collection(x => x.Events).Query().OrderBy(e => e.EventNumber).AsEnumerable();
 
                 var events = allEvents.Skip((int)start).Take(count)
                         .ToList();

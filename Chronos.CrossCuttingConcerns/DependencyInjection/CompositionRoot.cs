@@ -148,6 +148,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             //container.Register<ICommandHandler<CreatePurchaseCommand>, CreatePurchaseHandler>(Lifestyle.Singleton);
             //container.Register<ICommandHandler<ScheduleCommand>,ScheduleCommandHandler>(Lifestyle.Singleton);
             container.Register<IQueryHandler<GetAccountInfo,AccountInfo>,GetAccountInfoHandler>(Lifestyle.Singleton);
+            container.Register(typeof(IQueryHandler<HistoricalQuery<GetAccountInfo,AccountInfo>,AccountInfo>),
+                typeof(HistoricalQueryHandler<GetAccountInfo,AccountInfo>), Lifestyle.Singleton);
 
             container.Register<IProjectionManager,ProjectionManager>(Lifestyle.Singleton);
         }
