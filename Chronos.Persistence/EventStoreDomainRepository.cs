@@ -31,13 +31,14 @@ namespace Chronos.Persistence
             if (!events.Any())
                 return;
 
+            _debugLog.WriteLine("@" + typeof(T).Name + " : ");
+
             var stream = new StreamDetails(aggregate);
 
             _connection.Writer.AppendToStream(stream, aggregate.Version - events.Count, events);
 
             aggregate.ClearUncommitedEvents();
 
-            _debugLog.WriteLine("@" + typeof(T).Name + " : ");
             foreach (var e in events)
                 _eventBus.Publish(e);
         }

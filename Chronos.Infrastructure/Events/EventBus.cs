@@ -92,8 +92,8 @@ namespace Chronos.Infrastructure.Events
                 return;
             var type = e.GetType();
 
-            _debugLog.WriteLine(type.Name + "( " +
-                                InstantPattern.ExtendedIso.Format(e.Timestamp) + " )");
+            //_debugLog.WriteLine(type.Name + "( " +
+            //                    InstantPattern.ExtendedIso.Format(e.Timestamp) + " )");
 
             if (_subscribers.ContainsKey(type))
             {

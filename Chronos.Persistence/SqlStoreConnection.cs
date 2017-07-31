@@ -4,8 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Interfaces;
+using Chronos.Infrastructure.Logging;
 using Chronos.Persistence.Serialization;
 using Microsoft.EntityFrameworkCore;
+using NodaTime.Text;
 using Stream = Chronos.Persistence.Types.Stream;
 
 namespace Chronos.Persistence
@@ -43,12 +45,14 @@ namespace Chronos.Persistence
         public IEventStoreWriter Writer => this;
         public IEventStoreReader Reader => this;
         private readonly EventStoreSubscriptions _subscriptions;
+        private readonly IDebugLog _debugLog;
 
-        public SqlStoreConnection(IEventDb eventDb, IEventSerializer serializer, bool inMemory, ITimeline timeline)
+        public SqlStoreConnection(IEventDb eventDb, IEventSerializer serializer, bool inMemory, ITimeline timeline, IDebugLog debugLog)
         {
             _eventDb = eventDb;
             _inMemory = inMemory;
             _timeline = timeline;
+            _debugLog = debugLog;
             _serializer = serializer;
             _subscriptions = new EventStoreSubscriptions(this);
         }
@@ -155,11 +159,14 @@ namespace Chronos.Persistence
 
             using (var context = _eventDb.GetContext())
             {
-                var stream = OpenStreamForWriting(context, new StreamDetails("Null"));
+                var details = new StreamDetails("Global");
+                var stream = OpenStreamForWriting(context, details);
                 TimestampEvents(events);
                 WriteStream(stream, events);
 
                 context.SaveChanges();
+
+                LogEvents(details,events,stream.Events.Select(e => e.Payload));
             }
         }
 
@@ -174,6 +181,19 @@ namespace Chronos.Persistence
                 Debug.WriteLine(stream.Name + " : " + e.Payload);
             }
 
+        }
+
+        private void LogEvents(StreamDetails stream,IEnumerable<IEvent> events, IEnumerable<string> payLoad)
+        {
+            if (stream.Name.Contains("Saga"))
+                return;
+            ForEach(events,payLoad, (e, p) =>
+            {
+                _debugLog.WriteLine(e.GetType().Name + "( " +
+                                    InstantPattern.ExtendedIso.Format(e.Timestamp) + " )");
+                _debugLog.WriteLine(p);
+
+            });
         }
 
         public void AppendToStream(StreamDetails streamDetails, int expectedVersion, IEnumerable<IEvent> enumerable)
@@ -207,9 +227,10 @@ namespace Chronos.Persistence
 
                 // set the event numbers based on database generated id
                 ForEach(events,stream.Events,(e1,e2) => e1.EventNumber = e2.EventNumber);
+                LogEvents(streamDetails,events,stream.Events.Select(e => e.Payload));
 
                 // if no other events were present in the stream
-                if(streamAdded)
+                if (streamAdded)
                     _subscriptions.OnStreamAdded(streamDetails);
                 foreach (var e in events)
                     _subscriptions.OnEventAppended(streamDetails, e);
