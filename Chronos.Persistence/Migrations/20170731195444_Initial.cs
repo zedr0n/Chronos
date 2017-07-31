@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Chronos.Persistence.Migrations
 {
-    public partial class Schema : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -14,7 +14,9 @@ namespace Chronos.Persistence.Migrations
                 {
                     HashId = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    Key = table.Column<Guid>(nullable: false),
                     Name = table.Column<string>(nullable: true),
+                    SourceType = table.Column<string>(nullable: true),
                     Version = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -28,7 +30,6 @@ namespace Chronos.Persistence.Migrations
                 {
                     EventNumber = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Guid = table.Column<Guid>(nullable: false),
                     Payload = table.Column<string>(nullable: true),
                     StreamHashId = table.Column<int>(nullable: true),
                     TimestampUtc = table.Column<DateTime>(nullable: false)

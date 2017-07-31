@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 
@@ -12,6 +13,7 @@ namespace Chronos.Infrastructure.Projections.New
         private readonly IEventBus _eventBus;
 
         private Func<StreamDetails,bool> _from = s => true;
+        private int _lastEvent = -1;
 
         private Projection(Projection<T> projection)
             : this(projection._connection, projection._writer, projection._eventBus)
@@ -40,6 +42,7 @@ namespace Chronos.Infrastructure.Projections.New
 
         private void When(ReplayCompleted e)
         {
+            _lastEvent = -1;
             Start();
         }
         protected virtual void When(IEvent e) { }
@@ -47,7 +50,7 @@ namespace Chronos.Infrastructure.Projections.New
 
         private void Subscribe(StreamDetails stream)
         {
-            _connection.Subscriptions.SubscribeToStream(stream, -1, When);
+            _connection.Subscriptions.SubscribeToStream(stream, _lastEvent, When);
         }
 
         public void Start()

@@ -46,8 +46,6 @@ namespace Chronos.Infrastructure
 
         bool Exists(StreamDetails stream);
 
-        void Initialise();
-
         IEnumerable<StreamDetails> GetStreams(Func<StreamDetails, bool> predicate);
         IEnumerable<StreamDetails> GetStreams<T>();
 

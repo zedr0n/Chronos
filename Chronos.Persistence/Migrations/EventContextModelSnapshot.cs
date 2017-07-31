@@ -15,12 +15,10 @@ namespace Chronos.Persistence.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.2");
 
-            modelBuilder.Entity("Chronos.Persistence.Event", b =>
+            modelBuilder.Entity("Chronos.Persistence.Types.Event", b =>
                 {
                     b.Property<int>("EventNumber")
                         .ValueGeneratedOnAdd();
-
-                    b.Property<Guid>("Guid");
 
                     b.Property<string>("Payload");
 
@@ -35,12 +33,16 @@ namespace Chronos.Persistence.Migrations
                     b.ToTable("Events");
                 });
 
-            modelBuilder.Entity("Chronos.Persistence.Stream", b =>
+            modelBuilder.Entity("Chronos.Persistence.Types.Stream", b =>
                 {
                     b.Property<int>("HashId")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<Guid>("Key");
+
                     b.Property<string>("Name");
+
+                    b.Property<string>("SourceType");
 
                     b.Property<int>("Version");
 
@@ -49,9 +51,9 @@ namespace Chronos.Persistence.Migrations
                     b.ToTable("Streams");
                 });
 
-            modelBuilder.Entity("Chronos.Persistence.Event", b =>
+            modelBuilder.Entity("Chronos.Persistence.Types.Event", b =>
                 {
-                    b.HasOne("Chronos.Persistence.Stream")
+                    b.HasOne("Chronos.Persistence.Types.Stream")
                         .WithMany("Events")
                         .HasForeignKey("StreamHashId");
                 });

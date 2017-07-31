@@ -33,7 +33,6 @@ namespace Chronos.Tests
 
                 container.Register<IDebugLog,DebugLogXUnit>(Lifestyle.Singleton);
                 container.Verify();
-                container.GetInstance<IEventStoreConnection>().Initialise();
                 ((DebugLogXUnit) container.GetInstance<IDebugLog>()).Output = _output;
                 return container;
             }

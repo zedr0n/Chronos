@@ -351,10 +351,11 @@ namespace Chronos.Tests
                 Name = "Account"
             };
 
-            var scheduledOn = Clock.GetCurrentInstant().Plus(Duration.FromSeconds(0.5));
+            var scheduledOn = Clock.GetCurrentInstant().Plus(Duration.FromSeconds(0.1));
 
             var scheduleCommand = new ScheduleCommand
             {
+                ScheduleId = Guid.NewGuid(),
                 TargetId = id,
                 Command = command,
                 Date = scheduledOn

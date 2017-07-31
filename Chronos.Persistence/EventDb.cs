@@ -16,6 +16,7 @@ namespace Chronos.Persistence
             _isPersistent = isPersistent;
             _inMemory = inMemory;
             _lock = new object();
+            Init();
         }
 
         public void Init()

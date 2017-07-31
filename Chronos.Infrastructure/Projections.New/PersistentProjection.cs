@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure.Projections.New
@@ -27,10 +28,14 @@ namespace Chronos.Infrastructure.Projections.New
         {
             internal PersistentPartitionedProjection(Projection<T> projection) : base(projection)
             {
+                _lastEvent = -1;
             }
 
             protected override void When(StreamDetails stream, IEvent e)
             {
+                if(e.EventNumber > _lastEvent)
+                    _lastEvent = e.EventNumber;
+
                 _writer.Write<Guid, T>(stream.Id, x => x.When(e));
                 base.When(e);
             }
