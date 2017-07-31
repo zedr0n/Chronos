@@ -1,9 +1,8 @@
-﻿using System;
-using Chronos.Infrastructure.Projections.New;
+﻿using Chronos.Infrastructure.Projections.New;
 
 namespace Chronos.Infrastructure.Queries
 {
-    public class HistoricalQueryHandler<TQuery, TResult> : IQueryHandler<HistoricalQuery<TQuery,TResult>, TResult>
+    public sealed class HistoricalQueryHandler<TQuery, TResult> : IQueryHandler<HistoricalQuery<TQuery,TResult>, TResult>
         where TResult : class, IReadModel, new()
         where TQuery : IQuery<TResult>
 

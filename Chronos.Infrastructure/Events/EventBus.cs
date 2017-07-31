@@ -91,11 +91,13 @@ namespace Chronos.Infrastructure.Events
             if (e == null)
                 return;
             var type = e.GetType();
+
+            _debugLog.WriteLine(type.Name + "( " +
+                                InstantPattern.ExtendedIso.Format(e.Timestamp) + " )");
+
             if (_subscribers.ContainsKey(type))
             {
                 var handlers = _subscribers[type];
-                _debugLog.WriteLine(e.GetType().Name  + "( " +
-                                    InstantPattern.ExtendedIso.Format(e.Timestamp) + " )");
                 foreach (var handler in handlers)
                 {
                     _debugLog.WriteLine(" -> " + handler?.Name);
