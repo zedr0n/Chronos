@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
@@ -17,6 +18,7 @@ namespace Chronos.Infrastructure.Projections.New
         private int _lastEvent = -1;
 
         private IDisposable _streamsSubscription;
+        private Dictionary<string, IDisposable> _eventSubscriptions = new Dictionary<string, IDisposable>();
         private Projection(Projection<T> projection)
             : this(projection._connection, projection._writer, projection._eventBus)
         {
@@ -50,9 +52,12 @@ namespace Chronos.Infrastructure.Projections.New
         protected virtual void When(IEvent e) { }
         protected virtual void When(StreamDetails stream, IEvent e) => When(e);
 
-        private void Subscribe(StreamDetails stream)
+        private void ReadEventsFromStream(StreamDetails stream)
         {
-            _connection.Subscriptions.SubscribeToStream(stream, _lastEvent, When);
+            if(_eventSubscriptions.ContainsKey(stream.Name))
+                _eventSubscriptions[stream.Name].Dispose();
+
+            _eventSubscriptions[stream.Name] = _connection.Subscriptions.GetEvents(stream, _lastEvent).Subscribe(e => When(stream,e));
         }
 
         public void Start()
@@ -61,7 +66,7 @@ namespace Chronos.Infrastructure.Projections.New
 
             _streamsSubscription = _connection.Subscriptions.Streams
                 .Where(_from)
-                .Subscribe(Subscribe);
+                .Subscribe(ReadEventsFromStream);
 
             _eventBus.Subscribe<ReplayCompleted>(When);
         }

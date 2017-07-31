@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Subjects;
 using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure
 {
     public interface IEventStoreSubscriptions
     {
-        void SubscribeToStream(StreamDetails stream, int eventNumber, Action<StreamDetails,IEvent> action);
-        void DropSubscription(StreamDetails stream, Action<StreamDetails,IEvent> action);
-
         IObservable<StreamDetails> Streams { get; }
+        IObservable<IEvent> GetEvents(StreamDetails stream, int eventNumber);
+
     }
 
     public interface IEventStoreWriter
