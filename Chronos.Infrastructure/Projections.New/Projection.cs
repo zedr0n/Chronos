@@ -10,7 +10,7 @@ namespace Chronos.Infrastructure.Projections.New
 
     public partial class Projection<T> : IProjectionFrom<T>, IProjection<T> where T : class, IReadModel, new()
     {
-        private readonly IEventStoreConnection _connection;
+        private readonly IEventStoreSubscriptions _eventStore;
         private readonly IStateWriter _writer;
         private readonly IEventBus _eventBus;
 
@@ -18,16 +18,16 @@ namespace Chronos.Infrastructure.Projections.New
         private int _lastEvent = -1;
 
         private IDisposable _streamsSubscription;
-        private Dictionary<string, IDisposable> _eventSubscriptions = new Dictionary<string, IDisposable>();
+        private readonly Dictionary<string, IDisposable> _eventSubscriptions = new Dictionary<string, IDisposable>();
         private Projection(Projection<T> projection)
-            : this(projection._connection, projection._writer, projection._eventBus)
+            : this(projection._eventStore, projection._writer, projection._eventBus)
         {
             _from = projection._from;
         }
 
-        public Projection(IEventStoreConnection connection, IStateWriter writer, IEventBus eventBus)
+        public Projection(IEventStoreSubscriptions eventStore, IStateWriter writer, IEventBus eventBus)
         {
-            _connection = connection;
+            _eventStore = eventStore;
             _writer = writer;
             _eventBus = eventBus;
         }
@@ -57,14 +57,14 @@ namespace Chronos.Infrastructure.Projections.New
             if(_eventSubscriptions.ContainsKey(stream.Name))
                 _eventSubscriptions[stream.Name].Dispose();
 
-            _eventSubscriptions[stream.Name] = _connection.Subscriptions.GetEvents(stream, _lastEvent).Subscribe(e => When(stream,e));
+            _eventSubscriptions[stream.Name] = _eventStore.GetEvents(stream, _lastEvent).Subscribe(e => When(stream,e));
         }
 
         public void Start()
         {
             _streamsSubscription?.Dispose();
 
-            _streamsSubscription = _connection.Subscriptions.Streams
+            _streamsSubscription = _eventStore.Streams
                 .Where(_from)
                 .Subscribe(ReadEventsFromStream);
 

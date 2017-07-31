@@ -129,6 +129,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<IReadRepository, ReadRepository>(Lifestyle.Singleton);
             container.Register<IStateWriter,StateWriter>(Lifestyle.Singleton);
             container.Register<IEventSerializer,EventSerializer>(Lifestyle.Singleton);
+            container.Register<IEventStoreSubscriptions>(
+                () => container.GetInstance<IEventStoreConnection>().Subscriptions, Lifestyle.Singleton);
 
             container.Register(typeof(ICommandHandler<>),new[] {
                 typeof(CreateAccountHandler),
