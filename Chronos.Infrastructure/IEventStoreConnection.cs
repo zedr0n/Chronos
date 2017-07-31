@@ -6,9 +6,10 @@ namespace Chronos.Infrastructure
 {
     public interface IEventStoreSubscriptions
     {
-        void OnStreamAdded(Action<StreamDetails> action);
         void SubscribeToStream(StreamDetails stream, int eventNumber, Action<StreamDetails,IEvent> action);
         void DropSubscription(StreamDetails stream, Action<StreamDetails,IEvent> action);
+
+        IObservable<StreamDetails> Streams { get; }
     }
 
     public interface IEventStoreWriter

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
+using System.Reactive.Linq;
 
 namespace Chronos.Infrastructure.Projections.New
 {
@@ -15,6 +16,7 @@ namespace Chronos.Infrastructure.Projections.New
         private Func<StreamDetails,bool> _from = s => true;
         private int _lastEvent = -1;
 
+        private IDisposable _streamsSubscription;
         private Projection(Projection<T> projection)
             : this(projection._connection, projection._writer, projection._eventBus)
         {
@@ -55,14 +57,11 @@ namespace Chronos.Infrastructure.Projections.New
 
         public void Start()
         {
-            foreach (var s in _connection.GetStreams(_from))
-                Subscribe(s);
+            _streamsSubscription?.Dispose();
 
-            _connection.Subscriptions.OnStreamAdded(s =>
-            {
-                if (_from(s))
-                    Subscribe(s);
-            });
+            _streamsSubscription = _connection.Subscriptions.Streams
+                .Where(_from)
+                .Subscribe(Subscribe);
 
             _eventBus.Subscribe<ReplayCompleted>(When);
         }

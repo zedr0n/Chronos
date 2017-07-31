@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
@@ -72,6 +73,15 @@ namespace Chronos.Persistence
                 var streamId = stream.Name.GetHashCode();
                 return db.Set<Stream>().AsNoTracking().Any(x => x.HashId == streamId);
             }
+        }
+
+        public IEnumerable<StreamDetails> GetStreams()
+        {
+            using (var context = _eventDb.GetContext())
+            {
+                var streams = context.Set<Stream>().Select(s => new StreamDetails(s.SourceType,s.Key));
+                return streams.ToList();
+            };
         }
 
         public IEnumerable<StreamDetails> GetStreams(Func<StreamDetails, bool> predicate)

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Interfaces;
 
@@ -11,27 +13,20 @@ namespace Chronos.Persistence
         private class EventStoreSubscriptions : IEventStoreSubscriptions
         {
             public delegate void EventAppendedHandler(object sender, EventAppendedArgs e);
-            public delegate void StreamAddedHandler(object sender, StreamAddedArgs e);
             public event EventAppendedHandler EventAppended;
-            public event StreamAddedHandler StreamAdded;
+
+            private readonly ReplaySubject<StreamDetails> _streams;
+            public IObservable<StreamDetails> Streams { get; }
 
             private readonly Dictionary<Action<StreamDetails,IEvent>, EventAppendedHandler> _eventAppended = new Dictionary<Action<StreamDetails,IEvent>, EventAppendedHandler>();
-            private readonly Dictionary<Action<StreamDetails>, StreamAddedHandler> _streamAdded = new Dictionary<Action<StreamDetails>, StreamAddedHandler>();
             private readonly SqlStoreConnection _connection;
 
             internal EventStoreSubscriptions(SqlStoreConnection connection)
             {
                 _connection = connection;
-            }
+                _streams = new ReplaySubject<StreamDetails>();
 
-            public void OnStreamAdded(Action<StreamDetails> action)
-            {
-                _streamAdded[action] = (o, e) =>
-                {
-                    action(e.Details);
-                };
-
-                StreamAdded += _streamAdded[action];
+                Streams = _connection.GetStreams().ToObservable().Concat(_streams);
             }
 
             public void SubscribeToStream(StreamDetails stream, int eventNumber, Action<StreamDetails,IEvent> action)
@@ -65,7 +60,8 @@ namespace Chronos.Persistence
 
             internal void OnStreamAdded(StreamDetails details)
             {
-                StreamAdded?.Invoke(null, new StreamAddedArgs(details));
+                _streams.OnNext(details);
+                //StreamAdded?.Invoke(null, new StreamAddedArgs(details));
             }
 
         }
