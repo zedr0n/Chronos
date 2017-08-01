@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
@@ -54,15 +55,23 @@ namespace Chronos.Infrastructure.Projections.New
 
         private void ReadEventsFromStream(StreamDetails stream)
         {
-            if(_eventSubscriptions.ContainsKey(stream.Name))
-                _eventSubscriptions[stream.Name].Dispose();
+            Debug.Assert(!_eventSubscriptions.ContainsKey(stream.Name));
 
-            _eventSubscriptions[stream.Name] = _eventStore.GetEvents(stream, _lastEvent).Subscribe(e => When(stream,e));
+            _eventSubscriptions[stream.Name] = _eventStore.GetEvents(stream, _lastEvent)
+                                                          .Subscribe(e => When(stream,e));
+        }
+
+        private void Unsubscribe()
+        {
+            _streamsSubscription?.Dispose();
+            foreach (var s in _eventSubscriptions.Values)
+                s.Dispose();
+            _eventSubscriptions.Clear();
         }
 
         public void Start()
         {
-            _streamsSubscription?.Dispose();
+            Unsubscribe();
 
             _streamsSubscription = _eventStore.Streams
                 .Where(_from)

@@ -38,7 +38,7 @@ namespace Chronos.Persistence
                 if (!_events.ContainsKey(stream.Name))
                     _events[stream.Name] = new Subject<IEvent>();
 
-                return _events[stream.Name].StartWith(events);
+                return _events[stream.Name].StartWith(events).Where(e => e.Timestamp <= _connection._timeline.Now());
             }
 
             internal void OnEventAppended(StreamDetails stream,IEvent e)
