@@ -3,13 +3,18 @@ using NodaTime;
 
 namespace Chronos.Infrastructure.Projections.New
 {
+    public interface IProjection
+    {
+        IObservable<StreamDetails> Streams { get; }
+    }
+
     public interface IProjectionFrom<T> where T : class, IReadModel, new()
     {
         IProjection<T> From<TAggregate>() where TAggregate : IAggregate;
         IProjection<T> From<TAggregate>(Guid id) where TAggregate : IAggregate;
     }
 
-    public interface IProjection<T> where T : class, IReadModel, new()
+    public interface IProjection<T> : IProjection where T : class, IReadModel, new()
     {
         ITransientProjection<T> Transient();
         ITransientProjection<T> AsOf(Instant date);

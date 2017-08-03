@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reactive.Subjects;
 using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure
@@ -9,7 +8,6 @@ namespace Chronos.Infrastructure
     {
         IObservable<StreamDetails> Streams { get; }
         IObservable<IEvent> GetEvents(StreamDetails stream, int eventNumber);
-
     }
 
     public interface IEventStoreWriter
@@ -46,9 +44,5 @@ namespace Chronos.Infrastructure
         IEventStoreReader Reader { get; }
 
         bool Exists(StreamDetails stream);
-
-        IEnumerable<StreamDetails> GetStreams(Func<StreamDetails, bool> predicate);
-        IEnumerable<StreamDetails> GetStreams<T>();
-
     }
 }

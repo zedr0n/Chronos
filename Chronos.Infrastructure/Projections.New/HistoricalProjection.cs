@@ -1,29 +1,22 @@
 ﻿using System;
+using System.Reactive.Linq;
 using Chronos.Infrastructure.Interfaces;
 using NodaTime;
 
 namespace Chronos.Infrastructure.Projections.New
 {
-    public partial class Projection<T>
+    public class HistoricalProjection<T> : TransientProjection<T>
+        where T : class, IReadModel, new()
     {
-        private class HistoricalProjection : TransientProjection
+        private readonly Instant _date;
+
+        internal HistoricalProjection(Projection<T> projection, Instant date)
+            : base(projection)
         {
-            private readonly Instant _date;
-
-            internal HistoricalProjection(Projection<T> projection, Instant date) 
-                : base(projection)
-            {
-                _date = date;
-            }
-
-            protected override void When(IEvent e)
-            {
-                if (e.Timestamp <= _date)
-                    base.When(e);
-            }
+            _date = date;
         }
 
-        public ITransientProjection<T> AsOf(Instant date) => new HistoricalProjection(this, date);
+        protected override IObservable<IEvent> GetEvents(StreamDetails stream) => base.GetEvents(stream)
+            .Where(e => e.Timestamp <= _date);
     }
-
 }

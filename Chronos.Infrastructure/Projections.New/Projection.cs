@@ -1,29 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
-using System.Reactive.Linq;
 
 namespace Chronos.Infrastructure.Projections.New
 {
-
     public partial class Projection<T> : IProjectionFrom<T>, IProjection<T> where T : class, IReadModel, new()
     {
         private readonly IEventStoreSubscriptions _eventStore;
         private readonly IStateWriter _writer;
         private readonly IEventBus _eventBus;
 
-        private Func<StreamDetails,bool> _from = s => true;
-        private int _lastEvent = -1;
+        public IObservable<StreamDetails> Streams { get; protected set; }
+
+        public int LastEvent { get; protected set; } = -1;
 
         private IDisposable _streamsSubscription;
         private readonly Dictionary<string, IDisposable> _eventSubscriptions = new Dictionary<string, IDisposable>();
-        private Projection(Projection<T> projection)
+
+        protected Projection(Projection<T> projection)
             : this(projection._eventStore, projection._writer, projection._eventBus)
         {
-            _from = projection._from;
+            Streams = projection.Streams;
         }
 
         public Projection(IEventStoreSubscriptions eventStore, IStateWriter writer, IEventBus eventBus)
@@ -31,34 +30,38 @@ namespace Chronos.Infrastructure.Projections.New
             _eventStore = eventStore;
             _writer = writer;
             _eventBus = eventBus;
-        }
 
-        public IProjection<T> From<TAggregate>() where TAggregate : IAggregate
-        {
-            _from = s => s.SourceType == typeof(TAggregate).Name;
-            return this;
-        }
-
-        public IProjection<T> From<TAggregate>(Guid id) where TAggregate : IAggregate
-        {
-            _from = s => s.SourceType == typeof(TAggregate).Name && s.Id == id;
-            return this;
+            Streams = _eventStore.Streams;
+            _eventBus.Subscribe<ReplayCompleted>(When);
         }
 
         private void When(ReplayCompleted e)
         {
-            _lastEvent = -1;
+            LastEvent = -1;
             Start();
         }
-        protected virtual void When(IEvent e) { }
-        protected virtual void When(StreamDetails stream, IEvent e) => When(e);
 
-        private void ReadEventsFromStream(StreamDetails stream)
+        protected virtual void When(StreamDetails stream, IEvent e)
+        {
+            if (e.EventNumber > LastEvent)
+                LastEvent = e.EventNumber;
+        }
+
+        private void OnStreamAdded(StreamDetails stream)
         {
             Debug.Assert(!_eventSubscriptions.ContainsKey(stream.Name));
+            _eventSubscriptions[stream.Name] = GetEvents(stream).Subscribe(e => When(stream, e));
+        }
 
-            _eventSubscriptions[stream.Name] = _eventStore.GetEvents(stream, _lastEvent)
-                                                          .Subscribe(e => When(stream,e));
+        protected virtual IObservable<IEvent> GetEvents(StreamDetails stream)
+        {
+            return _eventStore.GetEvents(stream, LastEvent);
+        }
+
+        protected void Write<TKey>(TKey key, IEvent e)
+            where TKey : IEquatable<TKey>
+        {
+            _writer.Write<TKey,T>(key,x => x.When(e));
         }
 
         private void Unsubscribe()
@@ -73,11 +76,7 @@ namespace Chronos.Infrastructure.Projections.New
         {
             Unsubscribe();
 
-            _streamsSubscription = _eventStore.Streams
-                .Where(_from)
-                .Subscribe(ReadEventsFromStream);
-
-            _eventBus.Subscribe<ReplayCompleted>(When);
+            _streamsSubscription = Streams.Subscribe(OnStreamAdded);
         }
     }
 }

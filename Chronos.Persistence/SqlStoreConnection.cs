@@ -84,32 +84,6 @@ namespace Chronos.Persistence
             };
         }
 
-        public IEnumerable<StreamDetails> GetStreams(Func<StreamDetails, bool> predicate)
-        {
-            bool StreamPredicate(Stream s) => predicate(new StreamDetails(s.SourceType, s.Key));
-
-            using (var context = _eventDb.GetContext())
-            {
-                var streams = context.Set<Stream>()
-                    .Where(StreamPredicate)
-                    //.Select(s => new StreamDetails(s.SourceType, s.Key))
-                    .ToList();
-
-                return streams.Select(s => new StreamDetails(s.SourceType, s.Key));
-            }
-        }
-
-        public IEnumerable<StreamDetails> GetStreams<T>()
-        { 
-            using (var context = _eventDb.GetContext())
-            {
-                var streams = context.Set<Stream>()
-                    .Where(x => x.SourceType == typeof(T).Name).ToList()
-                    .Select(s => new StreamDetails(typeof(T), s.Key));
-                return streams;
-            }
-        }
-
         private Stream OpenStreamForWriting(DbContext context, StreamDetails details)
         {
             var streamName = details.Name;
@@ -125,7 +99,7 @@ namespace Chronos.Persistence
                     HashId = streamName.GetHashCode(),
                     Name = streamName,
                     SourceType = details.SourceType,
-                    Key = details.Id,
+                    Key = details.Key,
                     Version = 0
                 };
                 context.Set<Stream>().Add(stream);
@@ -138,7 +112,7 @@ namespace Chronos.Persistence
                     HashId = streamName.GetHashCode(),
                     Name = streamName,
                     SourceType = details.SourceType,
-                    Key = details.Id,
+                    Key = details.Key,
                     Version = version
                 };
                 context.Set<Stream>().Attach(stream);

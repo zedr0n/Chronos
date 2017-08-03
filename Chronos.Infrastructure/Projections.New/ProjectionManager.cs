@@ -16,10 +16,12 @@ namespace Chronos.Infrastructure.Projections.New
             _eventBus = eventBus;
         }
 
+
         [DebuggerStepThrough]
         public IProjectionFrom<T> Create<T>() where T : class, IReadModel, new()
         {
             return new Projection<T>(_eventStore,_writer,_eventBus);
         }
     }
+
 }

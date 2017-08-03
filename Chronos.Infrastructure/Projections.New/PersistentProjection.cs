@@ -1,57 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
 using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure.Projections.New
 {
-    public partial class Projection<T>
+    public class PersistentProjection<TKey,T> : Projection<T>, IPersistentProjection<T>
+        where T : class, IReadModel, new()
+        where TKey : IEquatable<TKey>
     {
-        private class PersistentProjection<TKey> : Projection<T>, IPersistentProjection<T>
-            where TKey : IEquatable<TKey>
-        {
-            private readonly TKey _key;
-            
-            internal PersistentProjection(Projection<T> projection, TKey key)
-                : base(projection)
-            {
-                _key = key;
-            }
+        private readonly Func<StreamDetails, TKey> _key;
 
-            protected override void When(IEvent e)
-            {
-                _writer.Write<TKey,T>(_key, x => x.When(e));
-                base.When(e);
-            }
+        internal PersistentProjection(Projection<T> projection, Func<StreamDetails, TKey> key)
+            : base(projection)
+        {
+            _key = key;
         }
 
-        private class PersistentPartitionedProjection : Projection<T>, IPartitionedProjection<T>, IPersistentProjection<T>
+        protected override void When(StreamDetails stream, IEvent e)
         {
-            internal PersistentPartitionedProjection(Projection<T> projection) : base(projection)
-            {
-                _lastEvent = -1;
-            }
-
-            protected override void When(StreamDetails stream, IEvent e)
-            {
-                if(e.EventNumber > _lastEvent)
-                    _lastEvent = e.EventNumber;
-
-                _writer.Write<Guid, T>(stream.Id, x => x.When(e));
-                base.When(e);
-            }
-
-            public IPersistentProjection<T> OutputState() => this;
-        }
-
-        public IPersistentProjection<T> OutputState<TKey>(TKey key) where TKey : IEquatable<TKey>
-        {
-            return new PersistentProjection<TKey>(this,key);
-        }
-
-        public IPartitionedProjection<T> ForEachStream()
-        {
-            return new PersistentPartitionedProjection(this);
+            Write(_key(stream),e);
+            base.When(stream, e);
         }
     }
 
+    public class PersistentPartitionedProjection<T> : PersistentProjection<Guid,T>, IPartitionedProjection<T>
+        where T : class, IReadModel, new()
+    {
+        public PersistentPartitionedProjection(Projection<T> projection)
+            : base(projection, stream => stream.Key) { }
+    }
 }

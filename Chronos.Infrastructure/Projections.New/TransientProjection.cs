@@ -1,26 +1,19 @@
-using System;
-using System.Collections.Generic;
 using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure.Projections.New
 {
-    public partial class Projection<T> 
+    public class TransientProjection<T> : Projection<T>, ITransientProjection<T>
+        where T : class, IReadModel, new()
     {
-        private class TransientProjection : Projection<T>, ITransientProjection<T>
+        internal TransientProjection(Projection<T> projection)
+            : base(projection) { }
+
+        public T State { get; } = new T();
+
+        protected override void When(StreamDetails stream, IEvent e)
         {
-            internal TransientProjection(Projection<T> projection)
-                : base(projection) { }
-
-            public T State { get; } = new T();
-
-            protected override void When(IEvent e)
-            {
-                base.When(e);
-                State.When(e);
-            }
+            State.When(e);
+            base.When(stream, e);
         }
-
-        public ITransientProjection<T> Transient() => new TransientProjection(this);
-
     }
 }

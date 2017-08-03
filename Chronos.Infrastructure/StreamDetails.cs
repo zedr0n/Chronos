@@ -7,7 +7,7 @@ namespace Chronos.Infrastructure
     {
         public string Name { get; }
         public string SourceType { get; }
-        public Guid Id { get; }
+        public Guid Key { get; }
 
         public StreamDetails(string name)
         {
@@ -22,16 +22,16 @@ namespace Chronos.Infrastructure
             : this(saga.GetType(),saga.SagaId)
         { }
 
-        public StreamDetails(Type sourceType, Guid id)
-            : this(sourceType.Name,id)
+        public StreamDetails(Type sourceType, Guid key)
+            : this(sourceType.Name,key)
         {
         }
 
-        public StreamDetails(string sourceType, Guid id)
+        public StreamDetails(string sourceType, Guid key)
         {
             SourceType = sourceType;
-            Id = id;
-            Name = $"{SourceType}-{id}";
+            Key = key;
+            Name = $"{SourceType}-{key}";
         }
     }
 

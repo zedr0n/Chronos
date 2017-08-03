@@ -30,10 +30,9 @@ namespace Chronos.Persistence
 
             public IObservable<IEvent> GetEvents(StreamDetails stream, int eventNumber)
             {
-                var now = _connection._timeline.Now();
                 var events = _connection.ReadStreamEventsForward(stream.Name, eventNumber, int.MaxValue)
-                    .Where(e => e.Timestamp <= now)
-                    .ToList().OrderBy(e => e.Timestamp);
+                    .ToList()
+                    .OrderBy(e => e.Timestamp);
 
                 if (!_events.ContainsKey(stream.Name))
                     _events[stream.Name] = new Subject<IEvent>();
