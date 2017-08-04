@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reactive.Linq;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 
@@ -12,9 +13,9 @@ namespace Chronos.Infrastructure.Projections.New
         private readonly IStateWriter _writer;
         private readonly IEventBus _eventBus;
 
-        public IObservable<StreamDetails> Streams { get; protected set; }
+        public IObservable<StreamDetails> Streams { get; set; }
 
-        public int LastEvent { get; protected set; } = -1;
+        private int _lastEvent = -1;
 
         private IDisposable _streamsSubscription;
         private readonly Dictionary<string, IDisposable> _eventSubscriptions = new Dictionary<string, IDisposable>();
@@ -35,16 +36,23 @@ namespace Chronos.Infrastructure.Projections.New
             _eventBus.Subscribe<ReplayCompleted>(When);
         }
 
+        public Projection(IEventStoreSubscriptions eventStore)
+        {
+            _eventStore = eventStore;
+
+            Streams = _eventStore.Streams;
+        }
+
         private void When(ReplayCompleted e)
         {
-            LastEvent = -1;
+            _lastEvent = -1;
             Start();
         }
 
         protected virtual void When(StreamDetails stream, IEvent e)
         {
-            if (e.EventNumber > LastEvent)
-                LastEvent = e.EventNumber;
+            if (e.EventNumber > _lastEvent)
+                _lastEvent = e.EventNumber;
         }
 
         private void OnStreamAdded(StreamDetails stream)
@@ -55,7 +63,7 @@ namespace Chronos.Infrastructure.Projections.New
 
         protected virtual IObservable<IEvent> GetEvents(StreamDetails stream)
         {
-            return _eventStore.GetEvents(stream, LastEvent);
+            return _eventStore.GetEvents(stream, _lastEvent);
         }
 
         protected void Write<TKey>(TKey key, IEvent e)

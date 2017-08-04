@@ -10,6 +10,11 @@ namespace Chronos.Infrastructure.Projections.New
     {
         private readonly Instant _date;
 
+        internal HistoricalProjection(IEventStoreSubscriptions eventStore, Instant date)
+            : base(eventStore)
+        {
+            _date = date;
+        }
         internal HistoricalProjection(Projection<T> projection, Instant date)
             : base(projection)
         {

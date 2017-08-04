@@ -8,7 +8,13 @@ namespace Chronos.Infrastructure.Projections.New
         where TKey : IEquatable<TKey>
     {
         private readonly Func<StreamDetails, TKey> _key;
+        private readonly IStateWriter _writer;
 
+        internal PersistentProjection(IEventStoreSubscriptions eventStore, IStateWriter writer)
+            : base(eventStore)
+        {
+            _writer = writer;
+        }
         internal PersistentProjection(Projection<T> projection, Func<StreamDetails, TKey> key)
             : base(projection)
         {
@@ -17,7 +23,8 @@ namespace Chronos.Infrastructure.Projections.New
 
         protected override void When(StreamDetails stream, IEvent e)
         {
-            Write(_key(stream),e);
+            _writer.Write<TKey,T>(_key(stream),x => x.When(e));
+            //Write(_key(stream),e);
             base.When(stream, e);
         }
     }
@@ -25,6 +32,12 @@ namespace Chronos.Infrastructure.Projections.New
     public class PersistentPartitionedProjection<T> : PersistentProjection<Guid,T>, IPartitionedProjection<T>
         where T : class, IReadModel, new()
     {
+        internal PersistentPartitionedProjection(IEventStoreSubscriptions eventStore, IStateWriter writer)
+            : base(eventStore, writer)
+        {
+            
+        }
+
         public PersistentPartitionedProjection(Projection<T> projection)
             : base(projection, stream => stream.Key) { }
     }
