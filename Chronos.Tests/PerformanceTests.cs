@@ -45,7 +45,6 @@ namespace Chronos.Tests
 
         public PerformanceTests(ITestOutputHelper output) : base(output)
         {
-            CanAddMultipleTransactionsQuickly(1);
         }
     }
 }
