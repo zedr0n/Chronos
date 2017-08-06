@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
 using Chronos.Persistence.Serialization;
-using Chronos.Persistence.Types;
 using Microsoft.EntityFrameworkCore;
 using NodaTime.Text;
 using Stream = Chronos.Persistence.Types.Stream;
@@ -45,12 +43,7 @@ namespace Chronos.Persistence
 
         public bool Exists(StreamDetails stream)
         {
-            using (var db = _eventDb.GetContext())
-            {
-                //db.LogToConsole();
-                var streamId = stream.Name.GetHashCode();
-                return db.Set<Stream>().AsNoTracking().Any(x => x.HashId == streamId);
-            }
+            return GetStreamVersion(stream.Name) != -1;
         }
 
         public IEnumerable<StreamDetails> GetStreams()
@@ -59,7 +52,7 @@ namespace Chronos.Persistence
             {
                 var streams = context.Set<Stream>().Select(s => new StreamDetails(s.SourceType,s.Key));
                 return streams.ToList();
-            };
+            }
         }
 
         private Stream OpenStreamForWriting(DbContext context, StreamDetails details)
@@ -202,13 +195,11 @@ namespace Chronos.Persistence
         {
             using (var db = _eventDb.GetContext())
             {
-                //db.LogToConsole();
                 var streamId = name.GetHashCode();
                 var streamVersion = db.Set<Stream>().AsNoTracking()
                     .Where(x => x.HashId == streamId)
                     .Select(x => x.Version)
                     .ToList();
-                //db.StopLogging();
 
                 if (!streamVersion.Any())
                     return -1;
@@ -222,7 +213,6 @@ namespace Chronos.Persistence
             using (var db = _eventDb.GetContext())
             {
                 var streamId = name.GetHashCode();
-                //return db.Set<Stream>().Find(streamId) != null;
                 return db.Set<Stream>().Any(x => x.HashId == streamId);
             }
         }
