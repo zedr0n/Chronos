@@ -33,6 +33,7 @@ namespace Chronos.Persistence
                     if (!_isPersistent)
                         context.Database.EnsureDeleted();
                     context.Database.Migrate();
+                    //context.LogToConsole();
                 }
                 _isInitialized = true;
             }

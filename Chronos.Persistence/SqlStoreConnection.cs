@@ -6,6 +6,7 @@ using Chronos.Infrastructure;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
 using Chronos.Persistence.Serialization;
+using Chronos.Persistence.Types;
 using Microsoft.EntityFrameworkCore;
 using NodaTime.Text;
 using Stream = Chronos.Persistence.Types.Stream;
@@ -137,7 +138,7 @@ namespace Chronos.Persistence
             {
                 stream.Events.Add(e);
                 stream.Version++;
-                Debug.WriteLine(stream.Name + " : " + e.Payload);
+                //Debug.WriteLine(stream.Name + " : " + e.Payload);
             }
 
         }
@@ -190,7 +191,7 @@ namespace Chronos.Persistence
                 LogEvents(streamDetails,events);
 
                 // if no other events were present in the stream
-                if (streamAdded)
+                if (streamAdded && !streamDetails.SourceType.Contains("Saga"))
                     _subscriptions.OnStreamAdded(streamDetails);
                 foreach (var e in events)
                     _subscriptions.OnEventAppended(streamDetails, e);
@@ -201,41 +202,75 @@ namespace Chronos.Persistence
         {
             using (var db = _eventDb.GetContext())
             {
+                //db.LogToConsole();
                 var streamId = name.GetHashCode();
-                var streams = db.Set<Stream>().AsNoTracking().Where(x => x.HashId == streamId).Select(x => x.Version).ToList();
+                var streamVersion = db.Set<Stream>().AsNoTracking()
+                    .Where(x => x.HashId == streamId)
+                    .Select(x => x.Version)
+                    .ToList();
+                //db.StopLogging();
 
-                if (!streams.Any())
+                if (!streamVersion.Any())
                     return -1;
-                return streams.Single();
+
+                return streamVersion.Single();
+            }
+        }
+
+        private bool StreamExists(string name)
+        {
+            using (var db = _eventDb.GetContext())
+            {
+                var streamId = name.GetHashCode();
+                //return db.Set<Stream>().Find(streamId) != null;
+                return db.Set<Stream>().Any(x => x.HashId == streamId);
             }
         }
 
         public IEnumerable<IEvent> ReadStreamEventsForward(string streamName, long start, int count)
         {
-            if (GetStreamVersion(streamName) == -1)
-                return new List<IEvent>();
+            //if (GetStreamVersion(streamName) == -1)
+            //    return new List<IEvent>();
 
-            using (var context = _eventDb.GetContext())
+            //if (!StreamExists(streamName))
+            //    return new List<IEvent>();
+            
+            using (var db = _eventDb.GetContext())
             {
-                //context.LogToConsole();
+                //if (!StreamExists(db, streamName))
+                //    return new List<IEvent>();
+                
                 var streamId = streamName.GetHashCode();
-                var streamQuery = context.Set<Stream>().Where(x => x.HashId == streamId);
+                var streamQuery = db.Set<Stream>().Where(x => x.HashId == streamId);
+
+                //if (!streamQuery.Any())
+                //    return new List<IEvent>();
 
                 if (_inMemory)
                     streamQuery = streamQuery.Include(x => x.Events);
 
-                var stream = streamQuery.SingleOrDefault();
+                var allEvents = streamQuery.SelectMany(x => x.Events).OrderBy(e => e.EventNumber);
 
-                var allEvents = _inMemory ? stream.Events : context.Entry(stream).Collection(x => x.Events).Query().OrderBy(e => e.EventNumber).AsEnumerable();
+                //var allEvents = _inMemory
+                //    ? stream
+                //    : context.Entry(stream).Collection(x => x.Events).Query();//.OrderBy(e => e.EventNumber);
 
-                var events = allEvents.Skip((int)start).Take(count)
-                        .ToList();
+                //context.Set<Stream>().Skip(() => start);
+                var iStart = (int) start;
+                var events = allEvents.Skip(iStart).Take(count);
 
                 var now = _timeline.Now();
 
+                return events.ToList()
+                    .Where(e => e.TimestampUtc <= now.ToDateTimeUtc())
+                    .Select(_serializer.Deserialize)
+                    .OrderBy(e => e.Timestamp);
+                    
+                
                 return events.Select(_serializer.Deserialize)
                     .Where(e => e.Timestamp <= now)
-                    .OrderBy(e => e.Timestamp);
+                    .OrderBy(e => e.Timestamp)
+                    .ToList();
             }
         }
 

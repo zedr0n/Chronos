@@ -22,7 +22,7 @@ namespace Chronos.Persistence
 
         public static void StopLogging(this DbContext context)
         {
-            var serviceProvider = context.GetInfrastructure<IServiceProvider>();
+            var serviceProvider = context.GetInfrastructure();
 
             // Get the registered ILoggerFactory from the DI container
             var loggerFactory = (ILoggerFactory)serviceProvider.GetService(typeof(ILoggerFactory));

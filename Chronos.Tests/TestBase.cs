@@ -1,12 +1,16 @@
-﻿using Chronos.CrossCuttingConcerns.DependencyInjection;
-using Chronos.Infrastructure;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Chronos.CrossCuttingConcerns.DependencyInjection;
 using NodaTime;
 using SimpleInjector;
 using Xunit.Abstractions;
 using Chronos.Infrastructure.Logging;
+using Xunit;
+using Xunit.Sdk;
 
 namespace Chronos.Tests
-{
+{    
     public class TestBase
     {
         protected static readonly IClock Clock;

@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
 using NodaTime;
 using StreamExtensions = Chronos.Infrastructure.StreamExtensions;
@@ -46,7 +48,7 @@ namespace Chronos.Persistence
         public T Find<T>(Guid id) where T : class,IAggregate, new()
         {
             var streamDetails = new StreamDetails(typeof(T),id);
-            var events = _connection.Reader.ReadStreamEventsForward(streamDetails.Name, 0, int.MaxValue).ToList();
+            var events = _connection.Reader.ReadStreamEventsForward(streamDetails.Name, 0, int.MaxValue);
 
             if (!events.Any())
                 return null;

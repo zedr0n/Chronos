@@ -8,9 +8,9 @@ using Xunit.Abstractions;
 namespace Chronos.Tests
 {
     public class PerformanceTests : TestBase
-    {
+    {   
         [Theory]
-        [InlineData(250)]
+        [InlineData(200)]
         public void CanAddMultipleTransactionsQuickly(int numberOfTransactions)
         {
             var container = CreateContainer(nameof(CanAddMultipleTransactionsQuickly));
@@ -45,6 +45,7 @@ namespace Chronos.Tests
 
         public PerformanceTests(ITestOutputHelper output) : base(output)
         {
+            CanAddMultipleTransactionsQuickly(1);
         }
     }
 }
