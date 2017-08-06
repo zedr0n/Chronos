@@ -265,12 +265,6 @@ namespace Chronos.Persistence
                     .Where(e => e.TimestampUtc <= now.ToDateTimeUtc())
                     .Select(_serializer.Deserialize)
                     .OrderBy(e => e.Timestamp);
-                    
-                
-                return events.Select(_serializer.Deserialize)
-                    .Where(e => e.Timestamp <= now)
-                    .OrderBy(e => e.Timestamp)
-                    .ToList();
             }
         }
 

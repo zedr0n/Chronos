@@ -479,40 +479,6 @@ namespace Chronos.Tests
             Assert.Equal(-100, accountInfo.Balance);
             Assert.Equal(100, otherAccountInfo.Balance);
         }
-
-        [Theory]
-        [InlineData(250)]
-        public void CanAddMultipleTransactionsQuickly(int numberOfTransactions)
-        {
-            var container = CreateContainer(nameof(CanAddMultipleTransactionsQuickly));
-
-            var accountId = Guid.NewGuid();
-            var createAccountCommand = new CreateAccountCommand
-            {
-                TargetId = accountId,
-                Currency = "GBP",
-                Name = "Account"
-            };
-
-            var handler = container.GetInstance<ICommandHandler<CreateAccountCommand>>();
-            handler.Handle(createAccountCommand);
-
-            var handler2 = container.GetInstance<ICommandHandler<CreatePurchaseCommand>>();
-
-            while (numberOfTransactions-- > 0)
-            {
-                var command = new CreatePurchaseCommand
-                {
-                    TargetId = Guid.NewGuid(),
-                    AccountId = accountId,
-                    Amount = 100,
-                    Currency = "GBP",
-                    Payee = "Payee"
-                };
-
-                handler2.Handle(command);
-            }
-        }
         
         public IntegrationTests(ITestOutputHelper output) : base(output)
         {
