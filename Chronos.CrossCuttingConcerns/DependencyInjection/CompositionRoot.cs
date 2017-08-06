@@ -86,6 +86,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<IQueryHandler<GetTotalMovement,TotalMovement>,GetTotalMovementHandler>(Lifestyle.Singleton);
             container.Register(typeof(IQueryHandler<HistoricalQuery<GetAccountInfo,AccountInfo>,AccountInfo>),
                 typeof(HistoricalQueryHandler<GetAccountInfo,AccountInfo>), Lifestyle.Singleton);
+            container.Register(typeof(IQueryHandler<HistoricalQuery<GetTotalMovement,TotalMovement>,TotalMovement>),
+                typeof(HistoricalQueryHandler<GetTotalMovement,TotalMovement>), Lifestyle.Singleton);
         }
     }
 }

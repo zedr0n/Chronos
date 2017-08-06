@@ -226,6 +226,14 @@ namespace Chronos.Tests
 
             bus.Send(command);
 
+            var accountInfoQuery = new GetAccountInfo()
+            {
+                AccountId = accountId
+            };
+
+            var accountInfoHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var createdAt = accountInfoHandler.Handle(accountInfoQuery).CreatedAt;
+
             var transactionId = Guid.NewGuid();
             
             var transactionCommand = new CreatePurchaseCommand
@@ -237,12 +245,23 @@ namespace Chronos.Tests
                 Payee = "Payee"
             };
             bus.Send(transactionCommand);
-
+            
             var query = new GetTotalMovement();
 
             var queryHandler = container.GetInstance<IQueryHandler<GetTotalMovement, TotalMovement>>();
             var movement = queryHandler.Handle(query);
+            
+            var historicalQuery = new HistoricalQuery<GetTotalMovement,TotalMovement>()
+            {
+                Query = query,
+                AsOf = createdAt
+            };
 
+            var historicalQueryHandler =
+                container.GetInstance<IQueryHandler<HistoricalQuery<GetTotalMovement, TotalMovement>,TotalMovement>>();
+
+            var initialMovement = historicalQueryHandler.Handle(historicalQuery);
+            Assert.Equal(0, initialMovement.Value);
             Assert.Equal(100, movement.Value);
         }
 
