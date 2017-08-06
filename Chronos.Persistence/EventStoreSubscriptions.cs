@@ -31,7 +31,7 @@ namespace Chronos.Persistence
             public IObservable<IEvent> GetEvents(StreamDetails stream, int eventNumber)
             {
                 var events = _connection.ReadStreamEventsForward(stream.Name, eventNumber, int.MaxValue)
-                    .ToList()
+                    //.ToList()
                     .OrderBy(e => e.Timestamp);
 
                 if (!_events.ContainsKey(stream.Name))
