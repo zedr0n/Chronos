@@ -102,7 +102,7 @@ namespace Chronos.Tests
         [Fact]
         public void CanProjectTotalMovement()
         {
-            var container = CreateContainer(nameof(CanProjectAccountInfo));
+            var container = CreateContainer(nameof(CanProjectTotalMovement));
             var bus = container.GetInstance<ICommandBus>();
 
             var id = Guid.NewGuid();
@@ -208,6 +208,42 @@ namespace Chronos.Tests
 
             Assert.NotNull(purchase);
             Assert.Equal(-100, accountInfo.Balance);
+        }
+        
+        [Fact]
+        public void CanGetTotalMovementFromTransaction()
+        {
+            var container = CreateContainer(nameof(CanGetTotalMovementFromTransaction));
+            var bus = container.GetInstance<ICommandBus>();
+
+            var accountId = Guid.NewGuid();
+            var command = new CreateAccountCommand
+            {
+                TargetId = accountId,
+                Currency = "GBP",
+                Name = "Account"
+            };
+
+            bus.Send(command);
+
+            var transactionId = Guid.NewGuid();
+            
+            var transactionCommand = new CreatePurchaseCommand
+            {
+                TargetId = transactionId,
+                AccountId = accountId,
+                Amount = 100,
+                Currency = "GBP",
+                Payee = "Payee"
+            };
+            bus.Send(transactionCommand);
+
+            var query = new GetTotalMovement();
+
+            var queryHandler = container.GetInstance<IQueryHandler<GetTotalMovement, TotalMovement>>();
+            var movement = queryHandler.Handle(query);
+
+            Assert.Equal(100, movement.Value);
         }
 
         [Fact]
