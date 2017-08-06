@@ -2,6 +2,7 @@
 {
     public interface IProjectionManager
     {
-        IProjectionFrom<T> Create<T>() where T : class, IReadModel, new();
+        IBaseProjectionExpression<T> Create<T>()
+            where T : class, IReadModel, new();
     }
 }

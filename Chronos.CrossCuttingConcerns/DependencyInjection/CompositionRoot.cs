@@ -129,8 +129,10 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<IReadRepository, ReadRepository>(Lifestyle.Singleton);
             container.Register<IStateWriter,StateWriter>(Lifestyle.Singleton);
             container.Register<IEventSerializer,EventSerializer>(Lifestyle.Singleton);
-            container.Register<IEventStoreSubscriptions>(
+            container.Register(
                 () => container.GetInstance<IEventStoreConnection>().Subscriptions, Lifestyle.Singleton);
+            container.Register(typeof(IBaseProjectionExpression<>),typeof(ProjectionExpression<>));
+            container.Register<IProjectionManager,ProjectionManager>(Lifestyle.Singleton);
 
             container.Register(typeof(ICommandHandler<>),new[] {
                 typeof(CreateAccountHandler),
@@ -152,8 +154,6 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<IQueryHandler<GetAccountInfo,AccountInfo>,GetAccountInfoHandler>(Lifestyle.Singleton);
             container.Register(typeof(IQueryHandler<HistoricalQuery<GetAccountInfo,AccountInfo>,AccountInfo>),
                 typeof(HistoricalQueryHandler<GetAccountInfo,AccountInfo>), Lifestyle.Singleton);
-
-            container.Register<IProjectionManager,ProjectionManager>(Lifestyle.Singleton);
         }
     }
 }

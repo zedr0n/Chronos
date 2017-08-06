@@ -15,11 +15,6 @@ namespace Chronos.Infrastructure.Projections.New
         {
             _date = date;
         }
-        internal HistoricalProjection(Projection<T> projection, Instant date)
-            : base(projection)
-        {
-            _date = date;
-        }
 
         protected override IObservable<IEvent> GetEvents(StreamDetails stream) => base.GetEvents(stream)
             .Where(e => e.Timestamp <= _date);

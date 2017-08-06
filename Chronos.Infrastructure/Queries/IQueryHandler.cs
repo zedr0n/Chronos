@@ -9,7 +9,7 @@ namespace Chronos.Infrastructure.Queries
                                                            where TQuery : IQuery<TResult>
                                                            where TResult : class, IReadModel, new()
     {
-        IProjection<TResult> Projection { get; }
+        IProjectionExpression<TResult> Expression { get; }
 
         TResult Handle(TQuery query);
     }

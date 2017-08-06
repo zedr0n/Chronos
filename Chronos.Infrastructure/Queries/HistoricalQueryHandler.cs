@@ -5,20 +5,16 @@ namespace Chronos.Infrastructure.Queries
     public sealed class HistoricalQueryHandler<TQuery, TResult> : IQueryHandler<HistoricalQuery<TQuery,TResult>, TResult>
         where TResult : class, IReadModel, new()
         where TQuery : IQuery<TResult>
-
     {
         public HistoricalQueryHandler(IQueryHandler<TQuery, TResult> queryHandler)
         {
-            Projection = queryHandler.Projection;
+            Expression = queryHandler.Expression.Clone();
         }
-
-        public IProjection<TResult> Projection { get; }
+        public IProjectionExpression<TResult> Expression { get; }
 
         public TResult Handle(HistoricalQuery<TQuery,TResult> query)
         {
-            var projection = Projection.AsOf(query.AsOf);
-            projection.Start();
-
+            var projection = Expression.AsOf(query.AsOf).Compile();
             return projection.State;
         }
     }

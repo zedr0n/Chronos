@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Projections.New;
@@ -11,21 +12,19 @@ namespace Chronos.Core.Accounts.Queries
     public class GetAccountInfoHandler : IQueryHandler<GetAccountInfo, AccountInfo>
     {
         private readonly IReadRepository _repository;
-        public IProjection<AccountInfo> Projection { get; }
+        public IProjectionExpression<AccountInfo> Expression { get; }
 
-        public GetAccountInfoHandler(IReadRepository repository, IProjectionManager projectionManager)
+        public GetAccountInfoHandler(IReadRepository repository, IProjectionManager manager)
         {
             _repository = repository;
 
-            var projection = projectionManager.Create<AccountInfo>()
+            Expression = manager.Create<AccountInfo>()
                 .From<Account>()
                 .ForEachStream()
                 .OutputState();
-
-            projection.Start();
-            Projection = (IProjection<AccountInfo>) projection;
+                
+             Expression.Compile();
         }
-
 
         public AccountInfo Handle(GetAccountInfo query)
         {
