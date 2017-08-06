@@ -128,7 +128,10 @@ namespace Chronos.Infrastructure.Projections.New
             if(_forEachStream)
                 throw new InvalidOperationException("Cannot output partitioned projection to single state");
             
-            Projection = new PersistentProjection<TKey,T>(_eventStore,_writer);
+            Projection = new PersistentProjection<TKey,T>(_eventStore,_writer)
+            {
+                Key = s => key
+            };
 
             return this;
         }

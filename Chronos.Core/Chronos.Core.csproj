@@ -1,9 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard1.4</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="Accounts\ChangeAccount\**" />
     <Compile Remove="Accounts\CreateAccount\**" />
@@ -15,13 +13,10 @@
     <None Remove="Accounts\CreateAccount\**" />
     <None Remove="Accounts\DebitAmount\**" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Chronos.Infrastructure\Chronos.Infrastructure.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Stateless" Version="3.1.0" />
   </ItemGroup>
-
 </Project>

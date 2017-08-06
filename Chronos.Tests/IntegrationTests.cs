@@ -100,6 +100,30 @@ namespace Chronos.Tests
         }
 
         [Fact]
+        public void CanProjectTotalMovement()
+        {
+            var container = CreateContainer(nameof(CanProjectAccountInfo));
+            var bus = container.GetInstance<ICommandBus>();
+
+            var id = Guid.NewGuid();
+            var command = new CreateAccountCommand
+            {
+                TargetId = id,
+                Currency = "GBP",
+                Name = "Account"
+            };
+
+            bus.Send(command);
+
+            var query = new GetTotalMovement();
+
+            var queryHandler = container.GetInstance<IQueryHandler<GetTotalMovement, TotalMovement>>();
+            var movement = queryHandler.Handle(query);
+
+            Assert.Equal(0, movement.Value);
+        }
+
+        [Fact]
         public void ThrowsOnChangingNonexistentAccount()
         {
             var command = new ChangeAccountCommand

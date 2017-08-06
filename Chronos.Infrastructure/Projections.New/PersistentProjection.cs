@@ -7,7 +7,7 @@ namespace Chronos.Infrastructure.Projections.New
         where T : class, IReadModel, new()
         where TKey : IEquatable<TKey>
     {
-        protected Func<StreamDetails, TKey> Key { get; set; }
+        public Func<StreamDetails, TKey> Key { get; set; }
         private readonly IStateWriter _writer;
 
         internal PersistentProjection(IEventStoreSubscriptions eventStore, IStateWriter writer)

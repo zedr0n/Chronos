@@ -75,7 +75,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(ScheduleCommandHandler),
                 typeof(CreateCashTransferHandler),
                 typeof(RequestTimeoutHandler)
-                } ,Lifestyle.Singleton);
+            } ,Lifestyle.Singleton);
             //container.Register<ICommandHandler<CreateAccountCommand>, CreateAccountHandler>(Lifestyle.Singleton);
             //container.Register<ICommandHandler<ChangeAccountCommand>, ChangeAccountHandler>(Lifestyle.Singleton);
             //container.Register<ICommandHandler<DepositCashCommand>, DepositCash>(Lifestyle.Singleton);
@@ -83,6 +83,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             //container.Register<ICommandHandler<CreatePurchaseCommand>, CreatePurchaseHandler>(Lifestyle.Singleton);
             //container.Register<ICommandHandler<ScheduleCommand>,ScheduleCommandHandler>(Lifestyle.Singleton);
             container.Register<IQueryHandler<GetAccountInfo,AccountInfo>,GetAccountInfoHandler>(Lifestyle.Singleton);
+            container.Register<IQueryHandler<GetTotalMovement,TotalMovement>,GetTotalMovementHandler>(Lifestyle.Singleton);
             container.Register(typeof(IQueryHandler<HistoricalQuery<GetAccountInfo,AccountInfo>,AccountInfo>),
                 typeof(HistoricalQueryHandler<GetAccountInfo,AccountInfo>), Lifestyle.Singleton);
         }
