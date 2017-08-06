@@ -28,8 +28,10 @@ namespace Chronos.Tests
             lock(_lock)
             {
                 var container = new Container();
-                var root = new CompositionRoot().WithDatabase(dbName).InMemory();
-                root.ComposeApplication(container);
+                ICompositionRoot root = new CompositionRoot();
+                root.WithDatabase(dbName)
+                    .InMemory()
+                    .ComposeApplication(container);
 
                 container.Register<IDebugLog,DebugLogXUnit>(Lifestyle.Singleton);
                 container.Verify();

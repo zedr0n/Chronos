@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reactive.Linq;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
@@ -13,28 +12,6 @@ using Stream = Chronos.Persistence.Types.Stream;
 
 namespace Chronos.Persistence
 {
-    public class StreamAddedArgs : EventArgs
-    {
-        public StreamDetails Details { get; }
-
-        public StreamAddedArgs(StreamDetails details)
-        {
-            Details = details;
-        }
-    }
-
-    public class EventAppendedArgs : EventArgs
-    {
-        public StreamDetails Stream { get; }
-        public IEvent Event { get; private set; }
-
-        public EventAppendedArgs(StreamDetails stream, IEvent e)
-        {
-            Stream = stream;
-            Event = e;
-        }
-    }
-
     public partial class SqlStoreConnection : IEventStoreConnection, IEventStoreReader, IEventStoreWriter
     {
         private readonly IEventDb _eventDb;

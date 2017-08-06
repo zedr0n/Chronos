@@ -23,14 +23,4 @@ namespace Chronos.Infrastructure.Projections.New
             base.When(stream, e);
         }
     }
-
-    public class PersistentPartitionedProjection<T> : PersistentProjection<Guid,T>
-        where T : class, IReadModel, new()
-    {
-        internal PersistentPartitionedProjection(IEventStoreSubscriptions eventStore, IStateWriter writer)
-            : base(eventStore, writer)
-        {
-            Key = stream => stream.Key;
-        }
-    }
 }

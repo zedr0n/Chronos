@@ -6,10 +6,12 @@ using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure
 {
-    public abstract class ReadModelBase : IReadModel
+    public abstract class ReadModelBase<TKey> : IReadModel<TKey>
     {
         private readonly Dictionary<Type, Action<IEvent>> _when = new Dictionary<Type, Action<IEvent>>();
 
+        public TKey Key { get; set; }
+        
         protected ReadModelBase()
         {
             foreach (var m in GetType().GetTypeInfo().GetDeclaredMethods("When"))
@@ -20,10 +22,5 @@ namespace Chronos.Infrastructure
             if (_when.ContainsKey(e.GetType()))
                 _when[e.GetType()](e);
         }
-    }
-
-    public abstract class ReadModelBase<TKey> : ReadModelBase, IReadModel<TKey>
-    {
-        public TKey Key { get; set; }
     }
 }

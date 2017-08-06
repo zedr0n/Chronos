@@ -1,17 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq.Expressions;
 using SimpleInjector;
 using SimpleInjector.Advanced;
 
 namespace Chronos.CrossCuttingConcerns.DependencyInjection
 {
-    public interface IParameterConvention
-    {
-        bool CanResolve(InjectionTargetInfo target);
-        Expression BuildExpression(InjectionConsumerInfo consumer);
-    }
-
     public static class ParameterConventionExtensions
     {
         public static void RegisterParameterConventions(this ContainerOptions options,IEnumerable<IParameterConvention> conventions)
@@ -26,7 +19,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 options.DependencyInjectionBehavior, convention, options.Container);
         }
 
-        private class ConventionDependencyInjectionBehavior : IDependencyInjectionBehavior
+        private struct ConventionDependencyInjectionBehavior : IDependencyInjectionBehavior
         {
             private readonly IDependencyInjectionBehavior _decoratee;
             private readonly IParameterConvention _convention;
@@ -63,56 +56,5 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             }
         }
 
-    }
-
-    public class PersistentDbConvention : IParameterConvention
-    {
-        private readonly bool _persistentDb;
-
-        public PersistentDbConvention(bool persistentDb)
-        {
-            _persistentDb = persistentDb;
-        }
-
-        public bool CanResolve(InjectionTargetInfo target) => target.TargetType == typeof(bool) && target.Name == "isPersistent";
-
-        public Expression BuildExpression(InjectionConsumerInfo consumer)
-        {
-            return Expression.Constant(_persistentDb, typeof(bool));
-        }
-    }
-
-    public class InMemoryConvention : IParameterConvention
-    {
-        private readonly bool _inMemory;
-
-        public InMemoryConvention(bool inMemory)
-        {
-            _inMemory = inMemory;
-        }
-
-        public bool CanResolve(InjectionTargetInfo target) => target.TargetType == typeof(bool) && target.Name == "inMemory";
-
-        public Expression BuildExpression(InjectionConsumerInfo consumer)
-        {
-            return Expression.Constant(_inMemory, typeof(bool));
-        }
-    }
-
-    public class DbNameStringConvention : IParameterConvention
-    {
-        private readonly string _dbName;
-
-        public DbNameStringConvention(string dbName)
-        {
-            _dbName = dbName;
-        }
-
-        public bool CanResolve(InjectionTargetInfo target) => target.TargetType == typeof(string) && target.Name == "dbName";
-
-        public Expression BuildExpression(InjectionConsumerInfo consumer)
-        {
-            return Expression.Constant(_dbName, typeof(string));
-        }
     }
 }
