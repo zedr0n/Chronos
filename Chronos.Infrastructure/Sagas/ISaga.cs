@@ -18,6 +18,13 @@ namespace Chronos.Infrastructure.Sagas
         IEnumerable<IMessage> UndispatchedMessages { get; }
         void ClearUndispatchedMessages();
 
+        /// <summary>
+        /// Hydrate the saga from events sequence
+        /// </summary>
+        /// <param name="id">Saga id</param>
+        /// <param name="pastEvents">Past events sequence</param>
+        /// <typeparam name="T">Saga type</typeparam>
+        /// <returns>Hydrated saga instance</returns>
         T LoadFrom<T>(Guid id, IEnumerable<IEvent> pastEvents) where T : class,ISaga,new();
     }
 }

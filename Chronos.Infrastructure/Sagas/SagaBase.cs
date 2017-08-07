@@ -17,7 +17,6 @@ namespace Chronos.Infrastructure.Sagas
         public IEnumerable<IEvent> UncommitedEvents => _uncommitedEvents;
         public IEnumerable<IMessage> UndispatchedMessages => _undispatchedMessages;
 
-
         protected SagaBase() { }
         protected SagaBase(Guid sagaId)
         {
