@@ -53,7 +53,7 @@ namespace Chronos.Tests
         }
     }
 
-    public class Bdd
+    public class Specification
     {
         private readonly IDomainRepository _repository;
         private readonly ICommandBus _commandBus;
@@ -65,7 +65,7 @@ namespace Chronos.Tests
         private readonly ReplaySubject<IEvent> _events = new ReplaySubject<IEvent>();
         //protected IObservable<IEvent> Events;
         
-        public Bdd(IDomainRepository repository,
+        public Specification(IDomainRepository repository,
             ICommandBus commandBus, 
             IEventStoreSubscriptions eventStore,
             IQueryProcessor queryProcessor)
@@ -76,14 +76,14 @@ namespace Chronos.Tests
             _queryProcessor = queryProcessor;
         }
         
-        public Bdd Given<T>(Guid id,params IEvent[] events)
+        public Specification Given<T>(Guid id,params IEvent[] events)
             where T : class,IAggregate,new()
         {
             _repository.Save<T>(id,events);
             return this;
         }
 
-        public Bdd When<TCommand>(TCommand command)
+        public Specification When<TCommand>(TCommand command)
             where TCommand : class,ICommand
         {
             _eventStore.Events.Subscribe(e => _events.OnNext(e));
@@ -92,7 +92,7 @@ namespace Chronos.Tests
             return this;
         }
 
-        public Bdd Expected(int count)
+        public Specification Expected(int count)
         {
             _expectedCount = count;
             return this;
@@ -105,7 +105,7 @@ namespace Chronos.Tests
             return _queryProcessor.Process<TQuery, TResult>(query);
         }
 
-        public Bdd Then(params Func<IEvent, bool>[] conditions)
+        public Specification Then(params Func<IEvent, bool>[] conditions)
         {
             foreach (var c in conditions)
                 _events.Subscribe(e => Assert.True(c(e)));
@@ -114,7 +114,7 @@ namespace Chronos.Tests
             return this;
         }
 
-        public Bdd Then(params Func<IEnumerable<IEvent>, bool>[] conditions)
+        public Specification Then(params Func<IEnumerable<IEvent>, bool>[] conditions)
         {
             var receivedEvents = new List<IEvent>();
             _events.Subscribe(e => receivedEvents.Add(e),
@@ -124,13 +124,13 @@ namespace Chronos.Tests
             return this;
         }
 
-        public Bdd Then<T>(T @event) where T : IEvent
+        public Specification Then<T>(T @event) where T : IEvent
         {
             Then(events => events.OfType<T>().Single().Same(@event));
             return this;
         }
 
-        public Bdd Then(params IEvent[] events)
+        public Specification Then(params IEvent[] events)
         {
             Then(e => e.All(x => events.Any(x.Same)));
             return Expected(events.Length);

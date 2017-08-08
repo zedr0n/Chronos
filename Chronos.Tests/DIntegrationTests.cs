@@ -84,7 +84,7 @@ namespace Chronos.Tests
         [Fact]
         public void CanCreateAccount()
         { 
-            GetInstance<Bdd>().When(
+            GetInstance<Specification>().When(
                 new CreateAccountCommand
                 {
                     TargetId = History.AccountId,
@@ -96,8 +96,8 @@ namespace Chronos.Tests
         [Fact]
         public void CanChangeAccount()
         {
-            var test = GetInstance<Bdd>();
-            test.Given<Account>(History.AccountId, History.AccountCreated)
+            var spec = GetInstance<Specification>();
+            spec.Given<Account>(History.AccountId, History.AccountCreated)
                 .When(new ChangeAccountCommand
                 {
                     TargetId = History.AccountId,
@@ -110,8 +110,8 @@ namespace Chronos.Tests
         [Fact]
         public void CanCreateMultipleAccounts()
         {
-            var test = GetInstance<Bdd>();
-            test.When(new CreateAccountCommand
+            var spec = GetInstance<Specification>();
+            spec.When(new CreateAccountCommand
                 {
                     TargetId = History.AccountId,
                     Currency = "GBP",
@@ -129,14 +129,38 @@ namespace Chronos.Tests
         [Fact]
         public void CanProjectAccountInfo()
         {
-            var test = GetInstance<Bdd>();
-            var accountInfo = test.Given<Account>(History.AccountId, History.AccountCreated)
+            var spec = GetInstance<Specification>();
+            var accountInfo = spec.Given<Account>(History.AccountId, History.AccountCreated)
                 .Query<AccountInfoQuery,AccountInfo>(new AccountInfoQuery
                 {
                     AccountId = History.AccountId
                 });
             Assert.Equal("Account",accountInfo.Name);
             Assert.Equal("GBP",accountInfo.Currency);
+        }
+
+        [Fact]
+        public void CanProjectTotalMovement()
+        {
+            var spec = GetInstance<Specification>();
+            var total = spec.Given<Account>(History.AccountId, History.AccountCreated)
+                .Query<TotalMovementQuery, TotalMovement>(new TotalMovementQuery());
+            
+            Assert.Equal(0, total.Value);
+        }
+
+        [Fact]
+        public void ThrowsOnChangingNonexistentAccount()
+        {
+            var spec = GetInstance<Specification>();
+            var exception = Record.Exception(() => 
+                spec.When(new ChangeAccountCommand
+                {
+                    TargetId = History.AccountId,
+                    Name = "Account",
+                    Currency = "GBP"
+                }));
+            Assert.IsType<InvalidOperationException>(exception?.InnerException);
         }
     }
 }
