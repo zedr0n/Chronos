@@ -1,8 +1,7 @@
 ﻿namespace Chronos.Infrastructure.Queries
 {
-    public interface IQueryProcessor<out TResult>
-        where TResult : class, IReadModel, new()
+    public interface IQueryProcessor
     {
-         TResult Handle(IQuery query);
+        TResult Process<TResult>(IQuery<TResult> query);
     }
 }

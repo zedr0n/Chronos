@@ -24,15 +24,15 @@ namespace Chronos.Infrastructure.Projections.New
             }        
         }
 
-        public void Compile() => Start();
+        public void Invoke() => Start();
         
-        IPersistentProjection<T> IPersistentProjectionExpression<T>.Compile()
+        IPersistentProjection<T> IPersistentProjectionExpression<T>.Invoke()
         {
             Start();
             return Projection as IPersistentProjection<T>;
         }
 
-        ITransientProjection<T> ITransientProjectionExpression<T>.Compile()
+        ITransientProjection<T> ITransientProjectionExpression<T>.Invoke()
         {
             Start();
             return Projection as ITransientProjection<T>;

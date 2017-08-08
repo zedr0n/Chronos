@@ -51,18 +51,18 @@ namespace Chronos.Infrastructure.Projections.New
         IPersistentProjectionExpression<T> OutputState<TKey>(TKey key)
             where TKey : IEquatable<TKey>;
 
-        void Compile();
+        void Invoke();
     }
 
     public interface ITransientProjectionExpression<T> : IProjectionExpression<T>
         where T : class, IReadModel, new()
     {
-        new ITransientProjection<T> Compile();
+        new ITransientProjection<T> Invoke();
     }
 
     public interface IPersistentProjectionExpression<T> : IProjectionExpression<T>
         where T : class, IReadModel, new()
     {
-        new IPersistentProjection<T> Compile();
+        new IPersistentProjection<T> Invoke();
     }
 }

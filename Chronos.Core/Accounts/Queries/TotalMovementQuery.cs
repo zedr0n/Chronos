@@ -3,7 +3,7 @@ using Chronos.Infrastructure.Queries;
 
 namespace Chronos.Core.Accounts.Queries
 {
-    public class GetTotalMovement : IQuery<TotalMovement>
+    public class TotalMovementQuery : IQuery<TotalMovement>
     { 
     }
 }

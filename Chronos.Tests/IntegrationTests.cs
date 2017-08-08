@@ -42,7 +42,7 @@ namespace Chronos.Tests
         {
             var container = CreateContainer(nameof(CanCreateMultipleAccounts));
             var bus = container.GetInstance<ICommandBus>();
-            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var queryHandler = container.GetInstance<IQueryHandler<AccountInfoQuery, AccountInfo>>();
 
             var id = Guid.NewGuid();
             var command = new CreateAccountCommand
@@ -64,8 +64,8 @@ namespace Chronos.Tests
 
             bus.Send(otherCommand);
 
-            var query = new GetAccountInfo { AccountId = id };
-            var otherQuery = new GetAccountInfo {AccountId = otherId };
+            var query = new AccountInfoQuery { AccountId = id };
+            var otherQuery = new AccountInfoQuery {AccountId = otherId };
 
             var accountInfo = queryHandler.Handle(query);
             Assert.Equal("Account",accountInfo.Name);
@@ -90,9 +90,9 @@ namespace Chronos.Tests
 
             bus.Send(command);
 
-            var query = new GetAccountInfo { AccountId = id };
+            var query = new AccountInfoQuery { AccountId = id };
 
-            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var queryHandler = container.GetInstance<IQueryHandler<AccountInfoQuery, AccountInfo>>();
             var accountInfo = queryHandler.Handle(query);
 
             Assert.Equal("Account",accountInfo.Name);
@@ -115,9 +115,9 @@ namespace Chronos.Tests
 
             bus.Send(command);
 
-            var query = new GetTotalMovement();
+            var query = new TotalMovementQuery();
 
-            var queryHandler = container.GetInstance<IQueryHandler<GetTotalMovement, TotalMovement>>();
+            var queryHandler = container.GetInstance<IQueryHandler<TotalMovementQuery, TotalMovement>>();
             var movement = queryHandler.Handle(query);
 
             Assert.Equal(0, movement.Value);
@@ -153,8 +153,8 @@ namespace Chronos.Tests
             var bus = container.GetInstance<ICommandBus>();
             bus.Send(command);
             
-            var query = new GetAccountInfo {AccountId = id};
-            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var query = new AccountInfoQuery {AccountId = id};
+            var queryHandler = container.GetInstance<IQueryHandler<AccountInfoQuery, AccountInfo>>();
             var accountInfo = queryHandler.Handle(query);
 
             Assert.Equal("Account", accountInfo.Name);
@@ -201,9 +201,9 @@ namespace Chronos.Tests
             var repository = container.GetInstance<IDomainRepository>();
             var purchase = repository.Find<Purchase>(id);
 
-            var query = new GetAccountInfo { AccountId = accountId };
+            var query = new AccountInfoQuery { AccountId = accountId };
 
-            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var queryHandler = container.GetInstance<IQueryHandler<AccountInfoQuery, AccountInfo>>();
             var accountInfo = queryHandler.Handle(query);
 
             Assert.NotNull(purchase);
@@ -226,12 +226,12 @@ namespace Chronos.Tests
 
             bus.Send(command);
 
-            var accountInfoQuery = new GetAccountInfo()
+            var accountInfoQuery = new AccountInfoQuery()
             {
                 AccountId = accountId
             };
 
-            var accountInfoHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var accountInfoHandler = container.GetInstance<IQueryHandler<AccountInfoQuery, AccountInfo>>();
             var createdAt = accountInfoHandler.Handle(accountInfoQuery).CreatedAt;
 
             var transactionId = Guid.NewGuid();
@@ -246,19 +246,19 @@ namespace Chronos.Tests
             };
             bus.Send(transactionCommand);
             
-            var query = new GetTotalMovement();
+            var query = new TotalMovementQuery();
 
-            var queryHandler = container.GetInstance<IQueryHandler<GetTotalMovement, TotalMovement>>();
+            var queryHandler = container.GetInstance<IQueryHandler<TotalMovementQuery, TotalMovement>>();
             var movement = queryHandler.Handle(query);
             
-            var historicalQuery = new HistoricalQuery<GetTotalMovement,TotalMovement>()
+            var historicalQuery = new HistoricalQuery<TotalMovementQuery>()
             {
                 Query = query,
                 AsOf = createdAt
             };
 
             var historicalQueryHandler =
-                container.GetInstance<IQueryHandler<HistoricalQuery<GetTotalMovement, TotalMovement>,TotalMovement>>();
+                container.GetInstance<IHistoricalQueryHandler<TotalMovementQuery,TotalMovement>>();
 
             var initialMovement = historicalQueryHandler.Handle(historicalQuery);
             Assert.Equal(0, initialMovement.Value);
@@ -282,9 +282,11 @@ namespace Chronos.Tests
 
             var id = Guid.NewGuid();
 
-            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
-            var historicalQueryHandler = container.GetInstance<IQueryHandler<HistoricalQuery<GetAccountInfo,AccountInfo>,AccountInfo>>();
-            var createdAt = queryHandler.Handle(new GetAccountInfo { AccountId = accountId }).CreatedAt;
+            var queryHandler = container.GetInstance<IQueryHandler<AccountInfoQuery, AccountInfo>>();
+            var historicalQueryHandler =
+                container.GetInstance<IHistoricalQueryHandler<AccountInfoQuery, AccountInfo>>();
+                //container.GetInstance<IQueryHandler<HistoricalQuery<AccountInfoQuery>,AccountInfo>>();
+            var createdAt = queryHandler.Handle(new AccountInfoQuery { AccountId = accountId }).CreatedAt;
 
             var command = new CreatePurchaseCommand
             {
@@ -296,8 +298,8 @@ namespace Chronos.Tests
             };
 
             bus.Send(command);
-            var baseQuery = new GetAccountInfo { AccountId = accountId };
-            var historicalQuery = new HistoricalQuery<GetAccountInfo,AccountInfo>
+            var baseQuery = new AccountInfoQuery { AccountId = accountId };
+            var historicalQuery = new HistoricalQuery<AccountInfoQuery>
             {
                 Query = baseQuery,
                 AsOf = createdAt
@@ -330,9 +332,9 @@ namespace Chronos.Tests
             var bus = container.GetInstance<ICommandBus>();
             bus.Send(command);
 
-            var query = new GetAccountInfo { AccountId = id };
+            var query = new AccountInfoQuery { AccountId = id };
 
-            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var queryHandler = container.GetInstance<IQueryHandler<AccountInfoQuery, AccountInfo>>();
             var accountInfo = queryHandler.Handle(query);
 
             Assert.Equal(pastDate,accountInfo.CreatedAt);
@@ -355,8 +357,8 @@ namespace Chronos.Tests
             bus.Send(createAccountCommand);
             var id = Guid.NewGuid();
 
-            var query = new GetAccountInfo { AccountId = accountId };
-            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var query = new AccountInfoQuery { AccountId = accountId };
+            var queryHandler = container.GetInstance<IQueryHandler<AccountInfoQuery, AccountInfo>>();
 
             var command = new CreatePurchaseCommand
             {
@@ -394,8 +396,8 @@ namespace Chronos.Tests
             bus.Send(createAccountCommand);
             var id = Guid.NewGuid();
 
-            var query = new GetAccountInfo { AccountId = accountId };
-            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var query = new AccountInfoQuery { AccountId = accountId };
+            var queryHandler = container.GetInstance<IQueryHandler<AccountInfoQuery, AccountInfo>>();
             var createdAt = queryHandler.Handle(query).CreatedAt;
 
             var command = new CreatePurchaseCommand
@@ -548,10 +550,10 @@ namespace Chronos.Tests
 
             bus.Send(transferCommand);
 
-            var query = new GetAccountInfo { AccountId = accountId };
-            var otherQuery = new GetAccountInfo {AccountId = otherAccountId};
+            var query = new AccountInfoQuery { AccountId = accountId };
+            var otherQuery = new AccountInfoQuery {AccountId = otherAccountId};
 
-            var queryHandler = container.GetInstance<IQueryHandler<GetAccountInfo, AccountInfo>>();
+            var queryHandler = container.GetInstance<IQueryHandler<AccountInfoQuery, AccountInfo>>();
             var accountInfo = queryHandler.Handle(query);
             var otherAccountInfo = queryHandler.Handle(otherQuery);
 

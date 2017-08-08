@@ -6,6 +6,9 @@ using NodaTime;
 
 namespace Chronos.Core.Accounts.Projections
 {
+    /// <summary>
+    /// Account state read model
+    /// </summary>
     public class AccountInfo : ReadModelBase<Guid>
     {
         public string Name { get; private set; }

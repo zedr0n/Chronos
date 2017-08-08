@@ -1,4 +1,5 @@
-﻿using Chronos.Core.Accounts.Commands;
+﻿using System;
+using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Accounts.Queries;
 using Chronos.Core.Sagas;
@@ -16,6 +17,15 @@ using SimpleInjector;
 
 namespace Chronos.CrossCuttingConcerns.DependencyInjection
 {
+    public static class CompositionExtensions
+    {
+        public static void RegisterQuery<TQuery, TResult>(this Container container, Type handlerType, Lifestyle lifestyle) 
+            where TResult : class, IReadModel, new()
+        {
+            container.Register(typeof(IQueryHandler<TQuery,TResult>), handlerType,lifestyle);
+        }
+    }
+    
     public class CompositionRoot : ICompositionRoot, ICompositionRootWithDatabase
     {
 
@@ -82,12 +92,14 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             //container.Register<ICommandHandler<WithdrawCashCommand>,WithdrawCashHandler>(Lifestyle.Singleton);
             //container.Register<ICommandHandler<CreatePurchaseCommand>, CreatePurchaseHandler>(Lifestyle.Singleton);
             //container.Register<ICommandHandler<ScheduleCommand>,ScheduleCommandHandler>(Lifestyle.Singleton);
-            container.Register<IQueryHandler<GetAccountInfo,AccountInfo>,GetAccountInfoHandler>(Lifestyle.Singleton);
-            container.Register<IQueryHandler<GetTotalMovement,TotalMovement>,GetTotalMovementHandler>(Lifestyle.Singleton);
-            container.Register(typeof(IQueryHandler<HistoricalQuery<GetAccountInfo,AccountInfo>,AccountInfo>),
-                typeof(HistoricalQueryHandler<GetAccountInfo,AccountInfo>), Lifestyle.Singleton);
-            container.Register(typeof(IQueryHandler<HistoricalQuery<GetTotalMovement,TotalMovement>,TotalMovement>),
-                typeof(HistoricalQueryHandler<GetTotalMovement,TotalMovement>), Lifestyle.Singleton);
+            container.RegisterQuery<AccountInfoQuery,AccountInfo>(typeof(AccountInfoHandler), Lifestyle.Singleton);
+            container.RegisterQuery<TotalMovementQuery,TotalMovement>(typeof(TotalMovementHandler),Lifestyle.Singleton);
+            //container.Register<IQueryHandler<AccountInfoQuery,AccountInfo>,GetAccountInfoHandler>(Lifestyle.Singleton);
+            //container.Register<IQueryHandler<TotalMovementQuery,TotalMovement>,GetTotalMovementHandler>(Lifestyle.Singleton);
+            container.Register(typeof(IHistoricalQueryHandler<AccountInfoQuery,AccountInfo>),
+                typeof(HistoricalQueryHandler<AccountInfoQuery,AccountInfo>), Lifestyle.Singleton);
+            container.Register(typeof(IHistoricalQueryHandler<TotalMovementQuery,TotalMovement>),
+                typeof(HistoricalQueryHandler<TotalMovementQuery,TotalMovement>), Lifestyle.Singleton);
         }
     }
 }

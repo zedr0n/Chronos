@@ -14,6 +14,7 @@ namespace Chronos.Persistence
         private class EventStoreSubscriptions : IEventStoreSubscriptions
         {
             private readonly ReplaySubject<StreamDetails> _streams;
+            private readonly Subject<IEvent> _allEvents = new Subject<IEvent>(); 
             private readonly Dictionary<string,Subject<IEvent>> _events;
             public IObservable<StreamDetails> Streams { get; }
 
@@ -28,6 +29,8 @@ namespace Chronos.Persistence
                 Streams = _connection.GetStreams().ToObservable().Concat(_streams);
             }
 
+            public IObservable<IEvent> Events => _allEvents.AsObservable();
+            
             public IObservable<IEvent> GetEvents(StreamDetails stream, int eventNumber)
             {
                 var events = _connection.ReadStreamEventsForward(stream.Name, eventNumber, int.MaxValue)
@@ -44,6 +47,7 @@ namespace Chronos.Persistence
             {
                 if(_events.ContainsKey(stream.Name))
                     _events[stream.Name].OnNext(e);
+                _allEvents.OnNext(e);             
             }
 
             internal void OnStreamAdded(StreamDetails details)

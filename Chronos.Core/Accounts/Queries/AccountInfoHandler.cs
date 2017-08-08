@@ -9,12 +9,12 @@ using NodaTime;
 
 namespace Chronos.Core.Accounts.Queries
 {
-    public class GetAccountInfoHandler : IQueryHandler<GetAccountInfo, AccountInfo>
+    public class AccountInfoHandler : IQueryHandler<AccountInfoQuery, AccountInfo>
     {
         private readonly IReadRepository _repository;
         public IProjectionExpression<AccountInfo> Expression { get; }
 
-        public GetAccountInfoHandler(IReadRepository repository, IProjectionManager manager)
+        public AccountInfoHandler(IReadRepository repository, IProjectionManager manager)
         {
             _repository = repository;
 
@@ -23,10 +23,10 @@ namespace Chronos.Core.Accounts.Queries
                 .ForEachStream()
                 .OutputState();
                 
-             Expression.Compile();
+             Expression.Invoke();
         }
 
-        public AccountInfo Handle(GetAccountInfo query)
+        public AccountInfo Handle(AccountInfoQuery query)
         {
             var accountInfo = _repository.Find<Guid, AccountInfo>(query.AccountId);
             return accountInfo;

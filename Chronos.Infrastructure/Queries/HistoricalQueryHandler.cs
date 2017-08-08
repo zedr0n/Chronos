@@ -2,7 +2,7 @@
 
 namespace Chronos.Infrastructure.Queries
 {
-    public sealed class HistoricalQueryHandler<TQuery, TResult> : IQueryHandler<HistoricalQuery<TQuery,TResult>, TResult>
+    public sealed class HistoricalQueryHandler<TQuery, TResult> : IHistoricalQueryHandler<TQuery,TResult>
         where TResult : class, IReadModel, new()
         where TQuery : IQuery<TResult>
     {
@@ -12,9 +12,9 @@ namespace Chronos.Infrastructure.Queries
         }
         public IProjectionExpression<TResult> Expression { get; }
 
-        public TResult Handle(HistoricalQuery<TQuery,TResult> query)
+        public TResult Handle(HistoricalQuery<TQuery> query)
         {
-            var projection = Expression.AsOf(query.AsOf).Compile();
+            var projection = Expression.AsOf(query.AsOf).Invoke();
             return projection.State;
         }
     }
