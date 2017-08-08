@@ -12,7 +12,7 @@ namespace Chronos.Infrastructure.Projections.New
         private readonly IEventStoreSubscriptions _eventStore;
 
         public IObservable<StreamDetails> Streams { get; set; }
-
+        
         private int _lastEvent = -1;
 
         private IDisposable _streamsSubscription;
@@ -42,7 +42,7 @@ namespace Chronos.Infrastructure.Projections.New
             Debug.Assert(!_eventSubscriptions.ContainsKey(stream.Name));
             _eventSubscriptions[stream.Name] = GetEvents(stream).Subscribe(e => When(stream, e));
         }
-
+        
         protected virtual IObservable<IEvent> GetEvents(StreamDetails stream)
         {
             return _eventStore.GetEvents(stream, _lastEvent);

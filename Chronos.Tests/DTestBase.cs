@@ -7,6 +7,7 @@ using System.Reactive.Subjects;
 using Chronos.CrossCuttingConcerns.DependencyInjection;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
+using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
 using NodaTime;
@@ -21,6 +22,7 @@ namespace Chronos.Tests
     {
         protected static readonly IClock Clock;
         private readonly ITestOutputHelper _output;
+        private static int _counter;
 
         static DTestBase()
         {
@@ -36,7 +38,7 @@ namespace Chronos.Tests
         {
             var container = new Container();
             ICompositionRoot root = new CompositionRoot();
-            root.WithDatabase(typeof(T).Name)
+            root.WithDatabase(typeof(T).Name + _counter)
                 .InMemory()
                 .ComposeApplication(container);
 
@@ -44,6 +46,7 @@ namespace Chronos.Tests
             container.Verify();
             ((DebugLogXUnit) container.GetInstance<IDebugLog>()).Output = _output;
 
+            _counter++;
             return container.GetInstance<T>();
         }
     }
@@ -52,6 +55,7 @@ namespace Chronos.Tests
     {
         private readonly IDomainRepository _repository;
         private readonly ICommandBus _commandBus;
+        private readonly IEventStoreSubscriptions _eventStore;
 
         private int _expectedCount = 1;
         private int _actualCount;
@@ -62,21 +66,20 @@ namespace Chronos.Tests
         {
             _repository = repository;
             _commandBus = commandBus;
-
-            eventStore.Events.Subscribe(e => _events.OnNext(e));
+            _eventStore = eventStore;
         }
         
         public Bdd Given<T>(Guid id,params IEvent[] events)
             where T : class,IAggregate,new()
         {
-            var aggregate = new T().LoadFrom<T>(id,events);
-            _repository.Save(aggregate);
+            _repository.Save<T>(id,events);
             return this;
         }
 
         public Bdd When<TCommand>(TCommand command)
             where TCommand : class,ICommand
         {
+            _eventStore.Events.Subscribe(e => _events.OnNext(e));
             _commandBus.Send(command);
             _events.OnCompleted();
             return this;
@@ -104,6 +107,12 @@ namespace Chronos.Tests
                 () => Assert.True(conditions.All(c => c(receivedEvents))));
 
             _events.Subscribe(e => _actualCount++, () => Assert.Equal(_expectedCount, _actualCount));
+            return this;
+        }
+
+        public Bdd Then<T>(T @event) where T : IEvent
+        {
+            Then(events => events.OfType<T>().Single().Same(@event));
             return this;
         }
     }

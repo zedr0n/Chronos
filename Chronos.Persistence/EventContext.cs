@@ -20,8 +20,8 @@ namespace Chronos.Persistence
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (optionsBuilder.IsConfigured)
-                return;
+            //if (optionsBuilder.IsConfigured)
+            //    return;
             if (_inMemory)
                 optionsBuilder.UseInMemoryDatabase(_dbName);
             else

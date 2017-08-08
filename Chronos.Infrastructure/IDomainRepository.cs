@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Chronos.Infrastructure.Interfaces;
 using NodaTime;
 
 namespace Chronos.Infrastructure
@@ -10,6 +12,15 @@ namespace Chronos.Infrastructure
         /// </summary>
         /// <param name="aggregate">The aggregate instance</param>
         void Save<T>(T aggregate) where T : class,IAggregate,new();
+
+        /// <summary>
+        ///  Saves the aggregate events directly to event store
+        /// Used for BDD testing
+        /// </summary>
+        /// <param name="id">Aggregate id</param>
+        /// <param name="events">Event sequuence to save for aggregate</param>
+        /// <typeparam name="T">Aggregate type</typeparam>
+        void Save<T>(Guid id, IEnumerable<IEvent> events);
 
         bool Exists<T>(Guid id) where T : class,IAggregate,new();
         /// <summary>

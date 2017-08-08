@@ -16,6 +16,7 @@ using Xunit.Abstractions;
 
 namespace Chronos.Tests
 {
+
     public class DIntegrationTests : DTestBase
     {
         public DIntegrationTests(ITestOutputHelper output) : base(output)
@@ -48,6 +49,25 @@ namespace Chronos.Tests
                 _domainRepository.Get<Account>(id);
             }
         }
+
+        private static class History
+        {
+            public static Guid AccountId = Guid.NewGuid();
+
+            public static AccountCreated AccountCreated = new AccountCreated
+            {
+                AccountId = AccountId,
+                Currency = "GBP",
+                Name = "Account"
+            };
+
+            public static AccountChanged AccountChanged = new AccountChanged
+            {
+                AccountId = AccountId,
+                Currency = "GBP",
+                Name = "OtherAccount"
+            };
+        }
         
         [Fact]
         public void CanCreateAccount() 
@@ -55,64 +75,28 @@ namespace Chronos.Tests
 
         [Fact]
         public void CanCreateAccountEx()
-        {
-            var accountId = Guid.NewGuid();
+        { 
             GetInstance<Bdd>().When(
                 new CreateAccountCommand
                 {
-                    TargetId = accountId,
+                    TargetId = History.AccountId,
                     Currency = "GBP",
                     Name = "Account"
-                }).Then(events => events.OfType<AccountCreated>().All(e =>
-                    e.AccountId == accountId && e.Currency == "GBP" && e.Name == "Account" ));
-        }
-
-        private class DCanCreateMultipleAccounts
-        {
-            private readonly IQueryHandler<AccountInfoQuery, AccountInfo> _queryHandler;
-            private readonly ICommandHandler<CreateAccountCommand> _createHandler;
-
-            public DCanCreateMultipleAccounts(ICommandHandler<CreateAccountCommand> createHandler, 
-                IQueryHandler<AccountInfoQuery, AccountInfo> queryHandler)
-            {
-                _createHandler = createHandler;
-                _queryHandler = queryHandler;
-            }
-
-            public void Test()
-            {
-                var id = Guid.NewGuid();
-                var command = new CreateAccountCommand
-                {
-                    TargetId = id,
-                    Currency = "GBP",
-                    Name = "Account"
-                };
-
-                _createHandler.Handle(command);
-
-                var otherId = Guid.NewGuid();
-                var otherCommand = new CreateAccountCommand
-                {
-                    TargetId = otherId,
-                    Currency = "GBP",
-                    Name = "OtherAccount"
-                };
-
-                _createHandler.Handle(otherCommand);
-
-                var query = new AccountInfoQuery { AccountId = id };
-                var otherQuery = new AccountInfoQuery {AccountId = otherId };
-
-                var accountInfo = _queryHandler.Handle(query);
-                Assert.Equal("Account",accountInfo.Name);
-                var otherAccountInfo = _queryHandler.Handle(otherQuery);
-                Assert.Equal("OtherAccount",otherAccountInfo.Name);
-            }
+                }).Then(History.AccountCreated);
         }
 
         [Fact]
-        public void CanCreateMultipleAccounts()
-            => GetInstance<DCanCreateMultipleAccounts>().Test();
+        public void CanChangeAccount()
+        {
+            var test = GetInstance<Bdd>();
+            test.Given<Account>(History.AccountId, History.AccountCreated)
+                .When(new ChangeAccountCommand
+                {
+                    TargetId = History.AccountId,
+                    Name = "OtherAccount",
+                    Currency = "GBP"
+                })
+                .Then(History.AccountChanged);
+        }
     }
 }

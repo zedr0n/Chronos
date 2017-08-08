@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
@@ -43,6 +44,12 @@ namespace Chronos.Persistence
 
             foreach (var e in events)
                 _eventBus.Publish(e);
+        }
+
+        public void Save<T>(Guid id, IEnumerable<IEvent> events)
+        {
+            var stream = new StreamDetails(typeof(T),id);
+            _connection.Writer.AppendToStream(stream, 0 , events);
         }
 
         public T Find<T>(Guid id) where T : class,IAggregate, new()
