@@ -12,6 +12,7 @@ using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
+using Chronos.Infrastructure.Queries;
 using NodaTime;
 using SimpleInjector;
 using Xunit;
@@ -57,17 +58,22 @@ namespace Chronos.Tests
         private readonly IDomainRepository _repository;
         private readonly ICommandBus _commandBus;
         private readonly IEventStoreSubscriptions _eventStore;
+        private readonly IQueryProcessor _queryProcessor;
 
         private int _expectedCount = 1;
         private int _actualCount;
         private readonly ReplaySubject<IEvent> _events = new ReplaySubject<IEvent>();
         //protected IObservable<IEvent> Events;
         
-        public Bdd(IDomainRepository repository, ICommandBus commandBus, IEventStoreSubscriptions eventStore)
+        public Bdd(IDomainRepository repository,
+            ICommandBus commandBus, 
+            IEventStoreSubscriptions eventStore,
+            IQueryProcessor queryProcessor)
         {
             _repository = repository;
             _commandBus = commandBus;
             _eventStore = eventStore;
+            _queryProcessor = queryProcessor;
         }
         
         public Bdd Given<T>(Guid id,params IEvent[] events)
@@ -90,6 +96,13 @@ namespace Chronos.Tests
         {
             _expectedCount = count;
             return this;
+        }
+
+        public TResult Query<TQuery,TResult>(TQuery query) 
+            where TQuery : IQuery<TResult> 
+            where TResult : class, IReadModel, new()
+        {
+            return _queryProcessor.Process<TQuery, TResult>(query);
         }
 
         public Bdd Then(params Func<IEvent, bool>[] conditions)
@@ -116,12 +129,11 @@ namespace Chronos.Tests
             Then(events => events.OfType<T>().Single().Same(@event));
             return this;
         }
-    }
 
-    public class Bdd<TTest> : Bdd
-    {
-        public Bdd(IDomainRepository repository, ICommandBus commandBus, IEventStoreSubscriptions eventStore) : base(repository, commandBus, eventStore)
+        public Bdd Then(params IEvent[] events)
         {
+            Then(e => e.All(x => events.Any(x.Same)));
+            return Expected(events.Length);
         }
     }
 }

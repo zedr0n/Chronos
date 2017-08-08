@@ -64,6 +64,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<ITimeNavigator, TimeNavigator>(Lifestyle.Singleton);
             container.Register<ICommandRegistry,CommandRegistry>(Lifestyle.Singleton);
             container.Register<ICommandBus, CommandBus>(Lifestyle.Singleton);
+            container.Register<IQueryProcessor, QueryProcessor>(Lifestyle.Singleton);
             container.Register<ISagaManager,SagaManager>(Lifestyle.Singleton);
             container.Register<ITimerService,TimerService>(Lifestyle.Singleton);
             container.Register<IClock,HighPrecisionClock>(Lifestyle.Singleton);

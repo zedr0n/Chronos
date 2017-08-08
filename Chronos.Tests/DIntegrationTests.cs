@@ -53,6 +53,7 @@ namespace Chronos.Tests
         private static class History
         {
             public static readonly Guid AccountId = Guid.NewGuid();
+            public static readonly Guid OtherAccountId = Guid.NewGuid();
 
             public static readonly AccountCreated AccountCreated = new AccountCreated
             {
@@ -67,14 +68,21 @@ namespace Chronos.Tests
                 Currency = "GBP",
                 Name = "OtherAccount"
             };
+
+            public static readonly AccountCreated OtherAccountCreated = new AccountCreated
+            {
+                AccountId = OtherAccountId,
+                Currency = "GBP",
+                Name = "OtherAccount"
+            };
         }
         
         [Fact]
-        public void CanCreateAccount() 
+        public void CanCreateAccountEx() 
             => GetInstance<DCanCreateAccount>().Test();
 
         [Fact]
-        public void CanCreateAccountEx()
+        public void CanCreateAccount()
         { 
             GetInstance<Bdd>().When(
                 new CreateAccountCommand
@@ -97,6 +105,38 @@ namespace Chronos.Tests
                     Currency = "GBP"
                 })
                 .Then(History.AccountChanged);
+        }
+
+        [Fact]
+        public void CanCreateMultipleAccounts()
+        {
+            var test = GetInstance<Bdd>();
+            test.When(new CreateAccountCommand
+                {
+                    TargetId = History.AccountId,
+                    Currency = "GBP",
+                    Name = "Account"
+                })
+                .When(new CreateAccountCommand
+                {
+                    TargetId = History.OtherAccountId,
+                    Currency = "GBP",
+                    Name = "OtherAccount"
+                })
+                .Then(History.AccountCreated, History.OtherAccountCreated);
+        }
+
+        [Fact]
+        public void CanProjectAccountInfo()
+        {
+            var test = GetInstance<Bdd>();
+            var accountInfo = test.Given<Account>(History.AccountId, History.AccountCreated)
+                .Query<AccountInfoQuery,AccountInfo>(new AccountInfoQuery
+                {
+                    AccountId = History.AccountId
+                });
+            Assert.Equal("Account",accountInfo.Name);
+            Assert.Equal("GBP",accountInfo.Currency);
         }
     }
 }
