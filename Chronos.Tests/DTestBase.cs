@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using Chronos.CrossCuttingConcerns.DependencyInjection;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
@@ -22,7 +24,6 @@ namespace Chronos.Tests
     {
         protected static readonly IClock Clock;
         private readonly ITestOutputHelper _output;
-        private static int _counter;
 
         static DTestBase()
         {
@@ -34,11 +35,12 @@ namespace Chronos.Tests
             _output = output;
         }
 
-        protected T GetInstance<T>() where T : class
+        protected T GetInstance<T>([CallerMemberName] string callerName = null) where T : class
         {
             var container = new Container();
             ICompositionRoot root = new CompositionRoot();
-            root.WithDatabase(typeof(T).Name + _counter)
+
+            root.WithDatabase(callerName ?? typeof(T).Name)
                 .InMemory()
                 .ComposeApplication(container);
 
@@ -46,7 +48,6 @@ namespace Chronos.Tests
             container.Verify();
             ((DebugLogXUnit) container.GetInstance<IDebugLog>()).Output = _output;
 
-            _counter++;
             return container.GetInstance<T>();
         }
     }
@@ -114,6 +115,13 @@ namespace Chronos.Tests
         {
             Then(events => events.OfType<T>().Single().Same(@event));
             return this;
+        }
+    }
+
+    public class Bdd<TTest> : Bdd
+    {
+        public Bdd(IDomainRepository repository, ICommandBus commandBus, IEventStoreSubscriptions eventStore) : base(repository, commandBus, eventStore)
+        {
         }
     }
 }

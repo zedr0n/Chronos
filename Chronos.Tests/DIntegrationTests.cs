@@ -52,16 +52,16 @@ namespace Chronos.Tests
 
         private static class History
         {
-            public static Guid AccountId = Guid.NewGuid();
+            public static readonly Guid AccountId = Guid.NewGuid();
 
-            public static AccountCreated AccountCreated = new AccountCreated
+            public static readonly AccountCreated AccountCreated = new AccountCreated
             {
                 AccountId = AccountId,
                 Currency = "GBP",
                 Name = "Account"
             };
 
-            public static AccountChanged AccountChanged = new AccountChanged
+            public static readonly AccountChanged AccountChanged = new AccountChanged
             {
                 AccountId = AccountId,
                 Currency = "GBP",
