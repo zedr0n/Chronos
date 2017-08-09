@@ -7,6 +7,7 @@ using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Events;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Accounts.Queries;
+using Chronos.Core.Transactions;
 using Chronos.Core.Transactions.Commands;
 using Chronos.Core.Transactions.Events;
 using Chronos.Infrastructure;
@@ -191,10 +192,59 @@ namespace Chronos.Tests
                 {
                     AccountId = History.AccountId,
                     TargetId = History.PurchaseId,
+                    Currency = "GBP",
                     Amount = 100,
                     Payee = "Payee"
                 })
                 .Then(History.PurchaseCreated, History.CashWithdrawn);
         }
+
+        [Fact]
+        public void CanGetTotalMovementFromTransaction()
+        {
+            var spec = GetInstance<Specification>();
+            var movement = spec
+                .Given<Account>(History.AccountId, History.AccountCreated)
+                .When(new CreatePurchaseCommand
+                {
+                    AccountId = History.AccountId,
+                    TargetId = History.PurchaseId,
+                    Currency = "GBP",
+                    Amount = 100,
+                    Payee = "Payee"
+                })
+                .Query<TotalMovementQuery, TotalMovement>(new TotalMovementQuery());
+            
+            Assert.Equal(100, movement.Value);
+        }
+
+        
+        [Fact]
+        public void CanGetAccountInfoAsOf()
+        {
+            var spec = GetInstance<Specification>();
+            spec.Given<Account>(History.AccountId, History.AccountCreated)
+                .Given<Purchase>(History.PurchaseId, History.PurchaseCreated);
+            var createdAt = spec.Query<AccountInfoQuery,AccountInfo>(new
+                AccountInfoQuery
+                {
+                    AccountId = History.AccountId
+                })
+                .CreatedAt;
+
+            var historicalQuery = spec.Query<AccountInfoQuery, AccountInfo>(new HistoricalQuery<AccountInfoQuery>
+            {
+                AsOf = createdAt,
+                Query = new AccountInfoQuery
+                {
+                    AccountId = History.AccountId
+                }
+            });
+            
+            Assert.Equal(0,historicalQuery.Balance);
+
+
+        }
+        
     }
 }

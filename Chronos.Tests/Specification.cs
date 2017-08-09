@@ -66,8 +66,15 @@ namespace Chronos.Tests
             return this;
         }
 
+        public TResult Query<TQuery, TResult>(HistoricalQuery<TQuery> query)
+            where TQuery : IQuery
+            where TResult : class, IReadModel, new()
+        {
+            return _queryProcessor.Process<TQuery, TResult>(query);
+        }
+        
         public TResult Query<TQuery,TResult>(TQuery query) 
-            where TQuery : IQuery<TResult> 
+            where TQuery : IQuery
             where TResult : class, IReadModel, new()
         {
             return _queryProcessor.Process<TQuery, TResult>(query);

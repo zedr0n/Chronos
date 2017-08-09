@@ -8,7 +8,6 @@ namespace Chronos.Infrastructure.Events
     {
         public static bool Same<T>(this T left, T right ) where T : IEvent
         {
-            var b = true;
             var baseProperties = typeof(EventBase).GetRuntimeProperties();
             var properties = typeof(T).GetRuntimeProperties()
                 .Where(x => baseProperties.All(y => y.Name != x.Name)).ToList();

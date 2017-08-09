@@ -2,7 +2,8 @@
 
 namespace Chronos.Infrastructure.Queries
 {
-    public class HistoricalQuery<TQuery> where TQuery : IQuery
+    public interface IHistoricalQuery {} 
+    public class HistoricalQuery<TQuery> : IHistoricalQuery where TQuery : IQuery
     {
         public TQuery Query { get; set; }
         public Instant AsOf { get; set; }
