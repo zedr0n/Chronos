@@ -8,6 +8,7 @@ using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Queries;
+using NodaTime;
 using Xunit;
 
 namespace Chronos.Tests
@@ -16,8 +17,8 @@ namespace Chronos.Tests
     {
         private readonly IDomainRepository _repository;
         private readonly ICommandBus _commandBus;
-        private readonly IEventStoreSubscriptions _eventStore;
         private readonly IQueryProcessor _queryProcessor;
+        private readonly ITimeNavigator _timeNavigator; 
 
         private int _expectedCount = 1;
         private int _actualCount;
@@ -34,14 +35,16 @@ namespace Chronos.Tests
         public Specification(IDomainRepository repository,
             ICommandBus commandBus, 
             IEventStoreSubscriptions eventStore,
-            IQueryProcessor queryProcessor)
+            IQueryProcessor queryProcessor, ITimeNavigator timeNavigator)
         {
             _repository = repository;
             _commandBus = commandBus;
-            _eventStore = eventStore;
             _queryProcessor = queryProcessor;
-            _eventStore.Events.Subscribe(AddEvent);
+            _timeNavigator = timeNavigator;
+            eventStore.Events.Subscribe(AddEvent);
         }
+        
+        
         
         public Specification Given<T>(Guid id,params IEvent[] events)
             where T : class,IAggregate,new()
@@ -52,6 +55,12 @@ namespace Chronos.Tests
             return this;
         }
 
+        public Specification At(Instant date)
+        {
+            _timeNavigator.GoTo(date);
+            return this;
+        }
+        
         public Specification When<TCommand>(TCommand command)
             where TCommand : class,ICommand
         {
@@ -78,6 +87,12 @@ namespace Chronos.Tests
             where TResult : class, IReadModel, new()
         {
             return _queryProcessor.Process<TQuery, TResult>(query);
+        }
+
+        public bool Has<T>(Guid id)
+            where T  : class, IAggregate, new()
+        {
+            return _repository.Find<T>(id) != null;
         }
 
         public Specification Then(params Func<IEvent, bool>[] conditions)
