@@ -7,6 +7,8 @@ using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Events;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Accounts.Queries;
+using Chronos.Core.Transactions.Commands;
+using Chronos.Core.Transactions.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Interfaces;
@@ -74,6 +76,23 @@ namespace Chronos.Tests
                 AccountId = OtherAccountId,
                 Currency = "GBP",
                 Name = "OtherAccount"
+            };
+
+            public static readonly Guid PurchaseId = Guid.NewGuid();
+            
+            public static readonly PurchaseCreated PurchaseCreated = new PurchaseCreated
+            {
+                AccountId = AccountId,
+                PurchaseId = PurchaseId,
+                Amount = 100,
+                Currency = "GBP",
+                Payee = "Payee"
+            };
+
+            public static readonly CashWithdrawn CashWithdrawn = new CashWithdrawn
+            {
+                AccountId = AccountId,
+                Amount = 100
             };
         }
         
@@ -161,6 +180,21 @@ namespace Chronos.Tests
                     Currency = "GBP"
                 }));
             Assert.IsType<InvalidOperationException>(exception?.InnerException);
+        }
+
+        [Fact]
+        public void CanCreatePurchase()
+        {
+            var spec = GetInstance<Specification>();
+            spec.Given<Account>(History.AccountId, History.AccountCreated)
+                .When(new CreatePurchaseCommand
+                {
+                    AccountId = History.AccountId,
+                    TargetId = History.PurchaseId,
+                    Amount = 100,
+                    Payee = "Payee"
+                })
+                .Then(History.PurchaseCreated, History.CashWithdrawn);
         }
     }
 }

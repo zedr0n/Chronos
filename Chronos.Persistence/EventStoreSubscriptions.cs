@@ -47,7 +47,8 @@ namespace Chronos.Persistence
             {
                 if(_events.ContainsKey(stream.Name))
                     _events[stream.Name].OnNext(e);
-                _allEvents.OnNext(e);             
+                if(!stream.Name.Contains("Saga"))
+                    _allEvents.OnNext(e);             
             }
 
             internal void OnStreamAdded(StreamDetails details)
