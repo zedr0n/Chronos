@@ -6,12 +6,9 @@ namespace Chronos.Infrastructure
 {
     public interface IEventStoreSubscriptions
     {
-        IObservable<StreamDetails> Streams { get; }
         IObservable<IEvent> Events { get; }
         IObservable<IEvent> AggregateEvents { get; }
         IObservable<IEvent> GetEvents(StreamDetails stream, int eventNumber);
-        IObservable<TEvent> GetEvents<TEvent>() where TEvent : IEvent;
-        IObservable<IEvent> GetEventsEx(StreamDetails stream, int eventNumber);
         IObservable<StreamDetails> GetStreams();
     }
 
@@ -39,7 +36,6 @@ namespace Chronos.Infrastructure
         /// <param name="count"></param>
         /// <returns></returns>
         IEnumerable<IEvent> ReadStreamEventsForward(string streamName, long start, int count);
-        IEnumerable<IEvent> GetAggregateEvents();
     }
 
     public interface IEventStoreConnection

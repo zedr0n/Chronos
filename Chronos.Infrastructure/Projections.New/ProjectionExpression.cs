@@ -67,7 +67,7 @@ namespace Chronos.Infrastructure.Projections.New
             _eventStore = eventStore;
             _writer = writer;
 
-            _streams = _eventStore.Streams;
+            _streams = _eventStore.GetStreams();
 
             _projectionSubject.Subscribe(p =>
                 _eventStore.AggregateEvents.OfType<ReplayCompleted>().Subscribe(e => p.OnReplay()));

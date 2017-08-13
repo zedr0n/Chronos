@@ -8,6 +8,7 @@ namespace Chronos.Infrastructure
         public string Name { get; }
         public string SourceType { get; }
         public Guid Key { get; }
+        public int Version { get; set; } = -1;
 
         public StreamDetails(string name)
         {

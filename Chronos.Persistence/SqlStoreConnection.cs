@@ -14,7 +14,6 @@ namespace Chronos.Persistence
     public partial class SqlStoreConnection : IEventStoreConnection, IEventStoreReader, IEventStoreWriter
     {
         private readonly IEventDb _eventDb;
-        private readonly bool _inMemory;
         private readonly IEventSerializer _serializer;
         private readonly ITimeline _timeline;
 
@@ -24,10 +23,9 @@ namespace Chronos.Persistence
         private readonly EventStoreSubscriptions _subscriptions;
         private readonly IDebugLog _debugLog;
 
-        public SqlStoreConnection(IEventDb eventDb, IEventSerializer serializer, bool inMemory, ITimeline timeline, IDebugLog debugLog)
+        public SqlStoreConnection(IEventDb eventDb, IEventSerializer serializer, ITimeline timeline, IDebugLog debugLog)
         {
             _eventDb = eventDb;
-            _inMemory = inMemory;
             _timeline = timeline;
             _debugLog = debugLog;
             _serializer = serializer;
@@ -50,7 +48,10 @@ namespace Chronos.Persistence
         {
             using (var context = _eventDb.GetContext())
             {
-                var streams = context.Set<Stream>().Select(s => new StreamDetails(s.SourceType,s.Key));
+                var streams = context.Set<Stream>().Select(s => new StreamDetails(s.SourceType,s.Key)
+                {
+                    Version = s.Version
+                });
                 return streams.ToList();
             }
         }
@@ -117,6 +118,8 @@ namespace Chronos.Persistence
 
                 context.SaveChanges();
 
+                details.Version += events.Count;
+                
                 // set the event numbers based on database generated id
                 ForEach(events, stream.Events, (e1, e2) => e1.EventNumber = e2.EventNumber);
                 LogEvents(details,events);
@@ -180,6 +183,7 @@ namespace Chronos.Persistence
 
                 TimestampEvents(events);
                 WriteStream(stream,events);
+                streamDetails.Version = expectedVersion + events.Count;
 
                 context.SaveChanges();
 
@@ -188,7 +192,7 @@ namespace Chronos.Persistence
                 LogEvents(streamDetails,events);
 
                 // if no other events were present in the stream
-                if (streamAdded && !streamDetails.SourceType.Contains("Saga"))
+                if (streamAdded)
                     _subscriptions.OnStreamAdded(streamDetails);
                 foreach (var e in events)
                     _subscriptions.OnEventAppended(streamDetails, e);
@@ -197,6 +201,9 @@ namespace Chronos.Persistence
 
         private int GetStreamVersion(string name)
         {
+            var version = _subscriptions.GetStreamVersion(name);
+            return version;
+            
             using (var db = _eventDb.GetContext())
             {
                 var streamId = name.GetHashCode();
@@ -261,18 +268,5 @@ namespace Chronos.Persistence
                     .OrderBy(e => e.Timestamp);
             }
         }
-
-        public IEnumerable<IEvent> GetAggregateEvents()
-        {
-            using (var context = _eventDb.GetContext())
-            {
-                var events = new List<IEvent>();
-                foreach (var stream in context.Set<Stream>().Where(s => !s.Name.Contains("Saga")).Include(x => x.Events).AsEnumerable())
-                    events.AddRange(stream.Events.Select(_serializer.Deserialize));
-
-                return events;
-            }
-        }
-        
     }
 }

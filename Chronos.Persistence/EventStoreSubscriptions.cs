@@ -25,21 +25,17 @@ namespace Chronos.Persistence
     {
         private class EventStoreSubscriptions : IEventStoreSubscriptions
         {
-            private readonly ReplaySubject<StreamDetails> _streams;
-            //private readonly Subject<IEvent> _allEvents = new Subject<IEvent>();
-            //private readonly Dictionary<string,Subject<IEvent>> _events;
+            private readonly Subject<StreamDetails> _streams = new Subject<StreamDetails>();
             private readonly Subject<Envelope> _events = new Subject<Envelope>();
-            public IObservable<StreamDetails> Streams { get; }
-
+            
             private readonly SqlStoreConnection _connection;
 
+            private readonly Dictionary<string, int> _versions = new Dictionary<string, int>();
+            
             internal EventStoreSubscriptions(SqlStoreConnection connection)
             {
                 _connection = connection;
-                _streams = new ReplaySubject<StreamDetails>();
-                //_events = new Dictionary<string, Subject<IEvent>>();
-
-                Streams = _connection.GetStreams().ToObservable().Concat(_streams.AsObservable());
+                GetStreams().Subscribe(s => _versions[s.Name] = s.Version);
             }
 
             public IObservable<IEvent> Events => _events.AsObservable().Select(env => env.Event);
@@ -48,6 +44,13 @@ namespace Chronos.Persistence
                 .Where(env => !env.Stream.Name.Contains("Saga"))
                 .Select(env => env.Event);
 
+            public int GetStreamVersion(string streamName)
+            {
+                if (!_versions.ContainsKey(streamName))
+                    return -1;
+                return _versions[streamName];
+            }
+            
             public IObservable<StreamDetails> GetStreams()
             {
                 return Observable.Create((IObserver<StreamDetails> observer) =>
@@ -57,12 +60,12 @@ namespace Chronos.Persistence
                         observer.OnNext(s);
 
                     var subscription = _streams.Subscribe(observer.OnNext);
-
                     return Disposable.Create(() => subscription.Dispose());
-                });
+                })
+                    .Where(s => !s.Name.Contains("Saga"));
             }
 
-            public IObservable<IEvent> GetEventsEx(StreamDetails stream, int eventNumber)
+            public IObservable<IEvent> GetEvents(StreamDetails stream, int eventNumber)
             {
                 return Observable.Create((IObserver<IEvent> observer) =>
                 {
@@ -79,28 +82,11 @@ namespace Chronos.Persistence
                     return Disposable.Create(() => subscription.Dispose() );
                 });
             }
-            
-            public IObservable<IEvent> GetEvents(StreamDetails stream, int eventNumber)
-            {
-                var events = _connection.ReadStreamEventsForward(stream.Name, eventNumber, int.MaxValue)
-                    //.ToList()§
-                    .OrderBy(e => e.Timestamp);
-
-                //if (!_events.ContainsKey(stream.Name))
-                //    _events[stream.Name] = new Subject<IEvent>();
-
-                return null;
-                //return _events[stream.Name].StartWith(events).Where(e => e.Timestamp <= _connection._timeline.Now());
-            }
-
-            public IObservable<TEvent> GetEvents<TEvent>() where TEvent : IEvent
-            {
-                return Events.OfType<TEvent>();
-            }
 
             internal void OnEventAppended(StreamDetails stream,IEvent e)
             {
                 _events.OnNext(new Envelope(e, stream));
+                _versions[stream.Name] = stream.Version;
             }
 
             internal void OnStreamAdded(StreamDetails details)

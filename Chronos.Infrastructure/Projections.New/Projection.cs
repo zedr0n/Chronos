@@ -44,7 +44,7 @@ namespace Chronos.Infrastructure.Projections.New
         
         protected virtual IObservable<IEvent> GetEvents(StreamDetails stream)
         {
-            return _eventStore.GetEventsEx(stream, _lastEvent);
+            return _eventStore.GetEvents(stream, _lastEvent);
         }
 
         private void Unsubscribe()
