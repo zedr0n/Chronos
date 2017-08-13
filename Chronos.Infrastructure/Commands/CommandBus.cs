@@ -18,20 +18,10 @@ namespace Chronos.Infrastructure.Commands
 
         public void Send<T>(T command) where T : class,ICommand
         {
-            var handler = _registry.GetHandler<T>();
-            //Debug.WriteLine(command.GetType().Name + "! -> " + handler?.GetType().Name);
-            _debugLog.WriteLine(command.GetType().Name + "! -> " + _registry.GetHandlerName(command));
-            handler?.Invoke(command);
+            var handler = _registry.Get<T>();
+            handler.Handle(command);
         }
 
-        public void Send(ICommand command)
-        {
-            if (command == null)
-                return;
-
-            var handler = _registry.GetHandler(command);
-            _debugLog.WriteLine(command.GetType().Name + "! -> " + _registry.GetHandlerName(command));
-            handler?.Invoke(command);
-        }
+        public void Send(ICommand command) => Send((dynamic) command);
     }
 }

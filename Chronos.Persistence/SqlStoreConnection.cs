@@ -223,8 +223,8 @@ namespace Chronos.Persistence
 
         public IEnumerable<IEvent> ReadStreamEventsForward(string streamName, long start, int count)
         {
-            //if (GetStreamVersion(streamName) == -1)
-            //    return new List<IEvent>();
+            if (GetStreamVersion(streamName) <= start)
+                return new List<IEvent>();
 
             //if (!StreamExists(streamName))
             //    return new List<IEvent>();

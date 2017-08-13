@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using Chronos.Infrastructure.Commands;
@@ -11,6 +12,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
     public class CommandRegistry : ICommandRegistry
     {
         private readonly Dictionary<Type, Handler> _registry = new Dictionary<Type, Handler>();
+        private readonly Dictionary<Type, ICommandHandler> _handlers = new Dictionary<Type, ICommandHandler>();
 
         private struct Handler
         {
@@ -36,12 +38,18 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 } ))
             {
                 var methodInfo = handler.Instance.GetType().GetMethod("Handle");
+                _handlers[handler.CommandType] = handler.Instance;
 
                 _registry[handler.CommandType] = new Handler(handler.Instance,
                     c => methodInfo.Invoke(handler.Instance,new object[] { c })); //c => methodInfo.Invoke(handler,new object[] { c });
             }
         }
-
+        
+        public ICommandHandler<T> Get<T>() where T : class, ICommand
+        {
+            return _handlers[typeof(T)] as ICommandHandler<T>;
+        }
+        
         public Action<T> GetHandler<T>() where T : class,ICommand
         {
             return _registry[typeof(T)].Action;

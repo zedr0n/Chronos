@@ -9,5 +9,6 @@ namespace Chronos.Infrastructure.Commands
         Action<ICommand> GetHandler(ICommand command);
         string GetHandlerName(ICommand command);
 
+        ICommandHandler<T> Get<T>() where T : class, ICommand;
     }
 }
