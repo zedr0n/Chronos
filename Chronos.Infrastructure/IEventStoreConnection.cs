@@ -12,6 +12,7 @@ namespace Chronos.Infrastructure
         IObservable<IEvent> GetEvents(StreamDetails stream, int eventNumber);
         IObservable<TEvent> GetEvents<TEvent>() where TEvent : IEvent;
         IObservable<IEvent> GetEventsEx(StreamDetails stream, int eventNumber);
+        IObservable<StreamDetails> GetStreams();
     }
 
     public interface IEventStoreWriter

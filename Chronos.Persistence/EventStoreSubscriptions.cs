@@ -39,7 +39,7 @@ namespace Chronos.Persistence
                 _streams = new ReplaySubject<StreamDetails>();
                 //_events = new Dictionary<string, Subject<IEvent>>();
 
-                Streams = _connection.GetStreams().ToObservable().Concat(_streams);
+                Streams = _connection.GetStreams().ToObservable().Concat(_streams.AsObservable());
             }
 
             public IObservable<IEvent> Events => _events.AsObservable().Select(env => env.Event);
@@ -47,6 +47,20 @@ namespace Chronos.Persistence
             public IObservable<IEvent> AggregateEvents => _events.AsObservable()
                 .Where(env => !env.Stream.Name.Contains("Saga"))
                 .Select(env => env.Event);
+
+            public IObservable<StreamDetails> GetStreams()
+            {
+                return Observable.Create((IObserver<StreamDetails> observer) =>
+                {
+                    var streams = _connection.GetStreams();
+                    foreach (var s in streams)
+                        observer.OnNext(s);
+
+                    var subscription = _streams.Subscribe(observer.OnNext);
+
+                    return Disposable.Create(() => subscription.Dispose());
+                });
+            }
 
             public IObservable<IEvent> GetEventsEx(StreamDetails stream, int eventNumber)
             {

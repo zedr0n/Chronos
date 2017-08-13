@@ -240,8 +240,8 @@ namespace Chronos.Persistence
                 //if (!streamQuery.Any())
                 //    return new List<IEvent>();
 
-                if (_inMemory)
-                    streamQuery = streamQuery.Include(x => x.Events);
+                //if (_inMemory)
+                //    streamQuery = streamQuery.Include(x => x.Events);
 
                 var allEvents = streamQuery.SelectMany(x => x.Events).OrderBy(e => e.EventNumber);
 

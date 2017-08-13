@@ -7,6 +7,7 @@ using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
 using NodaTime;
+using Remotion.Linq.Clauses.ResultOperators;
 using StreamExtensions = Chronos.Infrastructure.StreamExtensions;
 
 namespace Chronos.Persistence
@@ -25,6 +26,27 @@ namespace Chronos.Persistence
             _debugLog = debugLog;
         }
 
+        private readonly Cache _cache = new Cache();
+
+        private class Cache
+        {
+            private readonly Dictionary<Guid,IAggregate> _dictionary = new Dictionary<Guid, IAggregate>();
+
+            public T Get<T>(Guid id)
+                where T : class,IAggregate
+            {
+                if (_dictionary.ContainsKey(id))
+                    return _dictionary[id] as T;
+                return null;
+            }
+
+            public void Set<T>(T aggregate)
+                where T : class, IAggregate
+            {
+                _dictionary[aggregate.Id] = aggregate;
+            }
+        }
+
 
         public void Save<T>(T aggregate) where T :class,IAggregate,new()
         {
@@ -39,6 +61,8 @@ namespace Chronos.Persistence
             _connection.Writer.AppendToStream(stream, aggregate.Version - events.Count, events);
 
             aggregate.ClearUncommitedEvents();
+            _cache.Set(aggregate);
+
         }
 
         public void Save<T>(Guid id, IEnumerable<IEvent> events)
@@ -49,13 +73,17 @@ namespace Chronos.Persistence
 
         public T Find<T>(Guid id) where T : class,IAggregate, new()
         {
-            var streamDetails = new StreamDetails(typeof(T),id);
-            var events = _connection.Reader.ReadStreamEventsForward(streamDetails.Name, 0, int.MaxValue);
+            var cached = _cache.Get<T>(id);
+            var version = cached?.Version ?? 0;
 
-            if (!events.Any())
+            var streamDetails = new StreamDetails(typeof(T),id);
+            var events = _connection.Reader.ReadStreamEventsForward(streamDetails.Name, version, int.MaxValue).ToList();
+
+            if (!events.Any() && version == 0)
                 return null;
 
-            var aggregate = new T().LoadFrom<T>(id,events);
+            var aggregate = cached ?? new T();
+            aggregate.LoadFrom<T>(id, events);
             return aggregate;
         }
 

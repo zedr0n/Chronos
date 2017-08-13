@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reactive.Linq;
-using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure.Projections.New
@@ -22,7 +20,7 @@ namespace Chronos.Infrastructure.Projections.New
         {
             _eventStore = eventStore;
 
-            Streams = _eventStore.Streams;
+            Streams = _eventStore.GetStreams();
         }
 
         public void OnReplay()
@@ -40,7 +38,8 @@ namespace Chronos.Infrastructure.Projections.New
         private void OnStreamAdded(StreamDetails stream)
         {
             Debug.Assert(!_eventSubscriptions.ContainsKey(stream.Name));
-            _eventSubscriptions[stream.Name] = GetEvents(stream).Subscribe(e => When(stream, e));
+            _eventSubscriptions[stream.Name] = GetEvents(stream)//.SubscribeOn(Scheduler.Default)
+                .Subscribe(e => When(stream, e));
         }
         
         protected virtual IObservable<IEvent> GetEvents(StreamDetails stream)

@@ -120,7 +120,10 @@ namespace Chronos.Infrastructure.Projections.New
             if(!_forEachStream)
                 throw new InvalidOperationException("No key defined for projection state persistence");
             
-            Projection = new PersistentPartitionedProjection<T>(_eventStore,_writer);
+            Projection = new PersistentPartitionedProjection<T>(_eventStore,_writer)
+            {
+                Streams = _streams
+            };
 
             return this;
         }
@@ -132,6 +135,7 @@ namespace Chronos.Infrastructure.Projections.New
             
             Projection = new PersistentProjection<TKey,T>(_eventStore,_writer)
             {
+                Streams = _streams,
                 Key = s => key
             };
 

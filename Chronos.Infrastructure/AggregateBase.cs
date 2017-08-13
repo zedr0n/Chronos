@@ -27,7 +27,7 @@ namespace Chronos.Infrastructure
         public T LoadFrom<T>(Guid id,IEnumerable<IEvent> pastEvents) where T : class,IAggregate,new()
         {
             Id = id;
-            Version = 0;
+            //Version = 0;
             foreach (var e in pastEvents)
                 When(e);
 
