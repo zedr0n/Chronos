@@ -466,7 +466,7 @@ namespace Chronos.Tests
         [Fact]
         public void CanScheduleCommandInHistoricalMode()
         {
-            var container = CreateContainer(nameof(CanScheduleCommand));
+            var container = CreateContainer(nameof(CanScheduleCommandInHistoricalMode));
             var repository = container.GetInstance<IDomainRepository>();
             var bus = container.GetInstance<ICommandBus>();
             var timeNavigator = container.GetInstance<ITimeNavigator>();

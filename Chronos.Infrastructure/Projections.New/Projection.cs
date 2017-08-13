@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reactive.Linq;
 using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure.Projections.New
@@ -20,7 +21,7 @@ namespace Chronos.Infrastructure.Projections.New
         {
             _eventStore = eventStore;
 
-            Streams = _eventStore.GetStreams();
+            Streams = _eventStore.GetStreams().Where(s => !s.Name.Contains("Saga"));
         }
 
         public void OnReplay()

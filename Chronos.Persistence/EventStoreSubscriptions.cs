@@ -61,8 +61,7 @@ namespace Chronos.Persistence
 
                     var subscription = _streams.Subscribe(observer.OnNext);
                     return Disposable.Create(() => subscription.Dispose());
-                })
-                    .Where(s => !s.Name.Contains("Saga"));
+                });
             }
 
             public IObservable<IEvent> GetEvents(StreamDetails stream, int eventNumber)

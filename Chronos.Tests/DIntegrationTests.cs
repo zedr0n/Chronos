@@ -153,7 +153,7 @@ namespace Chronos.Tests
                     Name = "Account",
                     Currency = "GBP"
                 }));
-            Assert.IsType<InvalidOperationException>(exception?.InnerException);
+            Assert.IsType<InvalidOperationException>(exception);
         }
 
         [Fact]
