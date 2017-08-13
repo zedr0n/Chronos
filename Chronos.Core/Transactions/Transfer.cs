@@ -7,9 +7,5 @@ namespace Chronos.Core.Transactions
     {
         protected TransferDetails TransferDetails { get; set; }
         protected string Description { get; set; }
-
-        protected Transfer() { }
-
-        protected Transfer(Guid id) : base(id) { }
     }
 }

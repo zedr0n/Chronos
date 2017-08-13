@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
@@ -41,7 +40,7 @@ namespace Chronos.Tests
             _commandBus = commandBus;
             _queryProcessor = queryProcessor;
             _timeNavigator = timeNavigator;
-            eventStore.Events.Subscribe(AddEvent);
+            eventStore.AggregateEvents.Subscribe(AddEvent);
         }
         
         
@@ -58,6 +57,12 @@ namespace Chronos.Tests
         public Specification At(Instant date)
         {
             _timeNavigator.GoTo(date);
+            return this;
+        }
+
+        public Specification Advance(Duration duration)
+        {
+            _timeNavigator.Advance(duration);
             return this;
         }
         

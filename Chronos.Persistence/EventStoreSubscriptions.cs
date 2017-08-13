@@ -9,13 +9,26 @@ using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Persistence
 {
+    public class Envelope
+    {       
+        public IEvent Event { get; }
+        public StreamDetails Stream { get; }
+        
+        public Envelope(IEvent @event, StreamDetails stream)
+        {
+            Event = @event;
+            Stream = stream;
+        }
+    }
+    
     public partial class SqlStoreConnection
     {
         private class EventStoreSubscriptions : IEventStoreSubscriptions
         {
             private readonly ReplaySubject<StreamDetails> _streams;
-            private readonly Subject<IEvent> _allEvents = new Subject<IEvent>(); 
-            private readonly Dictionary<string,Subject<IEvent>> _events;
+            //private readonly Subject<IEvent> _allEvents = new Subject<IEvent>();
+            //private readonly Dictionary<string,Subject<IEvent>> _events;
+            private readonly Subject<Envelope> _events = new Subject<Envelope>();
             public IObservable<StreamDetails> Streams { get; }
 
             private readonly SqlStoreConnection _connection;
@@ -24,31 +37,56 @@ namespace Chronos.Persistence
             {
                 _connection = connection;
                 _streams = new ReplaySubject<StreamDetails>();
-                _events = new Dictionary<string, Subject<IEvent>>();
+                //_events = new Dictionary<string, Subject<IEvent>>();
 
                 Streams = _connection.GetStreams().ToObservable().Concat(_streams);
             }
 
-            public IObservable<IEvent> Events => _allEvents.AsObservable();
+            public IObservable<IEvent> Events => _events.AsObservable().Select(env => env.Event);
+
+            public IObservable<IEvent> AggregateEvents => _events.AsObservable()
+                .Where(env => !env.Stream.Name.Contains("Saga"))
+                .Select(env => env.Event);
+
+            public IObservable<IEvent> GetEventsEx(StreamDetails stream, int eventNumber)
+            {
+                return Observable.Create((IObserver<IEvent> observer) =>
+                {
+                    var events = _connection.ReadStreamEventsForward(stream.Name, eventNumber, int.MaxValue)
+                        .OrderBy(e => e.Timestamp)
+                        .Where(e => e.Timestamp <= _connection._timeline.Now());
+                    foreach (var e in events)
+                        observer.OnNext(e);
+
+                    var subscription = _events.Where(e => e.Stream.Name == stream.Name)
+                        .Where(e => e.Event.Timestamp <= _connection._timeline.Now())
+                        .Subscribe(env => observer.OnNext(env.Event)); 
+
+                    return Disposable.Create(() => subscription.Dispose() );
+                });
+            }
             
             public IObservable<IEvent> GetEvents(StreamDetails stream, int eventNumber)
             {
                 var events = _connection.ReadStreamEventsForward(stream.Name, eventNumber, int.MaxValue)
-                    //.ToList()
+                    //.ToList()§
                     .OrderBy(e => e.Timestamp);
 
-                if (!_events.ContainsKey(stream.Name))
-                    _events[stream.Name] = new Subject<IEvent>();
+                //if (!_events.ContainsKey(stream.Name))
+                //    _events[stream.Name] = new Subject<IEvent>();
 
-                return _events[stream.Name].StartWith(events).Where(e => e.Timestamp <= _connection._timeline.Now());
+                return null;
+                //return _events[stream.Name].StartWith(events).Where(e => e.Timestamp <= _connection._timeline.Now());
+            }
+
+            public IObservable<TEvent> GetEvents<TEvent>() where TEvent : IEvent
+            {
+                return Events.OfType<TEvent>();
             }
 
             internal void OnEventAppended(StreamDetails stream,IEvent e)
             {
-                if(_events.ContainsKey(stream.Name))
-                    _events[stream.Name].OnNext(e);
-                if(!stream.Name.Contains("Saga"))
-                    _allEvents.OnNext(e);             
+                _events.OnNext(new Envelope(e, stream));
             }
 
             internal void OnStreamAdded(StreamDetails details)

@@ -2,18 +2,13 @@
 using System.Collections.Generic;
 using Chronos.Core.Accounts.Events;
 using Chronos.Infrastructure;
-using Chronos.Infrastructure.Events;
 using NodaTime;
 using Chronos.Core.Assets;
+using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Core.Accounts
 {
-    public class Account : AggregateBase,
-        IConsumer<AccountCreated>,
-        IConsumer<AccountChanged>,
-        IConsumer<CashDeposited>,
-        IConsumer<AssetDeposited>,
-        IConsumer<CashWithdrawn>
+    public class Account : AggregateBase
     {
         private string _name;
         private string _currency;
@@ -24,14 +19,14 @@ namespace Chronos.Core.Accounts
 
         public Account() { }
         public Account(Guid id, string name, string ccy)
-            : base(id)
         {
-            RaiseEvent(new AccountCreated
+            When(new AccountCreated
             {
                 AccountId = id,
                 Name = name,
                 Currency = ccy
             });
+
         }
 
         /// <summary>
@@ -41,7 +36,7 @@ namespace Chronos.Core.Accounts
         /// <param name="currency">Account currency</param>
         public void ChangeDetails(string name, string currency)
         {
-            RaiseEvent(new AccountChanged
+            When(new AccountChanged
             {
                 AccountId = Id,
                 Name = name,
@@ -55,7 +50,7 @@ namespace Chronos.Core.Accounts
         /// <param name="amount">Debit amount</param>
         public void Debit(double amount)
         {
-            RaiseEvent( new CashDeposited
+            When( new CashDeposited
             {
                 AccountId = Id,
                 Amount = amount
@@ -63,7 +58,7 @@ namespace Chronos.Core.Accounts
         }
         public void Credit(double amount)
         {
-            RaiseEvent(new CashWithdrawn
+            When(new CashWithdrawn
             {
                 AccountId = Id,
                 Amount = amount
@@ -71,7 +66,7 @@ namespace Chronos.Core.Accounts
         }
         public void DepositAsset( Guid assetId )
         {
-            RaiseEvent( new AssetDeposited
+            When( new AssetDeposited
             {
                 AccountId = Id,
                 AssetId = assetId
@@ -80,36 +75,48 @@ namespace Chronos.Core.Accounts
 
         public void WithdrawAsset(Guid assetId)
         {
-            RaiseEvent( new AssetWithdrawn
+            When( new AssetWithdrawn
             {
                 AccountId = Id,
                 AssetId = assetId
             });
         }
 
-        public void When(AccountCreated e)
+        protected override void When(IEvent e)
         {
+            When((dynamic) e);
+        }
+
+        private void When(AccountCreated e)
+        {
+            Id = e.AccountId;
             _name = e.Name;
             _currency = e.Currency;
             _createdAt = e.Timestamp;
             _cash = new Cash(_currency,0);
+            base.When(e);
         }
-        public void When(AccountChanged e)
+
+        private void When(AccountChanged e)
         {
             _name = e.Name;
             _currency = e.Currency;
+            base.When(e);
         }
-        public void When(CashDeposited e)
+        private void When(CashDeposited e)
         {
             _cash = _cash.WithAmount(_cash.Amount + e.Amount);
+            base.When(e);
         }
-        public void When(AssetDeposited e)
+        private void When(AssetDeposited e)
         {
             _assets.Add(e.AssetId);
+            base.When(e);
         }
-        public void When(CashWithdrawn e)
+        private void When(CashWithdrawn e)
         {
             _cash = _cash.WithAmount(_cash.Amount - e.Amount);
+            base.When(e);
         }
     }
 }

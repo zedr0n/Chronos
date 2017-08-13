@@ -120,7 +120,11 @@ namespace Chronos.Persistence
                 // set the event numbers based on database generated id
                 ForEach(events, stream.Events, (e1, e2) => e1.EventNumber = e2.EventNumber);
                 LogEvents(details,events);
+                
+                foreach(var e in events)
+                    _subscriptions.OnEventAppended(details,e);
             }
+            
         }
 
         private void WriteStream(Stream stream, IEnumerable<IEvent> events)

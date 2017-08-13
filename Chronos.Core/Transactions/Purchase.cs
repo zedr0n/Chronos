@@ -19,9 +19,8 @@ namespace Chronos.Core.Transactions
                         Guid accountId,
                         string payee,
                         Cash cash)
-            : base(id)
         {
-            RaiseEvent(new PurchaseCreated
+            When(new PurchaseCreated
             {
                 PurchaseId = id,
                 AccountId = accountId,
@@ -33,9 +32,11 @@ namespace Chronos.Core.Transactions
 
         public void When(PurchaseCreated e)
         {
+            Id = e.PurchaseId;
             _accountId = e.AccountId;
             _payee = e.Payee;
             _cash = new Cash(e.Currency, e.Amount);
+            base.When(e);
         }
     }
 }

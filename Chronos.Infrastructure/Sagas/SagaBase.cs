@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
@@ -28,8 +30,9 @@ namespace Chronos.Infrastructure.Sagas
             SagaId = id;
             Version = 0;
             foreach (var e in pastEvents)
-                this.Dispatch(e);
+                When(e);
 
+            ClearUncommittedEvents();
             return this as T;
         }
 
@@ -43,7 +46,7 @@ namespace Chronos.Infrastructure.Sagas
             _undispatchedMessages.Clear();
         }
 
-        protected void When(IEvent e)
+        protected virtual void When(IEvent e)
         {
             Version++;
             _uncommitedEvents.Add(e);

@@ -11,7 +11,6 @@ namespace Chronos.Infrastructure.Projections.New
     {
         private readonly IEventStoreSubscriptions _eventStore;
         private readonly IStateWriter _writer;
-        private readonly IEventBus _eventBus;
 
         private Projection _projection;
         private Projection Projection
@@ -55,22 +54,25 @@ namespace Chronos.Infrastructure.Projections.New
             _streams = rhs._streams;
             _forEachStream = rhs._forEachStream;
 
-            _eventBus = rhs._eventBus;
             _eventStore = rhs._eventStore;
             _writer = rhs._writer;
-            
-            _projectionSubject.Subscribe(p => _eventBus.Subscribe<ReplayCompleted>(e => p.OnReplay()));  
+
+            _projectionSubject.Subscribe(p =>
+                _eventStore.AggregateEvents.OfType<ReplayCompleted>().Subscribe(e => p.OnReplay()));
+            //_projectionSubject.Subscribe(p => _eventBus.Subscribe<ReplayCompleted>(e => p.OnReplay()));  
         }
         
-        public ProjectionExpression(IEventStoreSubscriptions eventStore, IStateWriter writer, IEventBus eventBus)
+        public ProjectionExpression(IEventStoreSubscriptions eventStore, IStateWriter writer)
         {
             _eventStore = eventStore;
             _writer = writer;
-            _eventBus = eventBus;
 
             _streams = _eventStore.Streams;
+
+            _projectionSubject.Subscribe(p =>
+                _eventStore.AggregateEvents.OfType<ReplayCompleted>().Subscribe(e => p.OnReplay()));
             
-            _projectionSubject.Subscribe(p => _eventBus.Subscribe<ReplayCompleted>(e => p.OnReplay()));  
+            //_projectionSubject.Subscribe(p => _eventBus.Subscribe<ReplayCompleted>(e => p.OnReplay()));  
         }
 
         public IProjectionExpression<T> From<TAggregate>()

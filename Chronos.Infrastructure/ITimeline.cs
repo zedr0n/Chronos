@@ -9,5 +9,6 @@ namespace Chronos.Infrastructure
         Instant Now();
         void Set(Instant date);
         void Reset();
+        IObservable<T> StopAt<T>(Instant date, T value);
     }
 }

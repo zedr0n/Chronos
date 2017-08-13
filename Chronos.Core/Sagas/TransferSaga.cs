@@ -3,13 +3,14 @@ using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Transactions;
 using Chronos.Core.Transactions.Events;
 using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Sagas;
 using Stateless;
 
 namespace Chronos.Core.Sagas
 {
     public class TransferSaga : StatelessSaga<TransferSaga.STATE,TransferSaga.TRIGGER>,
-        IConsumer<AssetTransferCreated>,
-        IConsumer<CashTransferCreated>
+        IHandle<AssetTransferCreated>,
+        IHandle<CashTransferCreated>
     {
         public enum STATE
         {

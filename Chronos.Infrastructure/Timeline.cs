@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using NodaTime;
 
 namespace Chronos.Infrastructure
@@ -11,6 +13,25 @@ namespace Chronos.Infrastructure
         public Timeline(IClock clock)
         {
             _clock = clock;
+
+            Reset();
+        }
+        
+        public IObservable<T> StopAt<T>(Instant date, T value)
+        {
+            return Observable.Create((IObserver<T> observer) =>
+            {
+                var subscription = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(10))
+                    .Subscribe(l =>
+                    {
+                        if (Now() < date) 
+                            return;
+                        observer.OnNext(value);
+                        observer.OnCompleted();
+                    });
+                
+                return Disposable.Create(() => subscription.Dispose());
+            });
         }
 
         public bool Live { get; private set; } = true;
@@ -28,6 +49,7 @@ namespace Chronos.Infrastructure
         public void Reset()
         {
             Live = true;
+
             _current = _clock.GetCurrentInstant();
         }
 

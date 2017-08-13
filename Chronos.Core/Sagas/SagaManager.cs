@@ -3,16 +3,12 @@ using Chronos.Core.Transactions.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Logging;
+using Chronos.Infrastructure.Sagas;
 
 namespace Chronos.Core.Sagas
 {
-    public class SagaManager : SagaManagerBase,
-        IConsumer<PurchaseCreated>,
-        IConsumer<CommandScheduled>,
-        IConsumer<TimeoutCompleted>,
-        IConsumer<CashTransferCreated>
-    {
-
+    public class SagaManager : SagaManagerBase
+    { 
         [DebuggerStepThrough]
         public void When(PurchaseCreated e) => When<PurchaseCreated,TransactionSaga>(e, x => x.PurchaseId);
         [DebuggerStepThrough]
@@ -22,8 +18,13 @@ namespace Chronos.Core.Sagas
         [DebuggerStepThrough]
         public void When(CashTransferCreated e) => When<CashTransferCreated, TransferSaga>(e, x => x.TransferId);
 
-        public SagaManager(ISagaRepository repository, IEventBus eventBus, IDebugLog debugLog) : base(repository, eventBus, debugLog)
-        {
+        public SagaManager(ISagaRepository repository, IDebugLog debugLog,
+                    IEventStoreSubscriptions eventStore) : base(repository, debugLog,eventStore)
+        {            
+            Register<PurchaseCreated>(When);
+            Register<CommandScheduled>(When);
+            Register<TimeoutCompleted>(When);
+            Register<CashTransferCreated>(When);
         }
     }
 }

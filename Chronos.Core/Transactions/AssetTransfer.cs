@@ -10,11 +10,10 @@ namespace Chronos.Core.Transactions
         private Guid _assetId;
 
         public AssetTransfer() { }
-        public AssetTransfer(Guid id) : base(id) { }
 
         public AssetTransfer(Guid id, Guid accountFrom, Guid accountTo, Guid assetId, string description)
         {
-            RaiseEvent(new AssetTransferCreated
+            When(new AssetTransferCreated
             {
                 TransferId = id,
                 FromAccount = accountFrom,
@@ -30,6 +29,7 @@ namespace Chronos.Core.Transactions
 
             _assetId = e.AssetId;
             Description = e.Description;
+            base.When(e);
         }
     }
 }

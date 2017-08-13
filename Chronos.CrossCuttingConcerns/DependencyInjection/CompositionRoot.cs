@@ -6,7 +6,6 @@ using Chronos.Core.Sagas;
 using Chronos.Core.Transactions.Commands;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
-using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Projections.New;
 using Chronos.Infrastructure.Queries;
 using Chronos.Infrastructure.Sagas;
@@ -54,7 +53,6 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Options.RegisterParameterConventions(Database.Conventions);
             
             // register infrastructure
-            container.Register<IEventBus,EventBus>(Lifestyle.Singleton);
             container.Register<ISerializer,JsonTextSerializer>(Lifestyle.Singleton);
             container.Register<IEventDb, EventDb>(Lifestyle.Singleton);
             container.Register<IEventStoreConnection,SqlStoreConnection>(Lifestyle.Singleton);
@@ -66,7 +64,6 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<ICommandBus, CommandBus>(Lifestyle.Singleton);
             container.Register<IQueryProcessor, QueryProcessor>(Lifestyle.Singleton);
             container.Register<ISagaManager,SagaManager>(Lifestyle.Singleton);
-            container.Register<ITimerService,TimerService>(Lifestyle.Singleton);
             container.Register<IClock,HighPrecisionClock>(Lifestyle.Singleton);
             container.Register<IReadRepository, ReadRepository>(Lifestyle.Singleton);
             container.Register<IStateWriter,StateWriter>(Lifestyle.Singleton);

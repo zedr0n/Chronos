@@ -1,14 +1,15 @@
 ﻿using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
+using Chronos.Infrastructure.Sagas;
 using NodaTime;
 using Stateless;
 
 namespace Chronos.Core.Sagas
 {
     public class SchedulerSaga : StatelessSaga<SchedulerSaga.STATE,SchedulerSaga.TRIGGER>
-        , IConsumer<CommandScheduled>
-        , IConsumer<TimeoutCompleted>
+        , IHandle<CommandScheduled>
+        , IHandle<TimeoutCompleted>
     {
         public enum STATE
         {
@@ -25,7 +26,7 @@ namespace Chronos.Core.Sagas
 
         private ICommand _command;
         private Instant _scheduledOn;
-
+        
         public SchedulerSaga() { }
 
         protected override void ConfigureStateMachine()
@@ -66,7 +67,7 @@ namespace Chronos.Core.Sagas
         {
             _command = e.Command;
             _scheduledOn = e.Time;
-
+            
             StateMachine.Fire(TRIGGER.COMMAND_SCHEDULED);
             base.When(e);
         }
@@ -75,6 +76,12 @@ namespace Chronos.Core.Sagas
         {
             StateMachine.Fire(TRIGGER.COMMAND_DUE);
             base.When(e);
+        }
+
+        protected override void When(IEvent e)
+        {
+            When((dynamic) e);
+            //base.When(e);
         }
     }
 }

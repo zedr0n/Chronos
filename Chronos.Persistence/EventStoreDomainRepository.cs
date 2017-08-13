@@ -16,13 +16,11 @@ namespace Chronos.Persistence
     /// </summary>
     public class EventStoreDomainRepository : IDomainRepository
     {
-        private readonly IEventBus _eventBus;
         private readonly IEventStoreConnection _connection;
         private readonly IDebugLog _debugLog;
 
-        public EventStoreDomainRepository(IEventBus eventBus, IEventStoreConnection connection, IDebugLog debugLog)
+        public EventStoreDomainRepository(IEventStoreConnection connection, IDebugLog debugLog)
         {
-            _eventBus = eventBus;
             _connection = connection;
             _debugLog = debugLog;
         }
@@ -41,9 +39,6 @@ namespace Chronos.Persistence
             _connection.Writer.AppendToStream(stream, aggregate.Version - events.Count, events);
 
             aggregate.ClearUncommitedEvents();
-
-            foreach (var e in events)
-                _eventBus.Publish(e);
         }
 
         public void Save<T>(Guid id, IEnumerable<IEvent> events)
@@ -86,10 +81,11 @@ namespace Chronos.Persistence
                 .OrderBy(e => e.Timestamp)
                 .ThenBy(e => e.EventNumber);          
 
-            foreach (dynamic e in events)
-                _eventBus.Publish(e);
+            //foreach (dynamic e in events)
+            //    _eventBus.Publish(e);
 
-            _eventBus.Publish(new ReplayCompleted { Timestamp = date });
+            _connection.Writer.AppendToNull( new[] { new ReplayCompleted { Timestamp = date} });
+            //_eventBus.Publish(new ReplayCompleted { Timestamp = date });
         }
     }
 }

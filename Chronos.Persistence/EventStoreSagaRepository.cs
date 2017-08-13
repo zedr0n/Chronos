@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
-using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Misc;
 using Chronos.Infrastructure.Sagas;
@@ -17,13 +16,11 @@ namespace Chronos.Persistence
 {
     public class EventStoreSagaRepository : ISagaRepository
     {
-        private readonly IEventBus _eventBus;
         private readonly ICommandBus _commandBus;
         private readonly IEventStoreConnection _connection;
 
-        public EventStoreSagaRepository(IEventBus eventBus, IEventStoreConnection connection, ICommandBus commandBus)
+        public EventStoreSagaRepository(IEventStoreConnection connection, ICommandBus commandBus)
         {
-            _eventBus = eventBus;
             _connection = connection;
             _commandBus = commandBus;
         }
@@ -36,10 +33,7 @@ namespace Chronos.Persistence
             _connection.Writer.AppendToStream(stream,saga.Version - events.Count,events);
 
             foreach (var e in saga.UndispatchedMessages)
-            {
                 _commandBus.Send(e as ICommand);
-                _eventBus.Publish(e as IEvent);
-            }
 
             saga.ClearUncommittedEvents();
             saga.ClearUndispatchedMessages();

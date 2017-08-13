@@ -1,18 +1,18 @@
 ﻿using System;
 using Chronos.Core.Assets.Events;
+using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
 
 namespace Chronos.Core.Assets
 {
-    public class Equity : Asset, IConsumer<EquityCreated>
+    public class Equity : AggregateBase
     {
         private string _ticker;
         private double _price;
 
         public Equity(Guid id, string ticker, double price)
-            : base(id)
         {
-            RaiseEvent(new EquityCreated
+            When(new EquityCreated
             {
                 EquityId = id,
                 Ticker = ticker,
@@ -20,10 +20,11 @@ namespace Chronos.Core.Assets
             });
         }
 
-        public void When(EquityCreated e)
+        private void When(EquityCreated e)
         {
             _ticker = e.Ticker;
             _price = e.Price;
+            base.When(e);
         }
     }
 }

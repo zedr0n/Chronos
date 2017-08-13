@@ -226,7 +226,7 @@ namespace Chronos.Tests
 
             bus.Send(command);
 
-            var accountInfoQuery = new AccountInfoQuery()
+            var accountInfoQuery = new AccountInfoQuery
             {
                 AccountId = accountId
             };
@@ -454,7 +454,7 @@ namespace Chronos.Tests
             var timer = new Timer(obj =>
             {
                 retries++;
-                if (repository.Find<Account>(id) != null || retries > 5)
+                if (repository.Find<Account>(id) != null /* || retries > 5 */ )
                     waitHandle.Set();
             } , null, 100,100);
 

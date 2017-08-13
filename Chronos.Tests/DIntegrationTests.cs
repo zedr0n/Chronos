@@ -30,11 +30,13 @@ namespace Chronos.Tests
             
         }
 
+        private static readonly Guid AccountId = Guid.NewGuid();
+        private static readonly Guid OtherAccountId = Guid.NewGuid();
+        private static readonly Guid PurchaseId = Guid.NewGuid();
+        private static readonly Guid ScheduleId = Guid.NewGuid();
+        
         private static class History
         {
-            public static readonly Guid AccountId = Guid.NewGuid();
-            public static readonly Guid OtherAccountId = Guid.NewGuid();
-
             public static readonly AccountCreated AccountCreated = new AccountCreated
             {
                 AccountId = AccountId,
@@ -55,8 +57,6 @@ namespace Chronos.Tests
                 Currency = "GBP",
                 Name = "OtherAccount"
             };
-
-            public static readonly Guid PurchaseId = Guid.NewGuid();
             
             public static readonly PurchaseCreated PurchaseCreated = new PurchaseCreated
             {
@@ -80,7 +80,7 @@ namespace Chronos.Tests
             GetInstance<Specification>().When(
                 new CreateAccountCommand
                 {
-                    TargetId = History.AccountId,
+                    TargetId = AccountId,
                     Currency = "GBP",
                     Name = "Account"
                 }).Then(History.AccountCreated);
@@ -90,10 +90,10 @@ namespace Chronos.Tests
         public void CanChangeAccount()
         {
             var spec = GetInstance<Specification>();
-            spec.Given<Account>(History.AccountId, History.AccountCreated)
+            spec.Given<Account>(AccountId, History.AccountCreated)
                 .When(new ChangeAccountCommand
                 {
-                    TargetId = History.AccountId,
+                    TargetId = AccountId,
                     Name = "OtherAccount",
                     Currency = "GBP"
                 })
@@ -106,13 +106,13 @@ namespace Chronos.Tests
             var spec = GetInstance<Specification>();
             spec.When(new CreateAccountCommand
                 {
-                    TargetId = History.AccountId,
+                    TargetId = AccountId,
                     Currency = "GBP",
                     Name = "Account"
                 })
                 .When(new CreateAccountCommand
                 {
-                    TargetId = History.OtherAccountId,
+                    TargetId = OtherAccountId,
                     Currency = "GBP",
                     Name = "OtherAccount"
                 })
@@ -123,10 +123,10 @@ namespace Chronos.Tests
         public void CanProjectAccountInfo()
         {
             var spec = GetInstance<Specification>();
-            var accountInfo = spec.Given<Account>(History.AccountId, History.AccountCreated)
+            var accountInfo = spec.Given<Account>(AccountId, History.AccountCreated)
                 .Query<AccountInfoQuery,AccountInfo>(new AccountInfoQuery
                 {
-                    AccountId = History.AccountId
+                    AccountId = AccountId
                 });
             Assert.Equal("Account",accountInfo.Name);
             Assert.Equal("GBP",accountInfo.Currency);
@@ -136,7 +136,7 @@ namespace Chronos.Tests
         public void CanProjectTotalMovement()
         {
             var spec = GetInstance<Specification>();
-            var total = spec.Given<Account>(History.AccountId, History.AccountCreated)
+            var total = spec.Given<Account>(AccountId, History.AccountCreated)
                 .Query<TotalMovementQuery, TotalMovement>(new TotalMovementQuery());
             
             Assert.Equal(0, total.Value);
@@ -149,7 +149,7 @@ namespace Chronos.Tests
             var exception = Record.Exception(() => 
                 spec.When(new ChangeAccountCommand
                 {
-                    TargetId = History.AccountId,
+                    TargetId = AccountId,
                     Name = "Account",
                     Currency = "GBP"
                 }));
@@ -160,11 +160,11 @@ namespace Chronos.Tests
         public void CanCreatePurchase()
         {
             var spec = GetInstance<Specification>();
-            spec.Given<Account>(History.AccountId, History.AccountCreated)
+            spec.Given<Account>(AccountId, History.AccountCreated)
                 .When(new CreatePurchaseCommand
                 {
-                    AccountId = History.AccountId,
-                    TargetId = History.PurchaseId,
+                    AccountId = AccountId,
+                    TargetId = PurchaseId,
                     Currency = "GBP",
                     Amount = 100,
                     Payee = "Payee"
@@ -177,11 +177,11 @@ namespace Chronos.Tests
         {
             var spec = GetInstance<Specification>();
             var movement = spec
-                .Given<Account>(History.AccountId, History.AccountCreated)
+                .Given<Account>(AccountId, History.AccountCreated)
                 .When(new CreatePurchaseCommand
                 {
-                    AccountId = History.AccountId,
-                    TargetId = History.PurchaseId,
+                    AccountId = AccountId,
+                    TargetId = PurchaseId,
                     Currency = "GBP",
                     Amount = 100,
                     Payee = "Payee"
@@ -195,12 +195,12 @@ namespace Chronos.Tests
         public void CanGetAccountInfoAsOf()
         {
             var spec = GetInstance<Specification>();
-            spec.Given<Account>(History.AccountId, History.AccountCreated)
-                .Given<Purchase>(History.PurchaseId, History.PurchaseCreated);
+            spec.Given<Account>(AccountId, History.AccountCreated)
+                .Given<Purchase>(PurchaseId, History.PurchaseCreated);
             var createdAt = spec.Query<AccountInfoQuery,AccountInfo>(new
                 AccountInfoQuery
                 {
-                    AccountId = History.AccountId
+                    AccountId = AccountId
                 })
                 .CreatedAt;
 
@@ -209,7 +209,7 @@ namespace Chronos.Tests
                 AsOf = createdAt,
                 Query = new AccountInfoQuery
                 {
-                    AccountId = History.AccountId
+                    AccountId = AccountId
                 }
             });
             
@@ -224,13 +224,13 @@ namespace Chronos.Tests
             var accountInfo = spec.At(pastDate)
                 .When(new CreateAccountCommand
                 {
-                    TargetId = History.AccountId,
+                    TargetId = AccountId,
                     Currency = "GBP",
                     Name = "Account"
                 })
                 .Query<AccountInfoQuery, AccountInfo>(new AccountInfoQuery
                 {
-                    AccountId = History.AccountId
+                    AccountId = AccountId
                 });
             Assert.Equal(pastDate,accountInfo.CreatedAt);
         }
@@ -239,18 +239,18 @@ namespace Chronos.Tests
         public void CanReplayEventsUpToPointInPast()
         {
             var spec = GetInstance<Specification>();
-            spec.Given<Account>(History.AccountId, History.AccountCreated)
-                .Given<Purchase>(History.PurchaseId, History.PurchaseCreated);
+            spec.Given<Account>(AccountId, History.AccountCreated)
+                .Given<Purchase>(PurchaseId, History.PurchaseCreated);
             var createdAt = spec.Query<AccountInfoQuery,AccountInfo>(new
                     AccountInfoQuery
                     {
-                        AccountId = History.AccountId
+                        AccountId = AccountId
                     })
                 .CreatedAt;
 
             var accountInfo = spec.At(createdAt).Query<AccountInfoQuery,AccountInfo>(new AccountInfoQuery
             {
-                AccountId = History.AccountId
+                AccountId = AccountId
             });
             
             Assert.Equal(0, accountInfo.Balance);
@@ -265,10 +265,10 @@ namespace Chronos.Tests
             spec.When(new ScheduleCommand
             {
                 ScheduleId = Guid.NewGuid(),
-                TargetId = History.AccountId,
+                TargetId = AccountId,
                 Command = new CreateAccountCommand
                 {
-                    TargetId = History.AccountId,
+                    TargetId = AccountId,
                     Currency = "GBP",
                     Name = "Account"
                 },
@@ -277,7 +277,7 @@ namespace Chronos.Tests
 
             var accountInfo = spec.Query<AccountInfoQuery, AccountInfo>(new AccountInfoQuery
             {
-                AccountId = History.AccountId
+                AccountId = AccountId
             });
             
             Assert.Null(accountInfo);
@@ -287,14 +287,42 @@ namespace Chronos.Tests
             var timer = new Timer(obj =>
             {
                 retries++;
-                if (spec.Has<Account>(History.AccountId) || retries > 5)
+                if (spec.Has<Account>(AccountId) || retries > 20)
                     waitHandle.Set();
             } , null, 100,100);
 
             waitHandle.WaitOne();
             timer.Dispose();
             
-            Assert.True(spec.Has<Account>(History.AccountId));
+            Assert.True(spec.Has<Account>(AccountId));
+        }
+
+        //[Fact]
+        public void CanScheduleCommandInHistoricalMode()
+        {
+            var spec = GetInstance<Specification>();
+
+            var pastDate = new ZonedDateTime(new LocalDateTime(2017, 07, 08, 0, 0), DateTimeZone.Utc, Offset.Zero)
+                .ToInstant();
+            var scheduledOn = pastDate.Plus(Duration.FromDays(1));
+            spec.At(pastDate)
+                .When(new ScheduleCommand
+                {
+                    ScheduleId = ScheduleId,
+                    Command = new CreateAccountCommand
+                    {
+                        TargetId = AccountId,
+                        Currency = "GBP",
+                        Name = "Account"
+                    },
+                    Date = scheduledOn
+                })
+                .Advance(Duration.FromHours(6));
+            
+            Assert.False(spec.Has<Account>(AccountId));
+            spec.Advance(Duration.FromDays(1))
+                .Then(History.AccountCreated);
+
         }
     }
 }

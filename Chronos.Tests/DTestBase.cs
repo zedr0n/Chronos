@@ -31,7 +31,7 @@ namespace Chronos.Tests
             var container = new Container();
             ICompositionRoot root = new CompositionRoot();
 
-            root.WithDatabase(callerName ?? typeof(T).Name)
+            root.WithDatabase("BDD"+ ( callerName ?? typeof(T).Name))
                 .InMemory()
                 .ComposeApplication(container);
 

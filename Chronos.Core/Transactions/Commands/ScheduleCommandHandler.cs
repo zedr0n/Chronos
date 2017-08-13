@@ -8,13 +8,11 @@ namespace Chronos.Core.Transactions.Commands
 {
     public class ScheduleCommandHandler : ICommandHandler<ScheduleCommand>
     {
-        private readonly IEventBus _eventBus;
         private readonly ITimeline _timeline;
         private readonly IEventStoreConnection _connection;
 
-        public ScheduleCommandHandler(IEventBus eventBus, ITimeline timeline, IEventStoreConnection connection)
+        public ScheduleCommandHandler(ITimeline timeline, IEventStoreConnection connection)
         {
-            _eventBus = eventBus;
             _timeline = timeline;
             _connection = connection;
         }
@@ -32,8 +30,6 @@ namespace Chronos.Core.Transactions.Commands
                 }
             };
             _connection.Writer.AppendToNull(events);
-
-            _eventBus.Publish(events[0]);
         }
     }
 }

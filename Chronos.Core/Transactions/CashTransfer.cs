@@ -11,11 +11,9 @@ namespace Chronos.Core.Transactions
 
         public CashTransfer() { }
 
-        protected CashTransfer(Guid id) : base(id) { }
-
         public CashTransfer(Guid id, Guid accountFrom, Guid accountTo, Cash cash)
         {
-            RaiseEvent(new CashTransferCreated
+            When(new CashTransferCreated
             {
                 TransferId = id,
                 FromAccount = accountFrom,
@@ -27,8 +25,10 @@ namespace Chronos.Core.Transactions
 
         public void When(CashTransferCreated e)
         {
+            Id = e.TransferId;
             TransferDetails = new TransferDetails(e.FromAccount,e.ToAccount);
             _cash = new Cash(e.Currency,e.Amount);
+            base.When(e);
         }
     }
 }

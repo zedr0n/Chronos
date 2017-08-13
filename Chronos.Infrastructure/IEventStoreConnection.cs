@@ -8,7 +8,10 @@ namespace Chronos.Infrastructure
     {
         IObservable<StreamDetails> Streams { get; }
         IObservable<IEvent> Events { get; }
+        IObservable<IEvent> AggregateEvents { get; }
         IObservable<IEvent> GetEvents(StreamDetails stream, int eventNumber);
+        IObservable<TEvent> GetEvents<TEvent>() where TEvent : IEvent;
+        IObservable<IEvent> GetEventsEx(StreamDetails stream, int eventNumber);
     }
 
     public interface IEventStoreWriter
