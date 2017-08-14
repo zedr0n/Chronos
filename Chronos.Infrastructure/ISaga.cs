@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
 
-namespace Chronos.Infrastructure.Sagas
+namespace Chronos.Infrastructure
 {
-    public interface ISaga : IConsumer
+    public interface ISaga
     {
         IDebugLog DebugLog { get; set; }
         Guid SagaId { get; }

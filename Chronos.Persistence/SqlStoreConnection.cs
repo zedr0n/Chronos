@@ -166,7 +166,6 @@ namespace Chronos.Persistence
             using (var context = _eventDb.GetContext())
             {
                 var stream = OpenStreamForWriting(context, streamDetails);
-                var streamAdded = stream.Version == 0;
 
                 if (stream.Version < expectedVersion)
                     throw new InvalidOperationException("Stream version is not consistent with events : "
@@ -192,7 +191,7 @@ namespace Chronos.Persistence
                 LogEvents(streamDetails,events);
 
                 // if no other events were present in the stream
-                if (streamAdded)
+                if (streamDetails.Version == events.Count)
                     _subscriptions.OnStreamAdded(streamDetails);
                 foreach (var e in events)
                     _subscriptions.OnEventAppended(streamDetails, e);
@@ -203,60 +202,19 @@ namespace Chronos.Persistence
         {
             var version = _subscriptions.GetStreamVersion(name);
             return version;
-            
-            using (var db = _eventDb.GetContext())
-            {
-                var streamId = name.GetHashCode();
-                var streamVersion = db.Set<Stream>().AsNoTracking()
-                    .Where(x => x.HashId == streamId)
-                    .Select(x => x.Version)
-                    .ToList();
-
-                if (!streamVersion.Any())
-                    return -1;
-
-                return streamVersion.Single();
-            }
-        }
-
-        private bool StreamExists(string name)
-        {
-            using (var db = _eventDb.GetContext())
-            {
-                var streamId = name.GetHashCode();
-                return db.Set<Stream>().Any(x => x.HashId == streamId);
-            }
         }
 
         public IEnumerable<IEvent> ReadStreamEventsForward(string streamName, long start, int count)
         {
             if (GetStreamVersion(streamName) <= start)
                 return new List<IEvent>();
-
-            //if (!StreamExists(streamName))
-            //    return new List<IEvent>();
             
             using (var db = _eventDb.GetContext())
             {
-                //if (!StreamExists(db, streamName))
-                //    return new List<IEvent>();
-                
                 var streamId = streamName.GetHashCode();
                 var streamQuery = db.Set<Stream>().Where(x => x.HashId == streamId);
-
-                //if (!streamQuery.Any())
-                //    return new List<IEvent>();
-
-                //if (_inMemory)
-                //    streamQuery = streamQuery.Include(x => x.Events);
-
                 var allEvents = streamQuery.SelectMany(x => x.Events).OrderBy(e => e.EventNumber);
 
-                //var allEvents = _inMemory
-                //    ? stream
-                //    : context.Entry(stream).Collection(x => x.Events).Query();//.OrderBy(e => e.EventNumber);
-
-                //context.Set<Stream>().Skip(() => start);
                 var iStart = (int) start;
                 var events = allEvents.Skip(iStart).Take(count);
 

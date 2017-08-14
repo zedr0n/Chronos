@@ -35,7 +35,7 @@ namespace Chronos.Infrastructure.Sagas
             var saga = _repository.Find<TSaga>(sagaId(e)) ?? new TSaga().LoadFrom<TSaga>(sagaId(e), new List<IEvent> () );
             saga.DebugLog = _debugLog;
 
-            //_debugLog.WriteLine("   -> " + saga.GetType().Name);
+            _debugLog.WriteLine("   -> " + saga.GetType().Name);
 
             saga.When(e);
             //saga.Dispatch(e);
