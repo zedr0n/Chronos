@@ -1,4 +1,4 @@
-﻿using Chronos.Core.Assets;
+﻿using System;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 
@@ -12,8 +12,10 @@ namespace Chronos.Core.Accounts.Commands
 
         public void Handle(WithdrawAssetCommand command)
         {
-            var account = Repository.Find<Account>(command.TargetId);
-
+            var account = Repository.Get<Account>(command.TargetId);
+            
+            
+            
             account.WithdrawAsset(command.AssetId);
             Repository.Save(account);
         }

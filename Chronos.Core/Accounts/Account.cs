@@ -16,7 +16,8 @@ namespace Chronos.Core.Accounts
 
         private Cash _cash;
         private readonly HashSet<Guid> _assets = new HashSet<Guid>();
-
+        private readonly Dictionary<Guid, Position> _positions = new Dictionary<Guid, Position>();
+        
         public Account() { }
         public Account(Guid id, string name, string ccy)
         {
@@ -64,23 +65,19 @@ namespace Chronos.Core.Accounts
                 Amount = amount
             });
         }
-        public void DepositAsset( Guid assetId )
-        {
-            When( new AssetDeposited
+        public void DepositAsset( Guid assetId ) => When(
+            new AssetDeposited
             {
                 AccountId = Id,
                 AssetId = assetId
             });
-        }
 
-        public void WithdrawAsset(Guid assetId)
-        {
-            When( new AssetWithdrawn
+        public void WithdrawAsset(Guid assetId) => When( 
+            new AssetWithdrawn
             {
                 AccountId = Id,
                 AssetId = assetId
             });
-        }
 
         protected override void When(IEvent e)
         {
@@ -110,7 +107,10 @@ namespace Chronos.Core.Accounts
         }
         private void When(AssetDeposited e)
         {
-            _assets.Add(e.AssetId);
+            if (_assets.Add(e.AssetId))
+                _positions[e.AssetId] = new Position(e.AssetId, e.Amount);
+            else
+                _positions[e.AssetId] = _positions[e.AssetId].Add(e.Amount);
             base.When(e);
         }
         private void When(CashWithdrawn e)

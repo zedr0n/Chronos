@@ -96,7 +96,7 @@ namespace Chronos.Persistence
         {
             var entity = Find<T>(id);
             if (entity == null)
-                throw new InvalidOperationException("No events recorded for aggregate");
+                throw new InvalidOperationException("Aggregate not found, has it been created?");
 
             return entity;
         }

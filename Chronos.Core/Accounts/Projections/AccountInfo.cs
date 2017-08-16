@@ -32,7 +32,7 @@ namespace Chronos.Core.Accounts.Projections
         {
             Balance += e.Amount;
         }
-        private void When(CashWithdrawn e)
+        private void When( CashWithdrawn e )
         {
             Balance -= e.Amount;
         }

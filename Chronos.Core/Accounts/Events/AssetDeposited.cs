@@ -7,5 +7,6 @@ namespace Chronos.Core.Accounts.Events
     {
         public Guid AccountId { get; set; }
         public Guid AssetId { get; set; }
+        public double Amount { get; set; }
     }
 }
