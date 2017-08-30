@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using Chronos.Persistence;
 using SimpleInjector;
 using SimpleInjector.Advanced;
 
@@ -9,6 +10,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
     {
         public static void RegisterParameterConventions(this ContainerOptions options,IEnumerable<IParameterConvention> conventions)
         {
+            if (conventions == null)
+                return;
             foreach(var c in conventions)
                 RegisterParameterConvention(options,c);
         }
@@ -44,10 +47,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
 
             public InstanceProducer GetInstanceProducer(InjectionConsumerInfo consumer, bool throwOnFailure)
             {
-                if (!_convention.CanResolve(consumer.Target))
-                {
+                if (!_convention.CanResolve(consumer.Target) || !_convention.Handles(consumer))
                     return _decoratee.GetInstanceProducer(consumer, throwOnFailure);
-                }
 
                 return InstanceProducer.FromExpression(
                     consumer.Target.TargetType,

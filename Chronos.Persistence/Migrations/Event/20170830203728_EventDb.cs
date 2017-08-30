@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Chronos.Persistence.Migrations
+namespace Chronos.Persistence.Migrations.Event
 {
-    public partial class Initial : Migration
+    public partial class EventDb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

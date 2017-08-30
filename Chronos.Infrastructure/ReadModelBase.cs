@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using Chronos.Infrastructure.Interfaces;
@@ -10,6 +11,7 @@ namespace Chronos.Infrastructure
     {
         private readonly Dictionary<Type, Action<IEvent>> _when = new Dictionary<Type, Action<IEvent>>();
 
+        [Key]
         public TKey Key { get; set; }
         
         protected ReadModelBase()

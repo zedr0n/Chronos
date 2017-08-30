@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Accounts.Queries;
@@ -24,33 +26,80 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register(typeof(IQueryHandler<TQuery,TResult>), handlerType,lifestyle);
         }
     }
-    
-    public class CompositionRoot : ICompositionRoot, ICompositionRootWithDatabase
+   
+    public class CompositionRoot : ICompositionRoot, ICompositionRootRead, ICompositionRootWrite
     {
+        private RootDbConfiguration _readConfiguration; 
+        private RootDbConfiguration _writeConfiguration;
 
-        private DbConfiguration Database { get; set; } = new DbConfiguration("Default");
-
-        public ICompositionRootWithDatabase WithDatabase(string dbName)
+        private class RootDbConfiguration 
         {
-            var database = new DbConfiguration(dbName);
-            return new CompositionRoot {Database = database};
+            public enum Mode
+            {
+                Read,
+                Write
+            }
+            
+            private DbConfiguration _configuration;
+            private readonly CompositionRoot _root;
+            private readonly Mode _mode;
+            
+            internal RootDbConfiguration(Mode mode,CompositionRoot root)
+            {
+                _root = root;
+                _mode = mode;
+                _configuration = new DbConfiguration();
+            }
+
+            internal IEnumerable<IParameterConvention> GetConventions()
+            {
+                var conventions = _configuration.Conventions.ToList();
+                foreach (var parameterConvention in conventions)
+                    parameterConvention.Consumer = _mode == Mode.Read ? typeof(IReadDb) : typeof(IEventDb);
+                return conventions;
+            }
+
+            internal CompositionRoot InMemory()
+            {
+                _configuration = _configuration.InMemory();
+                return _root;
+            }
+
+            internal CompositionRoot Persistent()
+            {
+                _configuration = _configuration.Persistent();
+                return _root;
+            }
+
+            internal CompositionRoot Database(string dbName)
+            {
+                _configuration = _configuration.WithName(dbName);
+                return _root;
+            }
         }
-
-        public ICompositionRootWithDatabase InMemory()
+        
+        public ICompositionRootRead ReadWith()
         {
-            Database = Database.InMemory();
+            _readConfiguration = new RootDbConfiguration(RootDbConfiguration.Mode.Read,this);
             return this;
         }
-
-        public ICompositionRootWithDatabase Persistent()
+        ICompositionRootRead ICompositionRootRead.InMemory() => _readConfiguration.InMemory();
+        ICompositionRootRead ICompositionRootRead.Persistent() => _readConfiguration.Persistent();
+        ICompositionRoot ICompositionRootRead.Database(string dbName) => _readConfiguration.Database(dbName);
+        
+        public ICompositionRootWrite WriteWith()
         {
-            Database = Database.Persistent();
+            _writeConfiguration = new RootDbConfiguration(RootDbConfiguration.Mode.Write,this);
             return this;
         }
+        ICompositionRootWrite ICompositionRootWrite.InMemory() => _writeConfiguration.InMemory();
+        ICompositionRootWrite ICompositionRootWrite.Persistent() => _writeConfiguration.Persistent();
+        ICompositionRoot ICompositionRootWrite.Database(string dbName) => _writeConfiguration.Database(dbName);
 
         public virtual void ComposeApplication(Container container)
         {
-            container.Options.RegisterParameterConventions(Database.Conventions);
+            container.Options.RegisterParameterConventions( _readConfiguration?.GetConventions() );
+            container.Options.RegisterParameterConventions( _writeConfiguration?.GetConventions() );
             
             // register infrastructure
             container.Register<ISerializer,JsonTextSerializer>(Lifestyle.Singleton);
@@ -65,8 +114,18 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<IQueryProcessor, QueryProcessor>(Lifestyle.Singleton);
             container.Register<ISagaManager,SagaManager>(Lifestyle.Singleton);
             container.Register<IClock,HighPrecisionClock>(Lifestyle.Singleton);
-            container.Register<IReadRepository, ReadRepository>(Lifestyle.Singleton);
-            container.Register<IStateWriter,StateWriter>(Lifestyle.Singleton);
+
+            if (_readConfiguration == null)
+            {
+                container.Register<IReadRepository, ReadRepository>(Lifestyle.Singleton); 
+                container.Register<IStateWriter, StateWriter>(Lifestyle.Singleton);
+            }
+            else
+            {
+                container.Register<IReadRepository, SqlReadRepository>(Lifestyle.Singleton); 
+                container.Register<IReadDb,ReadDb>(Lifestyle.Singleton);
+                container.Register<IStateWriter, DbStateWriter>(Lifestyle.Singleton);
+            }
             container.Register<IEventSerializer,EventSerializer>(Lifestyle.Singleton);
             container.Register(
                 () => container.GetInstance<IEventStoreConnection>().Subscriptions, Lifestyle.Singleton);
@@ -84,20 +143,13 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(CreateCashTransferHandler),
                 typeof(RequestTimeoutHandler)
             } ,Lifestyle.Singleton);
-            //container.Register<ICommandHandler<CreateAccountCommand>, CreateAccountHandler>(Lifestyle.Singleton);
-            //container.Register<ICommandHandler<ChangeAccountCommand>, ChangeAccountHandler>(Lifestyle.Singleton);
-            //container.Register<ICommandHandler<DepositCashCommand>, DepositCash>(Lifestyle.Singleton);
-            //container.Register<ICommandHandler<WithdrawCashCommand>,WithdrawCashHandler>(Lifestyle.Singleton);
-            //container.Register<ICommandHandler<CreatePurchaseCommand>, CreatePurchaseHandler>(Lifestyle.Singleton);
-            //container.Register<ICommandHandler<ScheduleCommand>,ScheduleCommandHandler>(Lifestyle.Singleton);
             container.RegisterQuery<AccountInfoQuery,AccountInfo>(typeof(AccountInfoHandler), Lifestyle.Singleton);
             container.RegisterQuery<TotalMovementQuery,TotalMovement>(typeof(TotalMovementHandler),Lifestyle.Singleton);
-            //container.Register<IQueryHandler<AccountInfoQuery,AccountInfo>,GetAccountInfoHandler>(Lifestyle.Singleton);
-            //container.Register<IQueryHandler<TotalMovementQuery,TotalMovement>,GetTotalMovementHandler>(Lifestyle.Singleton);
             container.Register(typeof(IHistoricalQueryHandler<AccountInfoQuery,AccountInfo>),
                 typeof(HistoricalQueryHandler<AccountInfoQuery,AccountInfo>), Lifestyle.Singleton);
             container.Register(typeof(IHistoricalQueryHandler<TotalMovementQuery,TotalMovement>),
                 typeof(HistoricalQueryHandler<TotalMovementQuery,TotalMovement>), Lifestyle.Singleton);
         }
+
     }
 }

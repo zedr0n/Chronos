@@ -3,7 +3,7 @@ using SimpleInjector;
 
 namespace Chronos.CrossCuttingConcerns.DependencyInjection
 {
-    public class PersistentDbConvention : IParameterConvention
+    public class PersistentDbConvention : BaseParameterConvention
     {
         private readonly bool _persistentDb;
 
@@ -12,9 +12,9 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             _persistentDb = persistentDb;
         }
 
-        public bool CanResolve(InjectionTargetInfo target) => target.TargetType == typeof(bool) && target.Name == "isPersistent";
+        public override bool CanResolve(InjectionTargetInfo target) => target.TargetType == typeof(bool) && target.Name == "isPersistent";
 
-        public Expression BuildExpression(InjectionConsumerInfo consumer)
+        public override Expression BuildExpression(InjectionConsumerInfo consumer)
         {
             return Expression.Constant(_persistentDb, typeof(bool));
         }

@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Chronos.CrossCuttingConcerns.DependencyInjection;
+﻿using Chronos.CrossCuttingConcerns.DependencyInjection;
 using NodaTime;
 using SimpleInjector;
 using Xunit.Abstractions;
 using Chronos.Infrastructure.Logging;
-using Xunit;
-using Xunit.Sdk;
 
 namespace Chronos.Tests
 {    
@@ -27,21 +22,35 @@ namespace Chronos.Tests
             _output = output;
         }
 
+        protected virtual ICompositionRoot CreateRoot(string dbName)
+        {
+            return new CompositionRoot()
+                .WriteWith().InMemory().Database(dbName); 
+        }
+
         protected Container CreateContainer(string dbName)
         {
             lock(_lock)
             {
                 var container = new Container();
-                ICompositionRoot root = new CompositionRoot();
-                root.WithDatabase(dbName)
-                    .InMemory()
-                    .ComposeApplication(container);
-
+                CreateRoot(dbName).ComposeApplication(container);
+                
                 container.Register<IDebugLog,DebugLogXUnit>(Lifestyle.Singleton);
                 container.Verify();
                 ((DebugLogXUnit) container.GetInstance<IDebugLog>()).Output = _output;
                 return container;
             }
+        }
+    }
+
+    public class ReadTestBase : TestBase
+    {
+        public ReadTestBase(ITestOutputHelper output) : base(output) {}
+
+        protected override ICompositionRoot CreateRoot(string dbName)
+        {
+            return base.CreateRoot(dbName)
+                .ReadWith().Database(dbName + ".Read");
         }
     }
 }

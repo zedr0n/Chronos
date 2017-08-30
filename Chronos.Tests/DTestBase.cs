@@ -10,7 +10,6 @@ using Xunit.Abstractions;
 
 namespace Chronos.Tests
 {
-    
     public class DTestBase
     {
         protected static readonly IClock Clock;
@@ -26,15 +25,14 @@ namespace Chronos.Tests
             _output = output;
         }
 
-        protected T GetInstance<T>([CallerMemberName] string callerName = null) where T : class
+        protected virtual T GetInstance<T>([CallerMemberName] string callerName = null) where T : class
         {
             var container = new Container();
-            ICompositionRoot root = new CompositionRoot();
-
-            root.WithDatabase("BDD"+ ( callerName ?? typeof(T).Name))
-                .InMemory()
-                .ComposeApplication(container);
-
+            
+            var root = new CompositionRoot()
+                .WriteWith().InMemory().Database("BDD"+ ( callerName ?? typeof(T).Name));
+            
+            root.ComposeApplication(container);
             container.Register<IDebugLog,DebugLogXUnit>(Lifestyle.Singleton);
             container.Verify();
             ((DebugLogXUnit) container.GetInstance<IDebugLog>()).Output = _output;

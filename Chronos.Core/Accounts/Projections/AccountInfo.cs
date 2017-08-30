@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Projections;
 using Chronos.Core.Accounts.Events;
@@ -14,7 +15,10 @@ namespace Chronos.Core.Accounts.Projections
         public string Name { get; private set; }
         public string Currency { get; private set; }
         public double Balance { get; private set; }
+        [NotMapped]
         public Instant CreatedAt { get; private set; }
+        
+        public DateTime CreatedAtUtc { get; private set; }
 
         private void When( AccountCreated e)
         {

@@ -1,17 +1,26 @@
-﻿using SimpleInjector;
+﻿using Chronos.Persistence;
+using SimpleInjector;
 
 namespace Chronos.CrossCuttingConcerns.DependencyInjection
 {
     public interface ICompositionRoot
     {
-        ICompositionRootWithDatabase WithDatabase(string dbName);
+        ICompositionRootRead ReadWith();
+        ICompositionRootWrite WriteWith();
         void ComposeApplication(Container container);
     }
-    
-    public interface ICompositionRootWithDatabase
+
+    public interface ICompositionRootRead
     {
-        ICompositionRootWithDatabase InMemory();
-        ICompositionRootWithDatabase Persistent();
-        void ComposeApplication(Container container);
+        ICompositionRootRead InMemory();
+        ICompositionRootRead Persistent();
+        ICompositionRoot Database(string dbName);
     }
+
+    public interface ICompositionRootWrite
+    {
+        ICompositionRootWrite InMemory();
+        ICompositionRootWrite Persistent();
+        ICompositionRoot Database(string dbName);
+    } 
 }

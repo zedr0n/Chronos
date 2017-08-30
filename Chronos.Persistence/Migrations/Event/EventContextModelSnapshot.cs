@@ -5,13 +5,12 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Chronos.Persistence;
 
-namespace Chronos.Persistence.Migrations
+namespace Chronos.Persistence.Migrations.Event
 {
     [DbContext(typeof(EventContext))]
-    [Migration("20170731195444_Initial")]
-    partial class Initial
+    partial class EventContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.2");

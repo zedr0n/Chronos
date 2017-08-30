@@ -11,4 +11,9 @@
   <ItemGroup>
     <Folder Include="Projections\" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.Annotations, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\..\..\.nuget\packages\system.componentmodel.annotations\4.3.0\ref\netstandard1.4\System.ComponentModel.Annotations.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>
