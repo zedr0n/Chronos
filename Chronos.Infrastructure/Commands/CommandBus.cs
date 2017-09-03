@@ -26,7 +26,7 @@ namespace Chronos.Infrastructure.Commands
 
         public async Task SendAsync(ICommand command)
         {
-            await Task.Run(() => (dynamic) command);
+            await Task.Run(() => Send(command));
         }
 
         public void Send(ICommand command) => Send((dynamic) command);
