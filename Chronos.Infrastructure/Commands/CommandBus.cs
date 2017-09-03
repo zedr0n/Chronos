@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
 
@@ -20,6 +22,11 @@ namespace Chronos.Infrastructure.Commands
         {
             var handler = _registry.Get<T>();
             handler.Handle(command);
+        }
+
+        public async Task SendAsync(ICommand command)
+        {
+            await Task.Run(() => (dynamic) command);
         }
 
         public void Send(ICommand command) => Send((dynamic) command);

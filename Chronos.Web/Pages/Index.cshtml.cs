@@ -17,17 +17,29 @@ namespace Chronos.Web.Pages
         {
             _commandBus = commandBus;
         }
+        
+        [BindProperty]
+        public CreateAccountCommand Command { get; set; } = new CreateAccountCommand();
 
+        [BindProperty]
+        public string Status { get; set; }
+        
+        public async Task<IActionResult> OnPostAsync()
+        {
+            Status = "Calculating...";
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+
+            Command.TargetId = Guid.NewGuid();
+            await _commandBus.SendAsync(Command);
+            return Page();
+            //return RedirectToPage("/Index");
+        }
+        
         public void OnGet()
         {
-            var account = new CreateAccountCommand
-            {
-                Name = "Account",
-                Currency = "GBP",
-                TargetId = Guid.NewGuid()
-            };
-            
-            _commandBus.Send(account);
         }
     }
 }

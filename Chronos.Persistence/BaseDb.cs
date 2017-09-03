@@ -23,6 +23,9 @@ namespace Chronos.Persistence
             else
                 builder.UseSqlite(@"Filename=" + dbName);
 
+             #if NET2
+            #endif
+            
             _options = builder.Options;
             
             if(!inMemory)
