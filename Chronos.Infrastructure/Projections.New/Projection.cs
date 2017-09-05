@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reactive.Linq;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
@@ -12,7 +13,8 @@ namespace Chronos.Infrastructure.Projections.New
         private readonly IEventStoreSubscriptions _eventStore;
 
         public IObservable<StreamDetails> Streams { get; set; }
-        
+
+        private Dictionary<int, int> _lastEvents = new Dictionary<int, int>();
         private int _lastEvent = -1;
 
         private IDisposable _streamsSubscription;
@@ -33,16 +35,23 @@ namespace Chronos.Infrastructure.Projections.New
         
         protected virtual void When(StreamDetails stream, IEvent e)
         {
-            if (e.EventNumber > _lastEvent)
-                _lastEvent = e.EventNumber;
+            var hash = stream.Name.HashString();
+            Debug.Assert(_lastEvents.ContainsKey(hash));
+            if (e.EventNumber > _lastEvents[hash])
+                _lastEvents[hash] = e.EventNumber;
         }
 
         private void OnStreamAdded(StreamDetails stream)
         {
             Debug.Assert(!_eventSubscriptions.ContainsKey(stream.Name));
-            if(_lastEvent == -1)
-                When(stream,new StateReset()); 
-            
+            if (!_lastEvents.ContainsKey(stream.Name.HashString()))
+            {
+                var resetState = !_lastEvents.Any();
+                _lastEvents[stream.Name.HashString()] = -1;
+                if(resetState)
+                    When(stream, new StateReset());
+            }
+
             _eventSubscriptions[stream.Name] = GetEvents(stream)//.SubscribeOn(Scheduler.Default)
                 .Subscribe(e => When(stream, e));
         }
