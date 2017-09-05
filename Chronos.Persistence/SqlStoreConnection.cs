@@ -208,8 +208,8 @@ namespace Chronos.Persistence
 
         public IEnumerable<IEvent> ReadStreamEventsForward(string streamName, long start, int count)
         {
-            //if (GetStreamVersion(streamName) <= start)
-            //    return new List<IEvent>();
+            if (GetStreamVersion(streamName) <= start)
+                return new List<IEvent>();
             
             using (var db = _eventDb.GetContext())
             {
@@ -219,9 +219,9 @@ namespace Chronos.Persistence
 
                 var iStart = (int) start;
                 
-                //var events = allEvents.Skip(iStart).Take(count);
+                var events = allEvents.Skip(iStart).Take(count);
                 // TODO: it will read events just from the stream not global, need to fix
-                var events = allEvents.Where(e => e.EventNumber >= start).Take(count);
+                //var events = allEvents.Where(e => e.EventNumber >= start).Take(count);
                 
                 // set the event numbers based on database generated id
                 //ForEach(events, stream.Events, (e1, e2) => e1.EventNumber = e2.EventNumber);

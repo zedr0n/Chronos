@@ -37,8 +37,8 @@ namespace Chronos.Infrastructure.Projections.New
         {
             var hash = stream.Name.HashString();
             Debug.Assert(_lastEvents.ContainsKey(hash));
-            if (e.EventNumber > _lastEvents[hash])
-                _lastEvents[hash] = e.EventNumber;
+            if (e.Version > _lastEvents[hash])
+                _lastEvents[hash] = e.Version;
         }
 
         private void OnStreamAdded(StreamDetails stream)

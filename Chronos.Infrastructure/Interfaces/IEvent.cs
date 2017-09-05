@@ -6,5 +6,6 @@ namespace Chronos.Infrastructure.Interfaces
     {
         Instant Timestamp { get; set; }
         int EventNumber { get; set; }
+        int Version { get; set; }
     }
 }

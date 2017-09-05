@@ -6,7 +6,8 @@ namespace Chronos.Infrastructure.Events
     public class EventBase : IEvent
     {
         private readonly EventInfo _eventInfo = new EventInfo();
-
+        public int Version { get; set; } = -1;
+        
         private class EventInfo
         {
             internal Instant Timestamp { get; set; }

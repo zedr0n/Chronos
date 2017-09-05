@@ -49,6 +49,7 @@ namespace Chronos.Infrastructure.Sagas
         protected virtual void When(IEvent e)
         {
             Version++;
+            e.Version = Version;
             _uncommitedEvents.Add(e);
         }
 
