@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Chronos.Persistence.Migrations.Event
+namespace Chronos.Persistence.Migrations
 {
-    public partial class EventDb : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,12 +12,12 @@ namespace Chronos.Persistence.Migrations.Event
                 name: "Streams",
                 columns: table => new
                 {
-                    HashId = table.Column<int>(nullable: false)
+                    HashId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Key = table.Column<Guid>(nullable: false),
-                    Name = table.Column<string>(nullable: true),
-                    SourceType = table.Column<string>(nullable: true),
-                    Version = table.Column<int>(nullable: false)
+                    Key = table.Column<Guid>(type: "BLOB", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    SourceType = table.Column<string>(type: "TEXT", nullable: true),
+                    Version = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -28,11 +28,11 @@ namespace Chronos.Persistence.Migrations.Event
                 name: "Events",
                 columns: table => new
                 {
-                    EventNumber = table.Column<int>(nullable: false)
+                    EventNumber = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Payload = table.Column<string>(nullable: true),
-                    StreamHashId = table.Column<int>(nullable: true),
-                    TimestampUtc = table.Column<DateTime>(nullable: false)
+                    Payload = table.Column<string>(type: "TEXT", nullable: true),
+                    StreamHashId = table.Column<int>(type: "INTEGER", nullable: true),
+                    TimestampUtc = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {

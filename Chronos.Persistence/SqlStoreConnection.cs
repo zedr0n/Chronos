@@ -68,7 +68,7 @@ namespace Chronos.Persistence
                 // create a new stream if none exists
                 stream = new Stream
                 {
-                    HashId = streamName.GetHashCode(),
+                    HashId = streamName.HashString(),
                     Name = streamName,
                     SourceType = details.SourceType,
                     Key = details.Key,
@@ -81,7 +81,7 @@ namespace Chronos.Persistence
                 // create a dummy stream to avoid loading all events from database
                 stream = new Stream
                 {
-                    HashId = streamName.GetHashCode(),
+                    HashId = streamName.HashString(),
                     Name = streamName,
                     SourceType = details.SourceType,
                     Key = details.Key,
@@ -189,6 +189,8 @@ namespace Chronos.Persistence
                 // set the event numbers based on database generated id
                 ForEach(events,stream.Events,(e1,e2) => e1.EventNumber = e2.EventNumber);
                 LogEvents(streamDetails,events);
+                
+                //context.SaveChanges();
 
                 // if no other events were present in the stream
                 if (streamDetails.Version == events.Count)
@@ -211,19 +213,25 @@ namespace Chronos.Persistence
             
             using (var db = _eventDb.GetContext())
             {
-                var streamId = streamName.GetHashCode();
+                var streamId = streamName.HashString();
                 var streamQuery = db.Set<Stream>().Where(x => x.HashId == streamId);
                 var allEvents = streamQuery.SelectMany(x => x.Events).OrderBy(e => e.EventNumber);
 
                 var iStart = (int) start;
                 var events = allEvents.Skip(iStart).Take(count);
 
+                // set the event numbers based on database generated id
+                //ForEach(events, stream.Events, (e1, e2) => e1.EventNumber = e2.EventNumber);
+                
                 var now = _timeline.Now();
 
-                return events.ToList()
+                var ievents = events.ToList()
                     .Where(e => e.TimestampUtc <= now.ToDateTimeUtc())
                     .Select(_serializer.Deserialize)
                     .OrderBy(e => e.Timestamp);
+                
+                ForEach(ievents, events, (e1,e2) => e1.EventNumber = e2.EventNumber );
+                return ievents;
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Chronos.Core.Accounts.Projections;
+using Chronos.Core.Projections;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chronos.Persistence
@@ -12,5 +13,6 @@ namespace Chronos.Persistence
         public override Context WithOptions(DbContextOptions options) => new ReadContext(options);
         public DbSet<AccountInfo> Accounts { get; }
         public DbSet<TotalMovement> Movements { get; }
+        public DbSet<Stats> Stats { get; }
     }
 }

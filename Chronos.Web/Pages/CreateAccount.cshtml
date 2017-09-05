@@ -1,0 +1,16 @@
+﻿@page
+@model Chronos.Web.Pages.CreateAccountModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Crate new account";
+}
+
+<p>
+    Enter account name
+</p>
+<div asp-validation-summary="All"></div>
+<form method="POST">
+    <div>Name <input asp-for="Command.Name" /></div>
+    <div>Currency <input asp-for="Command.Currency"/></div>
+    <input type="submit" />
+</form>

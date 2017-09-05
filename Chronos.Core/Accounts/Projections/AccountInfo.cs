@@ -26,6 +26,7 @@ namespace Chronos.Core.Accounts.Projections
             Currency = e.Currency;
             Balance = 0;
             CreatedAt = e.Timestamp;
+            CreatedAtUtc = CreatedAt.ToDateTimeUtc();
         }
         private void When(AccountChanged e)
         {

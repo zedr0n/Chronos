@@ -1,4 +1,6 @@
-﻿using Chronos.Infrastructure;
+﻿using Chronos.Core.Accounts;
+using Chronos.Core.Projections;
+using Chronos.Infrastructure;
 using Chronos.Infrastructure.Projections.New;
 using SimpleInjector;
 
@@ -11,6 +13,9 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
         public ProjectionManager(Container container)
         {
             _container = container;
+
+            var stats =Create<Stats>().From<Account>().OutputState("Global");
+            stats.Invoke();
         }
 
         public IBaseProjectionExpression<T> Create<T>()

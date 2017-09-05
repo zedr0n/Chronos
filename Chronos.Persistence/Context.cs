@@ -22,7 +22,7 @@ namespace Chronos.Persistence
             //if (_inMemory)
             //    optionsBuilder.UseInMemoryDatabase(_dbName);
             //else
-            //    optionsBuilder.UseSqlite(@"Filename=" + _dbName);
+                //optionsBuilder.UseSqlite(@"Filename=" + "migration.db");
         }
     }
 }

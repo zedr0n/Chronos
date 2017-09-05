@@ -69,8 +69,8 @@ namespace Chronos.Persistence
                 return Observable.Create((IObserver<IEvent> observer) =>
                 {
                     var events = _connection.ReadStreamEventsForward(stream.Name, eventNumber, int.MaxValue)
-                        .OrderBy(e => e.Timestamp)
-                        .Where(e => e.Timestamp <= _connection._timeline.Now());
+                        .OrderBy(e => e.Timestamp);
+                        //.Where(e => e.Timestamp <= _connection._timeline.Now());
                     foreach (var e in events)
                         observer.OnNext(e);
 

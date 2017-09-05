@@ -9,11 +9,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Chronos.Web.Pages
 {
-    public class IndexModel : PageModel
+    public class CreateAccountModel : PageModel
     {
         private readonly ICommandBus _commandBus;
 
-        public IndexModel(ICommandBus commandBus)
+        public CreateAccountModel(ICommandBus commandBus)
         {
             _commandBus = commandBus;
         }

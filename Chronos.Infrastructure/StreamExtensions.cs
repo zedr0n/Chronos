@@ -18,5 +18,18 @@ namespace Chronos.Infrastructure
         {
             return $"{typeof(T).Name}-{id}";
         }
+        
+        public static int HashString(this string text)
+        {
+            unchecked
+            {
+                int hash = 23;
+                foreach (char c in text)
+                {
+                    hash = hash * 31 + c;
+                }
+                return hash;
+            }
+        }
     }
 }

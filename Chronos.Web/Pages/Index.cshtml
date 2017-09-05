@@ -5,14 +5,4 @@
     ViewData["Title"] = "Home page";
 }
 
-<p>
-    Enter account name
-</p>
-<div asp-validation-summary="All"></div>
-<form method="POST">
-    <div>Name <input asp-for="Command.Name" />@Model.Command.Name</div>
-    <div>Currency <input asp-for="Command.Currency"/></div>
-    <div>@Model.Command.TargetId</div>
-    <input type="submit" />
-    <div>@Model.Status</div>
-</form>
+<a asp-page="CreateAccount">Create new account</a>

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reactive.Linq;
+using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure.Projections.New
@@ -39,6 +40,9 @@ namespace Chronos.Infrastructure.Projections.New
         private void OnStreamAdded(StreamDetails stream)
         {
             Debug.Assert(!_eventSubscriptions.ContainsKey(stream.Name));
+            if(_lastEvent == -1)
+                When(stream,new StateReset()); 
+            
             _eventSubscriptions[stream.Name] = GetEvents(stream)//.SubscribeOn(Scheduler.Default)
                 .Subscribe(e => When(stream, e));
         }
@@ -59,7 +63,7 @@ namespace Chronos.Infrastructure.Projections.New
         public void Start()
         {
             Unsubscribe();
-
+            
             _streamsSubscription = Streams.Subscribe(OnStreamAdded);
         }
     }
