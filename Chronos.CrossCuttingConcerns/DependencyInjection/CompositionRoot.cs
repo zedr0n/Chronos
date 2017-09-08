@@ -142,7 +142,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(CreatePurchaseHandler),
                 typeof(ScheduleCommandHandler),
                 typeof(CreateCashTransferHandler),
-                typeof(RequestTimeoutHandler)
+                typeof(RequestTimeoutHandler),
+                typeof(ClearDatabaseHandler)
             } ,Lifestyle.Singleton);
             container.RegisterQuery<AccountInfoQuery,AccountInfo>(typeof(AccountInfoHandler), Lifestyle.Singleton);
             container.RegisterQuery<TotalMovementQuery,TotalMovement>(typeof(TotalMovementHandler),Lifestyle.Singleton);

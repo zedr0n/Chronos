@@ -1,4 +1,5 @@
-﻿using Chronos.Core.Accounts.Projections;
+﻿using System;
+using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Projections;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,5 +15,12 @@ namespace Chronos.Persistence
         public DbSet<AccountInfo> Accounts { get; }
         public DbSet<TotalMovement> Movements { get; }
         public DbSet<Stats> Stats { get; }
+
+        public override void Clear()
+        {
+            Accounts.RemoveRange(Accounts);
+            Movements.RemoveRange(Movements);
+            Stats.RemoveRange(Stats); 
+        }
     }
 }

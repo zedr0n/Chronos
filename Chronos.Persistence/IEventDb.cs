@@ -5,7 +5,8 @@ namespace Chronos.Persistence
     public interface IDb
     {
         void Init();
-        DbContext GetContext(); 
+        DbContext GetContext();
+        void Clear();
     }
 
     public interface IDb<T> : IDb where T : DbContext

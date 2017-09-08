@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Chronos.Core.Accounts.Commands;
 using Chronos.Infrastructure.Commands;
+using Chronos.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -31,6 +32,11 @@ namespace Chronos.Web.Pages
             Command.TargetId = Guid.NewGuid();
             await _commandBus.SendAsync(Command);
             return RedirectToPage("/Index");
+        }
+
+        public void OnPostClearDatabase()
+        {
+            _commandBus.Send(new ClearDatabaseCommand()); 
         }
         
         public void OnGet()

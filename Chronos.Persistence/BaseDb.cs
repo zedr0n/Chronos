@@ -47,5 +47,13 @@ namespace Chronos.Persistence
         }
 
         public DbContext GetContext() => new T().WithOptions(_options);
+        public void Clear()
+        {
+            using(var context = GetContext())
+            {
+                context.Clear();
+                context.SaveChanges();
+            }
+        }
     }
 }

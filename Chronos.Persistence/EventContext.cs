@@ -13,5 +13,11 @@ namespace Chronos.Persistence
 
         public DbSet<Event> Events { get; set; }
         public DbSet<Stream> Streams { get; set; }
+
+        public override void Clear()
+        {
+            Events.RemoveRange(Events);
+            SaveChanges();
+        }
     }
 }
