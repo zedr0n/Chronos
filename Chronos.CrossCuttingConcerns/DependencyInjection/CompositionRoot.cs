@@ -126,6 +126,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 container.Register<IReadRepository, SqlReadRepository>(Lifestyle.Singleton); 
                 container.Register<IReadDb,ReadDb>(Lifestyle.Singleton);
                 container.Register<IStateWriter, DbStateWriter>(Lifestyle.Singleton);
+                container.Register<ICommandHandler<ClearDatabaseCommand>,ClearDatabaseHandler>(Lifestyle.Singleton);
             }
             container.Register<IEventSerializer,EventSerializer>(Lifestyle.Singleton);
             container.Register(
@@ -142,8 +143,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(CreatePurchaseHandler),
                 typeof(ScheduleCommandHandler),
                 typeof(CreateCashTransferHandler),
-                typeof(RequestTimeoutHandler),
-                typeof(ClearDatabaseHandler)
+                typeof(RequestTimeoutHandler)
             } ,Lifestyle.Singleton);
             container.RegisterQuery<AccountInfoQuery,AccountInfo>(typeof(AccountInfoHandler), Lifestyle.Singleton);
             container.RegisterQuery<TotalMovementQuery,TotalMovement>(typeof(TotalMovementHandler),Lifestyle.Singleton);
