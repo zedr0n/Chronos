@@ -4,6 +4,7 @@ using Chronos.Core.Accounts;
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Accounts.Queries;
+using Chronos.Core.Projections;
 using Chronos.Core.Transactions;
 using Chronos.Core.Transactions.Commands;
 using Chronos.Infrastructure;
@@ -42,6 +43,7 @@ namespace Chronos.Tests
         {
             var container = CreateContainer(nameof(CanCreateMultipleAccounts));
             var bus = container.GetInstance<ICommandBus>();
+            var processor = container.GetInstance<IQueryProcessor>();
             var queryHandler = container.GetInstance<IQueryHandler<AccountInfoQuery, AccountInfo>>();
 
             var id = Guid.NewGuid();
@@ -67,11 +69,13 @@ namespace Chronos.Tests
             var query = new AccountInfoQuery { AccountId = id };
             var otherQuery = new AccountInfoQuery {AccountId = otherId };
 
-            var accountInfo = queryHandler.Handle(query);
+            var accountInfo = processor.Process<AccountInfoQuery,AccountInfo>(query);
             Assert.Equal("Account",accountInfo.Name);
-            var otherAccountInfo = queryHandler.Handle(otherQuery);
+            var otherAccountInfo = processor.Process<AccountInfoQuery,AccountInfo>(otherQuery);
             Assert.Equal("OtherAccount",otherAccountInfo.Name);
 
+            var stats = processor.Process<StatsQuery, Stats>(new StatsQuery());
+            Assert.Equal(2,stats.NumberOfAccounts);
         }
 
         [Fact]

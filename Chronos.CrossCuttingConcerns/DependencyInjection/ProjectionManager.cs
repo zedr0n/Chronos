@@ -14,8 +14,9 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
         {
             _container = container;
 
-            var stats =Create<Stats>().From<Account>().OutputState("Global");
-            stats.Invoke();
+            //var stats =Create<Stats>().From<Account>().OutputState("Global");
+            
+            //stats.Invoke();
         }
 
         public IBaseProjectionExpression<T> Create<T>()

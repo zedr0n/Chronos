@@ -182,8 +182,10 @@ namespace Chronos.Persistence
 
                 TimestampEvents(events);
                 WriteStream(stream,events);
+                                
                 streamDetails.Version = expectedVersion + events.Count;
 
+                
                 context.SaveChanges();
 
                 // set the event numbers based on database generated id
@@ -192,11 +194,15 @@ namespace Chronos.Persistence
                 
                 //context.SaveChanges();
 
-                // if no other events were present in the stream
-                if (streamDetails.Version == events.Count)
-                    _subscriptions.OnStreamAdded(streamDetails);
                 foreach (var e in events)
                     _subscriptions.OnEventAppended(streamDetails, e);
+                
+                // if no other events were present in the stream
+                // this needs to happen after  
+                // as otherwise events will be double processed
+                // here and in OnEventAppended subscribers
+                if (streamDetails.Version == events.Count)
+                    _subscriptions.OnStreamAdded(streamDetails);
             }
         }
 
