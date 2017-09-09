@@ -5,6 +5,7 @@
 html
 Chronos.Read.db
 Chronos.ES.db
+lib/
 
 # User-specific files
 *.suo
