@@ -154,8 +154,13 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(HistoricalQueryHandler<AccountInfoQuery,AccountInfo>), Lifestyle.Singleton);
             container.Register(typeof(IHistoricalQueryHandler<TotalMovementQuery,TotalMovement>),
                 typeof(HistoricalQueryHandler<TotalMovementQuery,TotalMovement>), Lifestyle.Singleton);
-            
-            
+            container.Register(typeof(IHistoricalCommandHandler<>), new[]
+            {
+                typeof(HistoricalCommandHandler<CreateAccountCommand>),
+                typeof(HistoricalCommandHandler<CreateCoinCommand>)
+            }, Lifestyle.Singleton);
+
+
         }
 
     }

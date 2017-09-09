@@ -5,6 +5,6 @@ namespace Chronos.Infrastructure.Commands
 {
     public class CommandBase : ICommand
     {
-        public Guid TargetId { get; set; }
+        public virtual Guid TargetId { get; set; }
     }
 }

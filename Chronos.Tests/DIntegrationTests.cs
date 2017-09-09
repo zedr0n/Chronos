@@ -259,6 +259,28 @@ namespace Chronos.Tests
         }
 
         [Fact]
+        public void CanCreateAcountInThePastEx()
+        {
+            var spec = GetInstance<Specification>();
+            var pastDate = new ZonedDateTime(new LocalDateTime(2017,07,08,0,0), DateTimeZone.Utc,Offset.Zero).ToInstant(); 
+            var accountInfo = spec.When(new HistoricalCommand<CreateAccountCommand>
+            {
+                Command = new CreateAccountCommand
+                {
+                    TargetId = AccountId,
+                    Currency = "GBP",
+                    Name = "Account"
+                },
+                At = pastDate
+            })
+                .Query<AccountInfoQuery,AccountInfo>(new AccountInfoQuery
+                {
+                    AccountId = AccountId
+                });
+            Assert.Equal(pastDate,accountInfo.CreatedAt);
+        }
+
+        [Fact]
         public void CanReplayEventsUpToPointInPast()
         {
             var spec = GetInstance<Specification>();
