@@ -17,7 +17,7 @@ install:
   - git --version && svn --version
   - npm install -g bower
 before_build:
-  - cmd: bower install
+  - cmd: pushd Chronos.Web && bower install && popd
   - cmd: dotnet --version
   - cmd: dotnet restore --verbosity m
 build:
