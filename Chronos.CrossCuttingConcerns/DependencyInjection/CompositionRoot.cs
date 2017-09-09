@@ -4,6 +4,7 @@ using System.Linq;
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Accounts.Queries;
+using Chronos.Core.Assets.Commands;
 using Chronos.Core.Projections;
 using Chronos.Core.Sagas;
 using Chronos.Core.Transactions.Commands;
@@ -143,7 +144,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(CreatePurchaseHandler),
                 typeof(ScheduleCommandHandler),
                 typeof(CreateCashTransferHandler),
-                typeof(RequestTimeoutHandler)
+                typeof(RequestTimeoutHandler),
+                typeof(CreateCoinHandler)
             } ,Lifestyle.Singleton);
             container.RegisterQuery<AccountInfoQuery,AccountInfo>(typeof(AccountInfoHandler), Lifestyle.Singleton);
             container.RegisterQuery<TotalMovementQuery,TotalMovement>(typeof(TotalMovementHandler),Lifestyle.Singleton);

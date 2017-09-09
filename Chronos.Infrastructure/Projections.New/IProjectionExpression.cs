@@ -24,7 +24,7 @@ namespace Chronos.Infrastructure.Projections.New
         IProjectionExpression<T> From<TAggregate>(Guid id) where TAggregate : IAggregate;
     }
 
-    public interface IProjectionExpression<T> where T : class, IReadModel, new()
+    public interface IProjectionExpression<T>  where T : class, IReadModel, new()
     {
         /// <summary>
         /// Create a copy of the projection expression

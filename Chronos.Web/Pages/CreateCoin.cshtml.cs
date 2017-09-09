@@ -1,26 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using System.Threading.Tasks;
-using Chronos.Core.Accounts.Commands;
+using Chronos.Core.Assets.Commands;
 using Chronos.Infrastructure.Commands;
-using Chronos.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Chronos.Web.Pages
 {
-    public class IndexModel : PageModel
+    public class CreateCoinModel : PageModel
     {
         private readonly ICommandBus _commandBus;
-
-        public IndexModel(ICommandBus commandBus)
+        
+        [BindProperty]
+        public CreateCoinCommand Command { get; set; }
+        
+        public CreateCoinModel(ICommandBus commandBus)
         {
             _commandBus = commandBus;
         }
         
-        [BindProperty]
-        public CreateAccountCommand Command { get; set; } = new CreateAccountCommand();
+        public void OnGet()
+        {
+        }
 
         public async Task<IActionResult> OnPostAsync()
         {
@@ -33,19 +34,6 @@ namespace Chronos.Web.Pages
             await _commandBus.SendAsync(Command);
             return RedirectToPage("/Index");
         }
-
-        public void OnPostClearDatabase()
-        {
-            _commandBus.Send(new ClearDatabaseCommand()); 
-        }
-
-        public IActionResult OnPostCreateCoin()
-        {
-            return RedirectToPage("/CreateCoin");
-        }
         
-        public void OnGet()
-        {
-        }
     }
 }

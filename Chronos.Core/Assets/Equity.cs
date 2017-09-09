@@ -1,7 +1,6 @@
 ﻿using System;
 using Chronos.Core.Assets.Events;
 using Chronos.Infrastructure;
-using Chronos.Infrastructure.Events;
 
 namespace Chronos.Core.Assets
 {

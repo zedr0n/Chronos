@@ -5,7 +5,14 @@
     ViewData["Title"] = "Home page";
 }
 
-<a asp-page="CreateAccount">Create new account</a>
+<a asp-page="CreateAccount">Create new account</a><br>
+<div class="row">
+    <div class="col-lg-1">
+        <form asp-page-handler="CreateCoin" method="post">
+            <button class="btn btn-default">Create new coin</button>
+        </form>
+    </div>
+</div>
 <div class="row">
     <div class="col-lg-1">
         <form asp-page-handler="ClearDatabase" method="post">

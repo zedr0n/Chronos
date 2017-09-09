@@ -13,7 +13,8 @@ namespace Chronos.Core.Projections
         {
             _repository = repository;
 
-            Expression = manager.Create<Stats>().From<Account>().OutputState("Global");     
+            Expression = manager.Create<Stats>().From<Account>()
+                .OutputState("Global");     
             Expression.Invoke();
         }
 

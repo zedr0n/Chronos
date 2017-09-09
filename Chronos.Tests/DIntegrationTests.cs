@@ -9,6 +9,8 @@ using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Events;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Accounts.Queries;
+using Chronos.Core.Assets.Commands;
+using Chronos.Core.Assets.Events;
 using Chronos.Core.Transactions;
 using Chronos.Core.Transactions.Commands;
 using Chronos.Core.Transactions.Events;
@@ -34,6 +36,7 @@ namespace Chronos.Tests
         private static readonly Guid OtherAccountId = Guid.NewGuid();
         private static readonly Guid PurchaseId = Guid.NewGuid();
         private static readonly Guid ScheduleId = Guid.NewGuid();
+        private static readonly Guid CoinId = Guid.NewGuid();
         
         private static class History
         {
@@ -44,6 +47,13 @@ namespace Chronos.Tests
                 Name = "Account"
             };
 
+            public static readonly CoinCreated CoinCreated = new CoinCreated
+            {
+                CoinId = CoinId,
+                Name = "Bitcoin",
+                Ticker = "BTC"
+            };
+            
             public static readonly AccountChanged AccountChanged = new AccountChanged
             {
                 AccountId = AccountId,
@@ -72,6 +82,7 @@ namespace Chronos.Tests
                 AccountId = AccountId,
                 Amount = 100
             };
+            
         }
         
         [Fact]
@@ -84,6 +95,18 @@ namespace Chronos.Tests
                     Currency = "GBP",
                     Name = "Account"
                 }).Then(History.AccountCreated);
+        }
+
+        [Fact]
+        public void CanCreateCoin()
+        {
+            GetInstance<Specification>().When(
+                new CreateCoinCommand
+                {
+                    TargetId = CoinId,
+                    Name = "Bitcoin",
+                    Ticker = "BTC"
+                }).Then(History.CoinCreated);
         }
 
         [Fact]

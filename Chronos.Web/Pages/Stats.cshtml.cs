@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Chronos.Core.Accounts.Commands;
-using Chronos.Core.Projections;
+﻿using Chronos.Core.Projections;
 using Chronos.Infrastructure.Queries;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Chronos.Web.Pages

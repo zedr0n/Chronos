@@ -2,9 +2,10 @@
 @model Chronos.Web.Pages.StatsModel
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
-    ViewData["Title"] = "Crate new account";
+    ViewData["Title"] = "Create new account";
 }
 
 <p>
-    Number of accounts : @Model.Stats.NumberOfAccounts 
+    Number of accounts : @Model.Stats.NumberOfAccounts<br>
+    Number of assets : @Model.Stats.NumberOfAssets
 </p>
