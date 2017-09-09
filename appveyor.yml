@@ -1,14 +1,23 @@
 version: 1.0.{build}
 image: Visual Studio 2017
+
+# Test against these versions of Node.js.
+environment:
+  matrix:
+    - nodejs_version: "6"
+
+# Finish on first failed build
+matrix:
+  fast_finish: true
+
+# Install node, display versions, install dependencies
 install:
-- ps: >-
-    Install-Product node $env:nodejs_version
-      node --version && npm --version
-      git --version && svn --version
-      npm install
+  - ps: Install-Product node $env:nodejs_version
+  - node --version && npm --version
+  - git --version && svn --version
+  - npm install
 before_build:
-- cmd: >-
-    bower install
+  - cmd: >-
 
     dotnet --version
 
@@ -18,3 +27,6 @@ build:
   verbosity: minimal
 test_script:
 - cmd: dotnet test Chronos.Tests\Chronos.Tests.csproj
+# Cache node modules, and refresh if package.json changes
+cache:
+  - node_modules -> package.json

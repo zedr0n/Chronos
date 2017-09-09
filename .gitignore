@@ -3,7 +3,8 @@
 
 .DS_Store
 html
-*.db
+Chronos.Read.db
+Chronos.ES.db
 
 # User-specific files
 *.suo
