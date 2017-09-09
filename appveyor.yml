@@ -18,7 +18,6 @@ install:
   - npm install
 before_build:
   - cmd: >-
-
     dotnet --version
 
     dotnet restore --verbosity m
