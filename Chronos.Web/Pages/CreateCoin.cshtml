@@ -10,7 +10,15 @@
 </p>
 <div asp-validation-summary="All"></div>
 <form method="POST">
-    <div>Name <input asp-for="Command.Name"/></div>
-    <div>Ticker <input asp-for="Command.Ticker"/></div>
+    <div class="input-group date" data-provide="datepicker">
+        <input asp-for="Date" type="text" class="form-control">
+        <div class="input-group-addon">
+            <span class="glyphicon glyphicon-th"></span>
+        </div>
+    </div>
+    <div>Name <input asp-for="Command.Command.Name"/>
+    </div>
+    <div>Ticker <input asp-for="Command.Command.Ticker"/>
+    </div>
     <input type="submit"/>
 </form>

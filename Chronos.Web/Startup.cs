@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Chronos.CrossCuttingConcerns.DependencyInjection;
+using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Logging;
 using Chronos.Infrastructure.Queries;
@@ -54,6 +55,7 @@ namespace Chronos.Web
 
             services.AddSingleton(p => _container.GetService<ICommandBus>());
             services.AddSingleton(p => _container.GetService<IQueryProcessor>());
+            services.AddSingleton(p => _container.GetService<ITimeNavigator>());
         }
         
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
