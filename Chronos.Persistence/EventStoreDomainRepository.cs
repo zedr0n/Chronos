@@ -19,11 +19,17 @@ namespace Chronos.Persistence
     {
         private readonly IEventStoreConnection _connection;
         private readonly IDebugLog _debugLog;
+        private readonly IAggregateFactory _aggregateFactory;
 
-        public EventStoreDomainRepository(IEventStoreConnection connection, IDebugLog debugLog)
+        private readonly Dictionary<Guid, StreamDetails> _streams = new Dictionary<Guid, StreamDetails>();        
+        
+        public EventStoreDomainRepository(IEventStoreConnection connection, IDebugLog debugLog, IAggregateFactory aggregateFactory)
         {
             _connection = connection;
             _debugLog = debugLog;
+            _aggregateFactory = aggregateFactory;
+
+            _connection.Subscriptions.GetStreams().Subscribe(s => _streams[s.Key] = s );
         }
 
         private readonly Cache _cache = new Cache();
@@ -53,7 +59,7 @@ namespace Chronos.Persistence
         }
 
 
-        public void Save<T>(T aggregate) where T :class,IAggregate,new()
+        public void Save<T>(T aggregate) where T :class,IAggregate
         {
             var events = aggregate.UncommitedEvents.ToList();
             if (!events.Any())
@@ -76,18 +82,22 @@ namespace Chronos.Persistence
             _connection.Writer.AppendToStream(stream, 0 , events);
         }
 
-        public T Find<T>(Guid id) where T : class,IAggregate, new()
+        public T Find<T>(Guid id) where T : class,IAggregate
         {
             var cached = _cache.Get<T>(id);
             var version = cached?.Version ?? 0;
 
-            var streamDetails = new StreamDetails(typeof(T),id);
+            if (!_streams.ContainsKey(id))
+                return null;
+            
+            var streamDetails = _streams[id]; 
             var events = _connection.Reader.ReadStreamEventsForward(streamDetails.Name, version, int.MaxValue).ToList();
 
             if (!events.Any() && version == 0)
                 return null;
 
-            var aggregate = cached ?? new T();
+            //var aggregate = cached ?? new T();
+            var aggregate = cached ?? _aggregateFactory.Create<T>(streamDetails.SourceType);
             aggregate.LoadFrom<T>(id, events);
             return aggregate;
         }

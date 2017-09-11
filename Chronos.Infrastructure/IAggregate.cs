@@ -18,6 +18,7 @@ namespace Chronos.Infrastructure
         IEnumerable<IEvent> UncommitedEvents { get; }
         
         void ClearUncommitedEvents();
+
         /// <summary>
         /// Hydrate the aggregate from event sequence
         /// </summary>
@@ -25,7 +26,7 @@ namespace Chronos.Infrastructure
         /// <param name="pastEvents">Past event sequence</param>
         /// <typeparam name="T">Aggregate type</typeparam>
         /// <returns>Hydrated aggregate instance</returns>
-        T LoadFrom<T>(Guid id, IEnumerable<IEvent> pastEvents) where T : class, IAggregate, new();
+        T LoadFrom<T>(Guid id, IEnumerable<IEvent> pastEvents) where T : class, IAggregate;
 
     }
 }

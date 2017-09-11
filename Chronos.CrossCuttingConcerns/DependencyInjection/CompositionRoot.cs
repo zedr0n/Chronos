@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Chronos.Core.Accounts;
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Accounts.Queries;
+using Chronos.Core.Assets;
 using Chronos.Core.Assets.Commands;
 using Chronos.Core.Projections;
 using Chronos.Core.Sagas;
@@ -98,10 +100,20 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
         ICompositionRootWrite ICompositionRootWrite.Persistent() => _writeConfiguration.Persistent();
         ICompositionRoot ICompositionRootWrite.Database(string dbName) => _writeConfiguration.Database(dbName);
 
+        private void RegisterAggregates()
+        {
+            
+        }
+        
         public virtual void ComposeApplication(Container container)
         {
             container.Options.RegisterParameterConventions( _readConfiguration?.GetConventions() );
             container.Options.RegisterParameterConventions( _writeConfiguration?.GetConventions() );
+            container.Options.RegisterParameterConvention(new AggregateListConvention(new List<Type>
+            {
+                typeof(Account),
+                typeof(Coin)
+            }) );
             
             // register infrastructure
             container.Register<ISerializer,JsonTextSerializer>(Lifestyle.Singleton);
@@ -116,6 +128,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<IQueryProcessor, QueryProcessor>(Lifestyle.Singleton);
             container.Register<ISagaManager,SagaManager>(Lifestyle.Singleton);
             container.Register<IClock,HighPrecisionClock>(Lifestyle.Singleton);
+            container.Register<IAggregateFactory,AggregateFactory>(Lifestyle.Singleton);
 
             if (_readConfiguration == null)
             {
@@ -145,7 +158,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(ScheduleCommandHandler),
                 typeof(CreateCashTransferHandler),
                 typeof(RequestTimeoutHandler),
-                typeof(CreateCoinHandler)
+                typeof(CreateCoinHandler),
+                typeof(UpdateAssetPriceHandler)
             } ,Lifestyle.Singleton);
             container.RegisterQuery<AccountInfoQuery,AccountInfo>(typeof(AccountInfoHandler), Lifestyle.Singleton);
             container.RegisterQuery<TotalMovementQuery,TotalMovement>(typeof(TotalMovementHandler),Lifestyle.Singleton);

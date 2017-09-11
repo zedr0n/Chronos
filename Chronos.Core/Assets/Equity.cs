@@ -4,7 +4,7 @@ using Chronos.Infrastructure;
 
 namespace Chronos.Core.Assets
 {
-    public class Equity : AggregateBase
+    public class Equity : AggregateBase, IAsset
     {
         private string _ticker;
         private double _price;
@@ -24,6 +24,21 @@ namespace Chronos.Core.Assets
             _ticker = e.Ticker;
             _price = e.Price;
             base.When(e);
+        }
+
+        private void When(AssetPriceUpdated e)
+        {
+            _price = e.Price;
+            base.When(e);
+        }
+
+        public void UpdatePrice(double price)
+        {
+             When(new AssetPriceUpdated
+             {
+                 AssetId = Id,
+                 Price = price 
+             });
         }
     }
 }

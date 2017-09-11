@@ -44,7 +44,13 @@ namespace Chronos.Tests
         }
         
         
-        
+        /// <summary>
+        /// Initialize an aggregate to a historical state
+        /// </summary>
+        /// <param name="id">Aggregate id</param>
+        /// <param name="events">Aggregate events</param>
+        /// <typeparam name="T">Aggregate type</typeparam>
+        /// <returns>Specification with initialized aggregate</returns>
         public Specification Given<T>(Guid id,params IEvent[] events)
             where T : class,IAggregate,new()
         {

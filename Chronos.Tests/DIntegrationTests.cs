@@ -9,6 +9,7 @@ using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Events;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Accounts.Queries;
+using Chronos.Core.Assets;
 using Chronos.Core.Assets.Commands;
 using Chronos.Core.Assets.Events;
 using Chronos.Core.Transactions;
@@ -52,6 +53,12 @@ namespace Chronos.Tests
                 CoinId = CoinId,
                 Name = "Bitcoin",
                 Ticker = "BTC"
+            };
+
+            public static readonly AssetPriceUpdated PriceUpdated = new AssetPriceUpdated
+            {
+                AssetId = CoinId,
+                Price = 100
             };
             
             public static readonly AccountChanged AccountChanged = new AccountChanged
@@ -107,6 +114,19 @@ namespace Chronos.Tests
                     Name = "Bitcoin",
                     Ticker = "BTC"
                 }).Then(History.CoinCreated);
+        }
+
+        [Fact]
+        public void CanUpdatePrice()
+        {
+            GetInstance<Specification>()
+                .Given<Coin>(CoinId, History.CoinCreated)
+                .When(new UpdateAssetPriceCommand
+                {
+                    TargetId = CoinId,
+                    Price = 100
+                })
+                .Then(History.PriceUpdated);
         }
 
         [Fact]

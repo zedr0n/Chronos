@@ -25,7 +25,7 @@ namespace Chronos.Infrastructure
             _uncommitedEvents.Add(e);
         }
 
-        public T LoadFrom<T>(Guid id,IEnumerable<IEvent> pastEvents) where T : class,IAggregate,new()
+        public T LoadFrom<T>(Guid id,IEnumerable<IEvent> pastEvents) where T : class,IAggregate
         {
             Id = id;
             //Version = 0;
