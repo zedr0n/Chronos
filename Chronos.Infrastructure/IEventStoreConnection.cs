@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
+using NodaTime;
 
 namespace Chronos.Infrastructure
 {
@@ -10,6 +12,9 @@ namespace Chronos.Infrastructure
         IObservable<IEvent> AggregateEvents { get; }
         IObservable<IEvent> GetEvents(StreamDetails stream, int eventNumber);
         IObservable<StreamDetails> GetStreams();
+        IObservable<ReplayCompleted> ReplayCompleted { get; }
+
+        void CompleteReplay(Instant date);
     }
 
     public interface IEventStoreWriter

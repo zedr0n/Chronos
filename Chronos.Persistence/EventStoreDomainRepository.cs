@@ -87,10 +87,10 @@ namespace Chronos.Persistence
             var cached = _cache.Get<T>(id);
             var version = cached?.Version ?? 0;
 
-            if (!_streams.ContainsKey(id))
-                return null;
+            var streamDetails = new StreamDetails(typeof(T),id);
+            if (_streams.ContainsKey(id))
+                streamDetails = _streams[id];
             
-            var streamDetails = _streams[id]; 
             var events = _connection.Reader.ReadStreamEventsForward(streamDetails.Name, version, int.MaxValue).ToList();
 
             if (!events.Any() && version == 0)
@@ -102,7 +102,7 @@ namespace Chronos.Persistence
             return aggregate;
         }
 
-        public T Get<T>(Guid id) where T : class,IAggregate,new()
+        public T Get<T>(Guid id) where T : class,IAggregate
         {
             var entity = Find<T>(id);
             if (entity == null)
@@ -111,7 +111,7 @@ namespace Chronos.Persistence
             return entity;
         }
 
-        public bool Exists<T>(Guid id) where T : class,IAggregate,new()
+        public bool Exists<T>(Guid id) where T : class,IAggregate
         {
             return _connection.Exists(new StreamDetails(typeof(T),id));
         }
@@ -128,7 +128,8 @@ namespace Chronos.Persistence
             //foreach (dynamic e in events)
             //    _eventBus.Publish(e);
 
-            _connection.Writer.AppendToNull( new[] { new ReplayCompleted { Timestamp = date } });
+            _connection.Subscriptions.CompleteReplay(date);
+            //_connection.Writer.AppendToNull( new[] { new ReplayCompleted { Timestamp = date } });
             //_eventBus.Publish(new ReplayCompleted { Timestamp = date });
         }
     }

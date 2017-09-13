@@ -58,7 +58,8 @@ namespace Chronos.Infrastructure.Projections.New
             _writer = rhs._writer;
 
             _projectionSubject.Subscribe(p =>
-                _eventStore.AggregateEvents.OfType<ReplayCompleted>().Subscribe(e => p.OnReplay()));
+                //_eventStore.AggregateEvents.OfType<ReplayCompleted>().Subscribe(e => p.OnReplay()));
+                    _eventStore.ReplayCompleted.Subscribe(e => p.OnReplay()));
             //_projectionSubject.Subscribe(p => _eventBus.Subscribe<ReplayCompleted>(e => p.OnReplay()));  
         }
         
@@ -70,8 +71,9 @@ namespace Chronos.Infrastructure.Projections.New
             _streams = _eventStore.GetStreams().Where(s => !s.Name.Contains("Saga"));
 
             _projectionSubject.Subscribe(p =>
-                _eventStore.AggregateEvents.OfType<ReplayCompleted>().Subscribe(e => p.OnReplay()));
-            
+                //_eventStore.AggregateEvents.OfType<ReplayCompleted>().Subscribe(e => p.OnReplay()));
+                    _eventStore.ReplayCompleted.Subscribe(e => p.OnReplay()));
+
             //_projectionSubject.Subscribe(p => _eventBus.Subscribe<ReplayCompleted>(e => p.OnReplay()));  
         }
 

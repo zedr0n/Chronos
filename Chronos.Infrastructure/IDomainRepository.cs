@@ -22,7 +22,7 @@ namespace Chronos.Infrastructure
         /// <typeparam name="T">Aggregate type</typeparam>
         void Save<T>(Guid id, IEnumerable<IEvent> events);
 
-        bool Exists<T>(Guid id) where T : class,IAggregate,new();
+        bool Exists<T>(Guid id) where T : class, IAggregate;
 
         /// <summary>
         /// Rebuild the aggregate from event history extracted from Event Store
@@ -37,7 +37,7 @@ namespace Chronos.Infrastructure
         /// <exception cref="ArgumentException">if no events found for aggregate with this id</exception>
         /// <param name="id">The aggregate guid</param>
         /// <returns></returns>
-        T Get<T>(Guid id) where T : class,IAggregate,new();
+        T Get<T>(Guid id) where T : class,IAggregate;
         /// <summary>
         /// Replay all the events up to date and push through event bus
         /// </summary>

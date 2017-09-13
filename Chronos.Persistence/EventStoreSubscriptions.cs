@@ -5,7 +5,9 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Chronos.Infrastructure;
+using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
+using NodaTime;
 
 namespace Chronos.Persistence
 {
@@ -27,16 +29,13 @@ namespace Chronos.Persistence
         {
             private readonly Subject<StreamDetails> _streams = new Subject<StreamDetails>();
             private readonly Subject<Envelope> _events = new Subject<Envelope>();
-            
+            private readonly Subject<ReplayCompleted> _replayCompleted = new Subject<ReplayCompleted>();
+
+            public IObservable<ReplayCompleted> ReplayCompleted => _replayCompleted.AsObservable();
+
             private readonly SqlStoreConnection _connection;
 
             private readonly Dictionary<string, int> _versions = new Dictionary<string, int>();
-            
-            internal EventStoreSubscriptions(SqlStoreConnection connection)
-            {
-                _connection = connection;
-                GetStreams().Subscribe(s => _versions[s.Name] = s.Version);
-            }
 
             public IObservable<IEvent> Events => _events.AsObservable().Select(env => env.Event);
 
@@ -44,6 +43,17 @@ namespace Chronos.Persistence
                 .Where(env => !env.Stream.Name.Contains("Saga"))
                 .Select(env => env.Event);
 
+            internal EventStoreSubscriptions(SqlStoreConnection connection)
+            {
+                _connection = connection;
+                GetStreams().Subscribe(s => _versions[s.Name] = s.Version);
+            }
+
+            public void CompleteReplay(Instant date)
+            {
+                _replayCompleted.OnNext(new ReplayCompleted { Timestamp = date });
+            }
+            
             public int GetStreamVersion(string streamName)
             {
                 if (!_versions.ContainsKey(streamName))
@@ -63,6 +73,7 @@ namespace Chronos.Persistence
                     return Disposable.Create(() => subscription.Dispose());
                 });
             }
+
 
             public IObservable<IEvent> GetEvents(StreamDetails stream, int eventNumber)
             {
