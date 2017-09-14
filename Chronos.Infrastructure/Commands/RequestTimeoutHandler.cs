@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 using System.Reactive.Linq;
+using NodaTime;
 
 namespace Chronos.Infrastructure.Commands
 {
@@ -26,8 +27,17 @@ namespace Chronos.Infrastructure.Commands
                 ScheduleId = command.TargetId,
                 When = command.When
             } });*/
+
+            var when = command.When;
             
-            _subscription = _timeline.StopAt(command.When, new TimeoutCompleted
+            if (when == default(Instant))
+            {
+                if(!_timeline.Live)
+                    throw new InvalidOperationException("Timers cannot work in historical mode?");
+                when = _timeline.Now().Plus(command.Duration);
+            }
+            
+            _subscription = _timeline.StopAt(when, new TimeoutCompleted
                 {
                     ScheduleId = command.TargetId
                 })

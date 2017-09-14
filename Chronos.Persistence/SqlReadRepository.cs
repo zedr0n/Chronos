@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Chronos.Infrastructure;
 
 namespace Chronos.Persistence
@@ -22,7 +23,10 @@ namespace Chronos.Persistence
 
         public T Find<T>(Func<T, bool> predicate) where T : class, IReadModel
         {
-            throw new NotImplementedException();
+            using (var context = _db.GetContext())
+            {
+                return context.Set<T>().Where(predicate).SingleOrDefault();
+            }
         }
 
         public void Add<T>(T readModel) where T : IReadModel

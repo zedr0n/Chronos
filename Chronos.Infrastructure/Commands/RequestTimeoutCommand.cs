@@ -6,5 +6,6 @@ namespace Chronos.Infrastructure.Commands
     public class RequestTimeoutCommand : CommandBase
     {
         public Instant When { get; set; }
+        public Duration Duration { get; set; }
     }
 }

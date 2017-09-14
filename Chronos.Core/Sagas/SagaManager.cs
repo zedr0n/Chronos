@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Threading;
 using Chronos.Core.Transactions.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
@@ -14,7 +15,10 @@ namespace Chronos.Core.Sagas
         [DebuggerStepThrough]
         public void When(CommandScheduled e) => When<CommandScheduled, SchedulerSaga>(e, x => x.ScheduleId);
         [DebuggerStepThrough]
-        public void When(TimeoutCompleted e) => When<TimeoutCompleted, SchedulerSaga>(e, x => x.ScheduleId);
+        public void When(TimeoutCompleted e) => When<TimeoutCompleted, SchedulerSaga>(e, x => x.ScheduleId, false);
+
+        [DebuggerStepThrough]
+        public void TimeElapsed(TimeoutCompleted e) => When<TimeoutCompleted, NicehashOrderSaga>(e, x => x.ScheduleId,false);
         [DebuggerStepThrough]
         public void When(CashTransferCreated e) => When<CashTransferCreated, TransferSaga>(e, x => x.TransferId);
 
@@ -24,6 +28,7 @@ namespace Chronos.Core.Sagas
             Register<PurchaseCreated>(When);
             Register<CommandScheduled>(When);
             Register<TimeoutCompleted>(When);
+            Register<TimeoutCompleted>(TimeElapsed);
             Register<CashTransferCreated>(When);
         }
     }

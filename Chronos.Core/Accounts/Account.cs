@@ -16,7 +16,7 @@ namespace Chronos.Core.Accounts
 
         private Cash _cash;
         private readonly HashSet<Guid> _assets = new HashSet<Guid>();
-        private readonly Dictionary<Guid, Position> _positions = new Dictionary<Guid, Position>();
+        private readonly Dictionary<Guid, Amount> _positions = new Dictionary<Guid, Amount>();
         
         public Account() { }
         public Account(Guid id, string name, string ccy)
@@ -108,7 +108,7 @@ namespace Chronos.Core.Accounts
         private void When(AssetDeposited e)
         {
             if (_assets.Add(e.AssetId))
-                _positions[e.AssetId] = new Position(e.AssetId, e.Amount);
+                _positions[e.AssetId] = new Amount(e.AssetId, e.Amount);
             else
                 _positions[e.AssetId] = _positions[e.AssetId].Add(e.Amount);
             base.When(e);
