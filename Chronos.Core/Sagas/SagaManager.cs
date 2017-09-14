@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Threading;
+using Chronos.Core.Orders.NiceHash.Events;
 using Chronos.Core.Transactions.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
@@ -22,6 +23,12 @@ namespace Chronos.Core.Sagas
         [DebuggerStepThrough]
         public void When(CashTransferCreated e) => When<CashTransferCreated, TransferSaga>(e, x => x.TransferId);
 
+        [DebuggerStepThrough]
+        public void When(JsonRequestCompleted e) =>
+            When<JsonRequestCompleted, NicehashOrderSaga>(e, x => x.RequestorId);
+        [DebuggerStepThrough]
+        public void When(NicehashOrderCreated e) => When<NicehashOrderCreated, NicehashOrderSaga>(e, x => x.OrderId);
+
         public SagaManager(ISagaRepository repository, IDebugLog debugLog,
                     IEventStoreSubscriptions eventStore) : base(repository, debugLog,eventStore)
         {            
@@ -30,6 +37,8 @@ namespace Chronos.Core.Sagas
             Register<TimeoutCompleted>(When);
             Register<TimeoutCompleted>(TimeElapsed);
             Register<CashTransferCreated>(When);
+            Register<NicehashOrderCreated>(When);
+            Register<JsonRequestCompleted>(When);
         }
     }
 }

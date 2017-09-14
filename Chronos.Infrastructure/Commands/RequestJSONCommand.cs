@@ -2,9 +2,9 @@
 
 namespace Chronos.Infrastructure.Commands
 {
-    public class RequestJSONCommand<T> : CommandBase
+    public class RequestJsonCommand<T> : CommandBase
     {
+        public Guid RequestId { get; set; }
         public string Url { get; set; }
-        public Action<T> Handler;
     }
 }

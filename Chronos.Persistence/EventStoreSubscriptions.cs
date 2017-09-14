@@ -95,8 +95,8 @@ namespace Chronos.Persistence
 
             internal void OnEventAppended(StreamDetails stream,IEvent e)
             {
-                _events.OnNext(new Envelope(e, stream));
                 _versions[stream.Name] = stream.Version;
+                _events.OnNext(new Envelope(e, stream));
             }
 
             internal void OnStreamAdded(StreamDetails details)

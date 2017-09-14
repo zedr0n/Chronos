@@ -13,7 +13,9 @@ using Stateless;
 namespace Chronos.Core.Sagas
 {
     public class NicehashOrderSaga : StatelessSaga<NicehashOrderSaga.STATE,NicehashOrderSaga.TRIGGER>,
-        IHandle<TimeoutCompleted>
+        IHandle<TimeoutCompleted>,
+        IHandle<NicehashOrderCreated>,
+        IHandle<JsonRequestCompleted>
 
     {
         public enum STATE
@@ -36,20 +38,6 @@ namespace Chronos.Core.Sagas
         
         public NicehashOrderSaga() {}
 
-        private void UpdateOrder(Orders.NiceHash.JSON.ApiOrderStatus apiOrderStatus)
-        {
-            if (apiOrderStatus == null)
-                throw new InvalidOperationException("Couldn't retrive order status");
-            
-            SendMessage(new UpdateOrderStatusCommand
-            {
-                Speed = apiOrderStatus.Accepted_Speed,
-                Spent = apiOrderStatus.Btc_paid
-            }); 
-            
-            StateMachine.Fire(TRIGGER.UPDATE_COMPLETED);
-        }
-
         private void SetUpdate()
         {
             SendMessage(new RequestTimeoutCommand
@@ -64,8 +52,7 @@ namespace Chronos.Core.Sagas
             StateMachine = new StateMachine<STATE, TRIGGER>(STATE.OPEN);
 
             StateMachine.Configure(STATE.OPEN)
-                .Permit(TRIGGER.ORDER_CREATED, STATE.ACTIVE)
-                .OnExit(SetUpdate);
+                .Permit(TRIGGER.ORDER_CREATED, STATE.ACTIVE);
             
             StateMachine.Configure(STATE.ACTIVE)
                 .Permit(TRIGGER.ORDER_UPDATED, STATE.UPDATING)
@@ -82,19 +69,40 @@ namespace Chronos.Core.Sagas
             _orderNumber = e.OrderNumber;
             
             StateMachine.Fire(TRIGGER.ORDER_CREATED);
+            SetUpdate();
             base.When(e);
         }
 
         public void When(TimeoutCompleted e)
-        {            
-            SendMessage(new RequestJSONCommand<List<Orders.NiceHash.JSON.ApiOrderStatus>>
+        {
+            if (!StateMachine.IsInState(STATE.ACTIVE))
             {
-                TargetId = SagaId,
-                Handler = orders => UpdateOrder(orders.SingleOrDefault(o => o.Id == _orderNumber))
+                SetUpdate();
+                return;
+            }
+
+            SendMessage(new RequestJsonCommand<Orders.NiceHash.Json.Orders>
+            {
+                RequestId = Guid.NewGuid(),
+                TargetId = SagaId
+
             });
             StateMachine.Fire(TRIGGER.ORDER_UPDATED);
             
             SetUpdate();
+            base.When(e);
+        }
+        
+        public void When(JsonRequestCompleted e)
+        {
+            SendMessage(new ParseOrderStatusCommand
+            {
+                TargetId = _orderId,
+                RequestId = e.RequestId,
+                OrderNumber = _orderNumber
+            }); 
+            
+            StateMachine.Fire(TRIGGER.UPDATE_COMPLETED);
             base.When(e);
         }
         
@@ -103,5 +111,6 @@ namespace Chronos.Core.Sagas
             When((dynamic) e);
             //base.When(e);
         }
+
     }
 }

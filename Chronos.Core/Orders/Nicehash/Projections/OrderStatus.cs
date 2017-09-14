@@ -14,6 +14,7 @@ namespace Chronos.Core.Orders.NiceHash.Projections
         {
             Spent = 0.0;
             Speed = 0.0;
+            OrderNumber = e.OrderNumber;
         }
         
         private void When(NicehashOrderUpdated e)

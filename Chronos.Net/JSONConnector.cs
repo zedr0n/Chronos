@@ -1,14 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using Chronos.Infrastructure;
 using Newtonsoft.Json;
 
 namespace Chronos.Net
 {
-    public class JSONConnector : IJSONConnector
+    public class JsonConnector : IJsonConnector
     {
-        public T Get<T>(string url)
-            where T : new()
+        private readonly Dictionary<Guid,object> _repository = new Dictionary<Guid, object>();
+        
+        public T Get<T>(string url) 
+            where T : class
         {
             using (var w = new HttpClient())
             {
@@ -19,8 +22,25 @@ namespace Chronos.Net
                 }
                 catch (Exception) { }
 
-                return !string.IsNullOrEmpty(jsonData) ? JsonConvert.DeserializeObject<T>(jsonData) : new T();
+                if (string.IsNullOrEmpty(jsonData))
+                    return null;
+                
+                var jObject = JsonConvert.DeserializeObject<T>(jsonData);
+                return jObject;
             }
+        }
+
+        public void Save<T>(Guid requestId, T result) where T : class
+        {
+            _repository[requestId] = result;
+        }
+
+        public T Find<T>(Guid requestId)
+            where T : class
+        {
+            if (_repository.ContainsKey(requestId))
+                return _repository[requestId] as T;
+            return null;
         }
     }
 }

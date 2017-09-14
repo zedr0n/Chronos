@@ -1,5 +1,7 @@
 ﻿using System;
 using Chronos.Core.Accounts.Projections;
+using Chronos.Core.Assets.Projections;
+using Chronos.Core.Orders.NiceHash.Projections;
 using Chronos.Core.Projections;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +17,10 @@ namespace Chronos.Persistence
         public DbSet<AccountInfo> Accounts { get; }
         public DbSet<TotalMovement> Movements { get; }
         public DbSet<Stats> Stats { get; }
-
+        public DbSet<CoinInfo> Coins { get; set; }
+        public DbSet<OrderInfo> Orders { get; set; }
+        public DbSet<OrderStatus> OrderStatuses { get; set; }
+        
         public override void Clear()
         {
             Accounts.RemoveRange(Accounts);

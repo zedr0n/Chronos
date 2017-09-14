@@ -47,6 +47,7 @@ namespace Chronos.Persistence
             //    optionsBuilder.UseInMemoryDatabase(_dbName);
             //else
                 //optionsBuilder.UseSqlite(@"Filename=" + "migration.db");
+           
         }
     }
 }

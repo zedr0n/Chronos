@@ -4,7 +4,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Chronos.Core\Chronos.Core.csproj" />
-    <ProjectReference Include="..\Chronos.CrossCuttingConcerns\Chronos.CrossCuttingConcerns.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />

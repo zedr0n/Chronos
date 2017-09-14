@@ -49,6 +49,52 @@ namespace Chronos.Persistence.Migrations.Read
                     b.ToTable("Movements");
                 });
 
+            modelBuilder.Entity("Chronos.Core.Assets.Projections.CoinInfo", b =>
+                {
+                    b.Property<Guid>("Key")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Name");
+
+                    b.Property<string>("Ticker");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("Coins");
+                });
+
+            modelBuilder.Entity("Chronos.Core.Orders.NiceHash.Projections.OrderInfo", b =>
+                {
+                    b.Property<Guid>("Key")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<double>("MaxSpeed");
+
+                    b.Property<int>("OrderNumber");
+
+                    b.Property<Guid>("PriceAsset");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("Chronos.Core.Orders.NiceHash.Projections.OrderStatus", b =>
+                {
+                    b.Property<Guid>("Key")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("OrderNumber");
+
+                    b.Property<double>("Speed");
+
+                    b.Property<double>("Spent");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("OrderStatuses");
+                });
+
             modelBuilder.Entity("Chronos.Core.Projections.Stats", b =>
                 {
                     b.Property<string>("Key")

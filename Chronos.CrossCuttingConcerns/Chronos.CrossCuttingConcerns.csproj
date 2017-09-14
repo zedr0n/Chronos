@@ -8,5 +8,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Chronos.Infrastructure\Chronos.Infrastructure.csproj" />
     <ProjectReference Include="..\Chronos.Persistence\Chronos.Persistence.csproj" />
+    <ProjectReference Include="..\Chronos.Net\Chronos.Net.csproj" />
   </ItemGroup>
 </Project>

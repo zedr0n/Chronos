@@ -35,8 +35,12 @@ namespace Chronos.Core.Orders.NiceHash.Commands
                     Name = "Bitcoin"
                 })?.Key ?? Guid.Empty;    
             }
+
+            if (_domainRepository.Exists<Order>(command.TargetId))
+                return;
+            
             var amount = new Amount(_btcId, command.Price);
-		    var order = new Order(command.OrderId,command.OrderNumber,amount);    
+		    var order = new Order(command.TargetId,command.OrderNumber,amount);    
            
             _domainRepository.Save(order);
         }

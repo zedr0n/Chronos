@@ -48,9 +48,12 @@ namespace Chronos.Persistence
         {
             using (var context = _eventDb.GetContext())
             {
-                var streams = context.Set<Stream>().Select(s => new StreamDetails(s.SourceType,s.Key)
+                var streams = context.Set<Stream>().Select(s => new StreamDetails(s.Name)//new StreamDetails(s.SourceType,s.Key)
                 {
-                    Version = s.Version
+                    SourceType = s.SourceType,
+                    Version = s.Version,
+                    Key = s.Key
+                    
                 });
                 return streams.ToList();
             }
@@ -118,7 +121,7 @@ namespace Chronos.Persistence
 
                 context.SaveChanges();
 
-                details.Version += events.Count;
+                details.Version = stream.Version; 
                 
                 // set the event numbers based on database generated id
                 ForEach(events, stream.Events, (e1, e2) => e1.EventNumber = e2.EventNumber);

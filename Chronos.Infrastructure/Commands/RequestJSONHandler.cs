@@ -1,21 +1,36 @@
-﻿namespace Chronos.Infrastructure.Commands
+﻿using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Interfaces;
+
+namespace Chronos.Infrastructure.Commands
 {
-    public class RequestJSONHandler<T> : ICommandHandler<RequestJSONCommand<T>>
-        where T : new()
+    public class RequestJsonHandler<T> : ICommandHandler<RequestJsonCommand<T>>
+        where T : class
     {
+        private readonly IJsonConnector _jsonConnector;
         private readonly IEventStoreConnection _connection;
-        private readonly IJSONConnector _jsonConnector;
 	
-        public RequestJSONHandler(IEventStoreConnection connection, IJSONConnector jsonConnector)
+        public RequestJsonHandler(IJsonConnector jsonConnector, IEventStoreConnection connection)
         {
-            _connection = connection;
             _jsonConnector = jsonConnector;
+            _connection = connection;
         }
 
-        public void Handle(RequestJSONCommand<T> command)
+        public void Handle(RequestJsonCommand<T> command)
         {
-            var obj = _jsonConnector.Get<T>(command.Url);
-            command.Handler(obj);
+            var result = _jsonConnector.Get<T>(command.Url);
+            _jsonConnector.Save(command.RequestId,result); 
+
+            var events = new IEvent[]
+            {    
+                new JsonRequestCompleted
+                {
+                    RequestId = command.RequestId,
+                    RequestorId = command.TargetId
+                }
+            };
+            
+            _connection.Writer.AppendToNull(events);
+            //command.Handler(obj);
         }
     }
 

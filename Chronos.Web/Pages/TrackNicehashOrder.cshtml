@@ -1,0 +1,15 @@
+@page
+@model Chronos.Web.Pages.TrackNicehashOrderModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "";
+}
+
+<p>
+    Enter order id:
+</p>
+<div asp-validation-summary="All"></div>
+<form method="POST">
+    <div>Name <input asp-for="Command.OrderNumber" /></div>
+    <input type="submit" />
+</form>

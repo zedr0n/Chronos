@@ -7,6 +7,13 @@ using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Accounts.Queries;
 using Chronos.Core.Assets;
 using Chronos.Core.Assets.Commands;
+using Chronos.Core.Assets.Projections;
+using Chronos.Core.Assets.Queries;
+using Chronos.Core.Orders.NiceHash;
+using Chronos.Core.Orders.NiceHash.Commands;
+using Chronos.Core.Orders.NiceHash.Json;
+using Chronos.Core.Orders.NiceHash.Projections;
+using Chronos.Core.Orders.NiceHash.Queries;
 using Chronos.Core.Projections;
 using Chronos.Core.Sagas;
 using Chronos.Core.Transactions.Commands;
@@ -17,6 +24,7 @@ using Chronos.Infrastructure.Queries;
 using Chronos.Infrastructure.Sagas;
 using Chronos.Persistence;
 using Chronos.Persistence.Serialization;
+using Chronos.Net;
 using NodaTime;
 using SimpleInjector;
 
@@ -129,6 +137,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<ISagaManager,SagaManager>(Lifestyle.Singleton);
             container.Register<IClock,HighPrecisionClock>(Lifestyle.Singleton);
             container.Register<IAggregateFactory,AggregateFactory>(Lifestyle.Singleton);
+            container.Register<IJsonConnector,JsonConnector>(Lifestyle.Singleton);
 
             if (_readConfiguration == null)
             {
@@ -159,10 +168,20 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(CreateCashTransferHandler),
                 typeof(RequestTimeoutHandler),
                 typeof(CreateCoinHandler),
-                typeof(UpdateAssetPriceHandler)
+                typeof(UpdateAssetPriceHandler),
+                typeof(CreateOrderHandler),
+                typeof(UpdateOrderStatusHandler),
+                typeof(ParseOrderStatusHandler)
             } ,Lifestyle.Singleton);
+            container.Register<ICommandHandler<RequestJsonCommand<Orders>>,RequestJsonHandler<Orders>>(Lifestyle.Singleton);
+            //container.Register<ICommandHandler<ParseJsonRequestCommand<Orders,UpdateOrderStatusCommand>>,ParseOrderStatusHandler>();
+            
             container.RegisterQuery<AccountInfoQuery,AccountInfo>(typeof(AccountInfoHandler), Lifestyle.Singleton);
+            container.RegisterQuery<CoinInfoQuery,CoinInfo>(typeof(CoinInfoHandler),Lifestyle.Singleton);
+            container.RegisterQuery<OrderInfoQuery,OrderInfo>(typeof(OrderInfoHandler),Lifestyle.Singleton);
+            container.RegisterQuery<OrderStatusQuery,Core.Orders.NiceHash.Projections.OrderStatus>(typeof(OrderStatusHandler),Lifestyle.Singleton);
             container.RegisterQuery<TotalMovementQuery,TotalMovement>(typeof(TotalMovementHandler),Lifestyle.Singleton);
+            
             container.RegisterQuery<StatsQuery,Stats>(typeof(StatsHandler),Lifestyle.Singleton);
             container.Register(typeof(IHistoricalQueryHandler<AccountInfoQuery,AccountInfo>),
                 typeof(HistoricalQueryHandler<AccountInfoQuery,AccountInfo>), Lifestyle.Singleton);

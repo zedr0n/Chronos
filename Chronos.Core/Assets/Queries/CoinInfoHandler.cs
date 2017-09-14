@@ -32,8 +32,8 @@ namespace Chronos.Core.Assets.Queries
                 else
                     coinInfo = _repository.Find<Guid,CoinInfo>(query.CoinId);
                 
-                if(coinInfo == null)
-                    throw new InvalidOperationException("No coin found");
+                //if(coinInfo == null)
+                //    throw new InvalidOperationException("No coin found");
 
                 return coinInfo;
 
