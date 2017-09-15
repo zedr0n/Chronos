@@ -13,4 +13,10 @@
     <ProjectReference Include="..\Chronos.Core\Chronos.Core.csproj" />
     <ProjectReference Include="..\Chronos.CrossCuttingConcerns\Chronos.CrossCuttingConcerns.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="Chronos.ES.db" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Chronos.Read.db" />
+  </ItemGroup>
 </Project>

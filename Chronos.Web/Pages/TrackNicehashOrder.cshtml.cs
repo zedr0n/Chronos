@@ -1,9 +1,13 @@
 using System;
 using System.Threading.Tasks;
 using Chronos.Core.Orders.NiceHash.Commands;
+using Chronos.Core.Orders.NiceHash.Projections;
+using Chronos.Core.Orders.NiceHash.Queries;
 using Chronos.Infrastructure.Commands;
+using Chronos.Infrastructure.Queries;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using static System.Double;
 
 namespace Chronos.Web.Pages
 {
@@ -12,11 +16,19 @@ namespace Chronos.Web.Pages
         [BindProperty]
         public CreateOrderCommand Command { get; set; } = new CreateOrderCommand();
 
-        private readonly ICommandBus _commandBus;
+        public OrderStatus OrderStatus { get; set; } = new OrderStatus
+        {
+            Speed = NaN,
+            Spent = NaN
+        };
         
-        public TrackNicehashOrderModel(ICommandBus commandBus)
+        private readonly ICommandBus _commandBus;
+        private readonly IQueryProcessor _queryProcessor;
+        
+        public TrackNicehashOrderModel(ICommandBus commandBus, IQueryProcessor queryProcessor)
         {
             _commandBus = commandBus;
+            _queryProcessor = queryProcessor;
         }
         
         public void OnGet()
@@ -32,7 +44,15 @@ namespace Chronos.Web.Pages
 
             Command.TargetId = Guid.NewGuid();
             await _commandBus.SendAsync(Command);
-            return RedirectToPage("/Index");
+
+            var query = new OrderStatusQuery
+            {
+                OrderId = Command.TargetId
+            };
+
+            OrderStatus = _queryProcessor.Process<OrderStatusQuery, OrderStatus>(query);
+            
+            return Page();
         }
     }
 }

@@ -10,6 +10,10 @@
 </p>
 <div asp-validation-summary="All"></div>
 <form method="POST">
-    <div>Name <input asp-for="Command.OrderNumber" /></div>
+    <div><input asp-for="Command.OrderNumber" /></div>
     <input type="submit" />
 </form>
+<p>
+    Speed : @Model.OrderStatus.Speed
+    Spent : @Model.OrderStatus.Spent
+</p>
