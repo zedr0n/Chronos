@@ -1,22 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
+using Chronos.Core.Net.Json.Commands;
+using Chronos.Core.Net.Json.Events;
 using Chronos.Core.Orders.NiceHash.Commands;
 using Chronos.Core.Orders.NiceHash.Events;
-using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Sagas;
-using NodaTime;
 using Stateless;
 
 namespace Chronos.Core.Sagas
 {
-    public class NicehashOrderSaga : StatelessSaga<NicehashOrderSaga.STATE,NicehashOrderSaga.TRIGGER>,
-        IHandle<TimeoutCompleted>,
-        IHandle<NicehashOrderCreated>,
-        IHandle<JsonRequestCompleted>
-
+    public class NicehashTrackingSaga : StatelessSaga<NicehashTrackingSaga.STATE, NicehashTrackingSaga.TRIGGER>,
+        IHandle<NicehashOrderTrackingRequested>,
+        IHandle<JsonRequestCompleted>,
+        IHandle<OrderStatusParsed>
     {
         public enum STATE
         {
@@ -27,7 +25,7 @@ namespace Chronos.Core.Sagas
         }
         public enum TRIGGER
         {
-            ORDER_CREATED,
+            TRACKING_REQUESTED,
             ORDER_UPDATED,
             UPDATE_COMPLETED,
             ORDER_COMPLETED
@@ -35,24 +33,16 @@ namespace Chronos.Core.Sagas
 
         private Guid _orderId;
         private int _orderNumber;
+        private Guid _requestId;
         
-        public NicehashOrderSaga() {}
-
-        private void SetUpdate()
-        {
-            SendMessage(new RequestTimeoutCommand
-            {
-                TargetId = SagaId,
-                Duration = Duration.FromSeconds(10)
-            });
-        }
+        public NicehashTrackingSaga() {}
 
         protected override void ConfigureStateMachine()
         {
             StateMachine = new StateMachine<STATE, TRIGGER>(STATE.OPEN);
 
             StateMachine.Configure(STATE.OPEN)
-                .Permit(TRIGGER.ORDER_CREATED, STATE.ACTIVE);
+                .Permit(TRIGGER.TRACKING_REQUESTED, STATE.ACTIVE);
             
             StateMachine.Configure(STATE.ACTIVE)
                 .Permit(TRIGGER.ORDER_UPDATED, STATE.UPDATING)
@@ -63,36 +53,38 @@ namespace Chronos.Core.Sagas
 
         }
 
-        public void When(NicehashOrderCreated e)
+        public void When()
         {
-            _orderId = e.OrderId;
-            _orderNumber = e.OrderNumber;
             
-            StateMachine.Fire(TRIGGER.ORDER_CREATED);
-            SetUpdate();
-            base.When(e);
-        }
-
-        public void When(TimeoutCompleted e)
-        {
-            if (!StateMachine.IsInState(STATE.ACTIVE))
-            {
-                SetUpdate();
-                return;
-            }
-
-            SendMessage(new RequestJsonCommand<Orders.NiceHash.Json.Orders>
-            {
-                RequestId = Guid.NewGuid(),
-                TargetId = SagaId
-
-            });
-            StateMachine.Fire(TRIGGER.ORDER_UPDATED);
-            
-            SetUpdate();
-            base.When(e);
         }
         
+        public void When(NicehashOrderTrackingRequested e)
+        {
+            Debug.Assert(SagaId == e.OrderId);
+            _orderId = e.OrderId;
+            _orderNumber = e.OrderNumber;
+
+            // on first run
+            if (_requestId == Guid.Empty)
+            {
+                _requestId = e.OrderId;
+            
+                SendMessage(new CreateRequestCommand<Orders.NiceHash.Json.Orders>
+                {
+                    TargetId = _requestId
+                }); 
+            }
+
+            SendMessage(new TrackRequestCommand<Orders.NiceHash.Json.Orders>
+            {
+                TargetId = _requestId,
+                UpdateInterval = e.UpdateInterval
+            });
+            
+            StateMachine.Fire(TRIGGER.TRACKING_REQUESTED);
+            base.When(e);
+        }
+
         public void When(JsonRequestCompleted e)
         {
             SendMessage(new ParseOrderStatusCommand
@@ -100,16 +92,28 @@ namespace Chronos.Core.Sagas
                 TargetId = _orderId,
                 RequestId = e.RequestId,
                 OrderNumber = _orderNumber
-            }); 
+            });
+           
+            base.When(e);
+        }
+
+        public void When(OrderStatusParsed e)
+        {
+            Debug.Assert(e.RequestId == _requestId);
             
-            StateMachine.Fire(TRIGGER.UPDATE_COMPLETED);
+            SendMessage(new UpdateOrderStatusCommand
+            {
+                Speed = e.Speed,
+                Spent = e.Spent
+            });
+            
+            StateMachine.Fire(TRIGGER.ORDER_UPDATED);
             base.When(e);
         }
         
         protected override void When(IEvent e)
         {
             When((dynamic) e);
-            //base.When(e);
         }
 
     }

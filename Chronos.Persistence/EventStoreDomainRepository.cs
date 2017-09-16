@@ -61,6 +61,9 @@ namespace Chronos.Persistence
 
         public void Save<T>(T aggregate) where T :class,IAggregate
         {
+            if (aggregate == null)
+                return;
+            
             var events = aggregate.UncommitedEvents.ToList();
             if (!events.Any())
                 return;

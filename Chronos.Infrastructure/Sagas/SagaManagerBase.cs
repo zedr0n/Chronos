@@ -29,7 +29,7 @@ namespace Chronos.Infrastructure.Sagas
             _events.OfType<TEvent>().Subscribe(action);
         }
 
-        protected void When<TEvent, TSaga>(TEvent e, Func<TEvent,Guid> sagaId, bool createNew = true) where TSaga : class, ISaga, IHandle<TEvent>,new()
+        protected void When<TEvent, TSaga>(TEvent e, Func<TEvent,Guid> sagaId, bool createNew = true, Action<TSaga> action = null) where TSaga : class, ISaga, IHandle<TEvent>,new()
                                                      where TEvent : class, IEvent
         {
             var saga = _repository.Find<TSaga>(sagaId(e)) ??
@@ -39,6 +39,8 @@ namespace Chronos.Infrastructure.Sagas
             saga.DebugLog = _debugLog;
 
             _debugLog.WriteLine("   -> " + saga.GetType().Name);
+
+            action?.Invoke(saga);
 
             saga.When(e);
             //saga.Dispatch(e);

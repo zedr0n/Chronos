@@ -14,8 +14,8 @@ namespace Chronos.Web.Pages
     public class TrackNicehashOrderModel : PageModel
     {
         [BindProperty]
-        public CreateOrderCommand Command { get; set; } = new CreateOrderCommand();
-
+        public int OrderNumber { get; set; }
+        
         public OrderStatus OrderStatus { get; set; } = new OrderStatus
         {
             Speed = NaN,
@@ -42,16 +42,32 @@ namespace Chronos.Web.Pages
                 return Page();
             }
 
-            Command.TargetId = Guid.NewGuid();
-            await _commandBus.SendAsync(Command);
-
             var query = new OrderStatusQuery
             {
-                OrderId = Command.TargetId
+                OrderNumber = OrderNumber
             };
-
-            OrderStatus = _queryProcessor.Process<OrderStatusQuery, OrderStatus>(query);
             
+            OrderStatus = _queryProcessor.Process<OrderStatusQuery, OrderStatus>(query);
+
+            var orderId = OrderStatus?.OrderId ?? Guid.NewGuid();
+            
+            if (OrderStatus == null)
+            {
+                await _commandBus.SendAsync(new CreateOrderCommand
+                {
+                    TargetId = orderId,
+                    OrderNumber = OrderNumber
+                });
+                OrderStatus = _queryProcessor.Process<OrderStatusQuery, OrderStatus>(query); 
+            }
+
+            await _commandBus.SendAsync(new UpdateOrderStatusCommand
+            {
+                TargetId = orderId,
+                Speed = OrderStatus.Speed,
+                Spent = OrderStatus.Spent
+            });
+
             return Page();
         }
     }

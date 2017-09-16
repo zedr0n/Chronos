@@ -38,6 +38,16 @@ namespace Chronos.Core.Orders.NiceHash
             _status = new Status(this,Amount.Null());
         }
 
+        public void Track(int updateInterval)
+        {
+            When(new NicehashOrderTrackingRequested
+            {
+                OrderId = Id,
+                OrderNumber = _orderNumber,
+                UpdateInterval = updateInterval
+            });
+        }
+
         public void UpdateStatus(Amount spent, double speed)
         {
             if (spent.AssetId != _unitPrice.AssetId)

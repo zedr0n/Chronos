@@ -2,7 +2,7 @@
 
 namespace Chronos.Core.Orders.NiceHash.Commands
 {
-    public class ParseOrderStatusCommand : ParseJsonRequestCommand<Json.Orders,UpdateOrderStatusCommand>
+    public class ParseOrderStatusCommand : ParseJsonRequestCommand
     {
         public int OrderNumber { get; set; }
     }

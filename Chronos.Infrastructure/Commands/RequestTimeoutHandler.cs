@@ -45,7 +45,8 @@ namespace Chronos.Infrastructure.Commands
                 {
                     lock(_subscription)
                         _subscription.Dispose();
-                    _connection.Writer.AppendToNull(new[] {e});
+                    //_connection.Writer.AppendToNull(new[] {e});
+                    _connection.Subscriptions.SendTransient(e);
                 });
         }
     }

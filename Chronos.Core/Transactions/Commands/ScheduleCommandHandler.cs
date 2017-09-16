@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Chronos.Infrastructure;
+﻿using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Events;
 
@@ -19,17 +17,14 @@ namespace Chronos.Core.Transactions.Commands
 
         public void Handle(ScheduleCommand command)
         {
-            var events = new List<CommandScheduled>
-            {
+            _connection.Subscriptions.SendTransient(
                 new CommandScheduled
                 {
                     ScheduleId = command.ScheduleId,
                     Command = command.Command,
                     Time = command.Date,
                     Timestamp = _timeline.Now()
-                }
-            };
-            _connection.Writer.AppendToNull(events);
+                });
         }
     }
 }

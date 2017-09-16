@@ -2,9 +2,7 @@
 
 namespace Chronos.Infrastructure.Commands
 {
-    public class ParseJsonRequestCommand<T,TCommand> : CommandBase
-        where T : class 
-        where TCommand : class
+    public class ParseJsonRequestCommand : CommandBase
     {
         public Guid RequestId { get; set; }    
     }

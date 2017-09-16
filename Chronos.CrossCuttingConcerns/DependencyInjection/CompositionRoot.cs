@@ -176,6 +176,12 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<ICommandHandler<RequestJsonCommand<Orders>>,RequestJsonHandler<Orders>>(Lifestyle.Singleton);
             //container.Register<ICommandHandler<ParseJsonRequestCommand<Orders,UpdateOrderStatusCommand>>,ParseOrderStatusHandler>();
             
+            container.Register(typeof(ISagaHandler<>), new[]
+            {
+                typeof(SchedulerSagaHandler),
+                typeof(NicehashTrackingSagaHandler)
+            });
+            
             container.RegisterQuery<AccountInfoQuery,AccountInfo>(typeof(AccountInfoHandler), Lifestyle.Singleton);
             container.RegisterQuery<CoinInfoQuery,CoinInfo>(typeof(CoinInfoHandler),Lifestyle.Singleton);
             container.RegisterQuery<OrderInfoQuery,OrderInfo>(typeof(OrderInfoHandler),Lifestyle.Singleton);

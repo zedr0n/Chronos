@@ -1,33 +1,40 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using Chronos.Core.Net.Json.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 
 namespace Chronos.Core.Orders.NiceHash.Commands
 {
-    public class ParseOrderStatusHandler : ParseJsonRequestHandler<Json.Orders,UpdateOrderStatusCommand>,
-        ICommandHandler<ParseOrderStatusCommand>
+    public class ParseOrderStatusHandler : ICommandHandler<ParseOrderStatusCommand>
     {
-        public ParseOrderStatusHandler(ICommandHandler<UpdateOrderStatusCommand> handler, IJsonConnector jsonConnector) : base(handler, jsonConnector)
+        private readonly IEventStoreSubscriptions _eventStore;
+        private readonly IJsonConnector _jsonConnector;
+        
+        public ParseOrderStatusHandler(IEventStoreSubscriptions eventStore, IJsonConnector jsonConnector)
         {
+            _eventStore = eventStore;
+            _jsonConnector = jsonConnector;
         }
-
-        private UpdateOrderStatusCommand Parse(ParseOrderStatusCommand command, Json.Orders data)
-        {
-            var orderStatus = data.Result.Orders.SingleOrDefault(x => x.Id == command.OrderNumber);
-            
-            var aggregateCommand = new UpdateOrderStatusCommand
-            {
-                TargetId = command.TargetId,
-                Speed = orderStatus.Accepted_Speed,
-                Spent = orderStatus.Btc_paid
-            };
-            return aggregateCommand;
-        }
-
 
         public void Handle(ParseOrderStatusCommand command)
         {
-            HandleInternal(command,data => Parse(command,data));
+            var result = _jsonConnector.Find<Json.Orders>(command.RequestId);
+            if(result == null)
+                throw new InvalidOperationException("Request not completed yet");
+
+            var orderStatus = result.Result.Orders.SingleOrDefault(x => x.Id == command.OrderNumber);
+            
+            var @event = new OrderStatusParsed
+            {
+                RequestId = command.RequestId,
+                Speed = orderStatus.Accepted_Speed,
+                Spent = orderStatus.Btc_paid
+            };
+            
+            _eventStore.SendTransient(@event);
         }
     }
+
+
 }

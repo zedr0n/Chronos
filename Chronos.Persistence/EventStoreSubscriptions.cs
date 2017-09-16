@@ -30,6 +30,7 @@ namespace Chronos.Persistence
             private readonly Subject<StreamDetails> _streams = new Subject<StreamDetails>();
             private readonly Subject<Envelope> _events = new Subject<Envelope>();
             private readonly Subject<ReplayCompleted> _replayCompleted = new Subject<ReplayCompleted>();
+            private readonly Subject<IEvent> _transientEvents = new Subject<IEvent>();
 
             public IObservable<ReplayCompleted> ReplayCompleted => _replayCompleted.AsObservable();
 
@@ -42,11 +43,18 @@ namespace Chronos.Persistence
             public IObservable<IEvent> AggregateEvents => _events.AsObservable()
                 .Where(env => !env.Stream.Name.Contains("Saga"))
                 .Select(env => env.Event);
+            
+            public IObservable<IEvent> TransientEvents => _transientEvents.AsObservable();
 
             internal EventStoreSubscriptions(SqlStoreConnection connection)
             {
                 _connection = connection;
                 GetStreams().Subscribe(s => _versions[s.Name] = s.Version);
+            }
+
+            public void SendTransient(IEvent e)
+            {
+                _transientEvents.OnNext(e);
             }
 
             public void CompleteReplay(Instant date)

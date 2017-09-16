@@ -15,6 +15,9 @@ namespace Chronos.Infrastructure
         IObservable<ReplayCompleted> ReplayCompleted { get; }
 
         void CompleteReplay(Instant date);
+        
+        IObservable<IEvent> TransientEvents { get; }
+        void SendTransient(IEvent e);
     }
 
     public interface IEventStoreWriter

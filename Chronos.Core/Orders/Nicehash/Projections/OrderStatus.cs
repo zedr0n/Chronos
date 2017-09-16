@@ -6,6 +6,7 @@ namespace Chronos.Core.Orders.NiceHash.Projections
 {
     public class OrderStatus : ReadModelBase<Guid>
     {
+        public Guid OrderId => Key;
         public int OrderNumber { get; set; }
         public double Spent { get; set; }
         public double Speed { get; set; }

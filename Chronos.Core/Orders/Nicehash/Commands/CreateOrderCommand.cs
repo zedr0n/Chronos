@@ -1,5 +1,4 @@
-﻿using System;
-using Chronos.Infrastructure.Commands;
+﻿using Chronos.Infrastructure.Commands;
 
 namespace Chronos.Core.Orders.NiceHash.Commands
 {
