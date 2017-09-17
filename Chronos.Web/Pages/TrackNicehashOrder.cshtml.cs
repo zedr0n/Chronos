@@ -61,11 +61,10 @@ namespace Chronos.Web.Pages
                 OrderStatus = _queryProcessor.Process<OrderStatusQuery, OrderStatus>(query); 
             }
 
-            await _commandBus.SendAsync(new UpdateOrderStatusCommand
+            await _commandBus.SendAsync(new TrackOrderCommand
             {
                 TargetId = orderId,
-                Speed = OrderStatus.Speed,
-                Spent = OrderStatus.Spent
+                UpdateInterval = 10
             });
 
             return Page();

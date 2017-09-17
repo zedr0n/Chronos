@@ -59,7 +59,9 @@ namespace Chronos.Infrastructure.Projections.New
 
             _projectionSubject.Subscribe(p =>
                 //_eventStore.AggregateEvents.OfType<ReplayCompleted>().Subscribe(e => p.OnReplay()));
-                    _eventStore.ReplayCompleted.Subscribe(e => p.OnReplay()));
+                //_eventStore.ReplayCompleted.Subscribe(e => p.OnReplay()));
+                    _eventStore.Alerts.OfType<ReplayCompleted>().Subscribe(e => p.OnReplay()));
+
             //_projectionSubject.Subscribe(p => _eventBus.Subscribe<ReplayCompleted>(e => p.OnReplay()));  
         }
         
@@ -72,7 +74,8 @@ namespace Chronos.Infrastructure.Projections.New
 
             _projectionSubject.Subscribe(p =>
                 //_eventStore.AggregateEvents.OfType<ReplayCompleted>().Subscribe(e => p.OnReplay()));
-                    _eventStore.ReplayCompleted.Subscribe(e => p.OnReplay()));
+                    //_eventStore.ReplayCompleted.Subscribe(e => p.OnReplay()));
+                    _eventStore.Alerts.OfType<ReplayCompleted>().Subscribe(e => p.OnReplay()));
 
             //_projectionSubject.Subscribe(p => _eventBus.Subscribe<ReplayCompleted>(e => p.OnReplay()));  
         }

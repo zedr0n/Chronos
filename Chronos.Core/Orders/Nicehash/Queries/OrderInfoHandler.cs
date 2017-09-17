@@ -31,8 +31,8 @@ namespace Chronos.Core.Orders.NiceHash.Queries
                     orderInfo = _repository.Find<OrderInfo>(o => o.OrderNumber == query.OrderNumber);
                 else
                     orderInfo = _repository.Find<Guid,OrderInfo>(query.OrderId);
-                if(orderInfo == null)
-                    throw new InvalidOperationException("Order info not found");
+                //if(orderInfo == null)
+                //    throw new InvalidOperationException("Order info not found");
 
                 return orderInfo;
             }

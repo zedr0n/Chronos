@@ -131,7 +131,12 @@ namespace Chronos.Persistence
             //foreach (dynamic e in events)
             //    _eventBus.Publish(e);
 
-            _connection.Subscriptions.CompleteReplay(date);
+            _connection.Subscriptions.Alert(new ReplayCompleted
+            {
+                Timestamp = date
+            });
+            //_connection.Subscriptions.CompleteReplay(date);
+            
             //_connection.Writer.AppendToNull( new[] { new ReplayCompleted { Timestamp = date } });
             //_eventBus.Publish(new ReplayCompleted { Timestamp = date });
         }

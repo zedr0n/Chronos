@@ -32,7 +32,7 @@ namespace Chronos.Core.Orders.NiceHash.Commands
                 Spent = orderStatus.Btc_paid
             };
             
-            _eventStore.SendTransient(@event);
+            _eventStore.Alert(@event);
         }
     }
 

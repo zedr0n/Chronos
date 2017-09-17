@@ -17,7 +17,7 @@ namespace Chronos.Core.Transactions.Commands
 
         public void Handle(ScheduleCommand command)
         {
-            _connection.Subscriptions.SendTransient(
+            _connection.Subscriptions.Alert(
                 new CommandScheduled
                 {
                     ScheduleId = command.ScheduleId,

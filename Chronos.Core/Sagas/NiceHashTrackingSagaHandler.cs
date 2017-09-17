@@ -14,7 +14,7 @@ namespace Chronos.Core.Sagas
         {
             Register<NicehashOrderTrackingRequested>(e => e.OrderId);
             Register<JsonRequestCompleted>(e => e.RequestId); 
-            RegisterTransient<OrderStatusParsed>(e => e.RequestId);
+            RegisterAlert<OrderStatusParsed>(e => e.RequestId);
         }
     }
 }

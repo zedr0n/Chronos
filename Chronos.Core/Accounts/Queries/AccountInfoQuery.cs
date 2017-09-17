@@ -7,5 +7,6 @@ namespace Chronos.Core.Accounts.Queries
     public class AccountInfoQuery : IQuery<AccountInfo>
     {
         public Guid AccountId { get; set; }
+        public string Name { get; set; }
     }
 }

@@ -5,9 +5,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Chronos.Infrastructure;
-using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
-using NodaTime;
 
 namespace Chronos.Persistence
 {
@@ -29,22 +27,17 @@ namespace Chronos.Persistence
         {
             private readonly Subject<StreamDetails> _streams = new Subject<StreamDetails>();
             private readonly Subject<Envelope> _events = new Subject<Envelope>();
-            private readonly Subject<ReplayCompleted> _replayCompleted = new Subject<ReplayCompleted>();
-            private readonly Subject<IEvent> _transientEvents = new Subject<IEvent>();
-
-            public IObservable<ReplayCompleted> ReplayCompleted => _replayCompleted.AsObservable();
+            private readonly Subject<IEvent> _alerts = new Subject<IEvent>();
 
             private readonly SqlStoreConnection _connection;
 
             private readonly Dictionary<string, int> _versions = new Dictionary<string, int>();
 
-            public IObservable<IEvent> Events => _events.AsObservable().Select(env => env.Event);
-
-            public IObservable<IEvent> AggregateEvents => _events.AsObservable()
+            public IObservable<IEvent> Events => _events.AsObservable()
                 .Where(env => !env.Stream.Name.Contains("Saga"))
                 .Select(env => env.Event);
             
-            public IObservable<IEvent> TransientEvents => _transientEvents.AsObservable();
+            public IObservable<IEvent> Alerts => _alerts.AsObservable();
 
             internal EventStoreSubscriptions(SqlStoreConnection connection)
             {
@@ -52,16 +45,11 @@ namespace Chronos.Persistence
                 GetStreams().Subscribe(s => _versions[s.Name] = s.Version);
             }
 
-            public void SendTransient(IEvent e)
+            public void Alert(IEvent e)
             {
-                _transientEvents.OnNext(e);
+                _alerts.OnNext(e);
             }
 
-            public void CompleteReplay(Instant date)
-            {
-                _replayCompleted.OnNext(new ReplayCompleted { Timestamp = date });
-            }
-            
             public int GetStreamVersion(string streamName)
             {
                 if (!_versions.ContainsKey(streamName))

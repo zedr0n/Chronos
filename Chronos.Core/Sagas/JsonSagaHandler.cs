@@ -12,7 +12,7 @@ namespace Chronos.Core.Sagas
             : base(repository, debugLog, eventStore)
         {
             Register<JsonRequestTracked<T>>(e => e.RequestId);
-            RegisterTransient<TimeoutCompleted>(e => e.ScheduleId);
+            RegisterAlert<TimeoutCompleted>(e => e.ScheduleId);
         }
     }
 }

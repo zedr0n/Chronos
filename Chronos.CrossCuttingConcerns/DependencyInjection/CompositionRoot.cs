@@ -9,6 +9,7 @@ using Chronos.Core.Assets;
 using Chronos.Core.Assets.Commands;
 using Chronos.Core.Assets.Projections;
 using Chronos.Core.Assets.Queries;
+using Chronos.Core.Net.Json.Commands;
 using Chronos.Core.Orders.NiceHash;
 using Chronos.Core.Orders.NiceHash.Commands;
 using Chronos.Core.Orders.NiceHash.Json;
@@ -134,7 +135,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<ICommandRegistry,CommandRegistry>(Lifestyle.Singleton);
             container.Register<ICommandBus, CommandBus>(Lifestyle.Singleton);
             container.Register<IQueryProcessor, QueryProcessor>(Lifestyle.Singleton);
-            container.Register<ISagaManager,SagaManager>(Lifestyle.Singleton);
+            //container.Register<ISagaManager,SagaManager>(Lifestyle.Singleton);
             container.Register<IClock,HighPrecisionClock>(Lifestyle.Singleton);
             container.Register<IAggregateFactory,AggregateFactory>(Lifestyle.Singleton);
             container.Register<IJsonConnector,JsonConnector>(Lifestyle.Singleton);
@@ -170,16 +171,22 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(CreateCoinHandler),
                 typeof(UpdateAssetPriceHandler),
                 typeof(CreateOrderHandler),
+                typeof(TrackOrderHandler),
                 typeof(UpdateOrderStatusHandler),
-                typeof(ParseOrderStatusHandler)
+                typeof(ParseOrderStatusHandler),
+                typeof(CreateRequestHandler<Orders>),
+                typeof(ExecuteRequestHandler<Orders>),
+                typeof(TrackRequestHandler<Orders>)
             } ,Lifestyle.Singleton);
-            container.Register<ICommandHandler<RequestJsonCommand<Orders>>,RequestJsonHandler<Orders>>(Lifestyle.Singleton);
             //container.Register<ICommandHandler<ParseJsonRequestCommand<Orders,UpdateOrderStatusCommand>>,ParseOrderStatusHandler>();
             
             container.Register(typeof(ISagaHandler<>), new[]
             {
                 typeof(SchedulerSagaHandler),
-                typeof(NicehashTrackingSagaHandler)
+                typeof(JsonSagaHandler<Orders>),
+                typeof(NicehashTrackingSagaHandler),
+                typeof(TransactionSagaHandler),
+                typeof(TransferSagaHandler)
             });
             
             container.RegisterQuery<AccountInfoQuery,AccountInfo>(typeof(AccountInfoHandler), Lifestyle.Singleton);

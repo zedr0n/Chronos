@@ -14,17 +14,14 @@ namespace Chronos.Infrastructure.Commands
 
         public void Handle(TrackJsonCommand<T> command)
         {
-            var events = new IEvent[]
-            {
+            _connection.Subscriptions.Alert(
                 new JsonTrackingRequested<T>
                 {
                     RequestId = command.RequestId,
                     UpdateInterval = command.UpdateInterval,
                     Url = command.Url
-                }
-            };
-            
-            _connection.Writer.AppendToNull(events);
+                });
+            //_connection.Writer.AppendToNull(events);
         }
     }
 }

@@ -106,33 +106,6 @@ namespace Chronos.Persistence
             }
         }
 
-        public void AppendToNull(IEnumerable<IEvent> enumerable)
-        {
-            var events = enumerable as IList<IEvent> ?? enumerable.ToList();
-            if (!events.Any())
-                return;
-
-            using (var context = _eventDb.GetContext())
-            {
-                var details = new StreamDetails("Global");
-                var stream = OpenStreamForWriting(context, details);
-                TimestampEvents(events);
-                WriteStream(stream, events);
-
-                context.SaveChanges();
-
-                details.Version = stream.Version; 
-                
-                // set the event numbers based on database generated id
-                ForEach(events, stream.Events, (e1, e2) => e1.EventNumber = e2.EventNumber);
-                LogEvents(details,events);
-                
-                foreach(var e in events)
-                    _subscriptions.OnEventAppended(details,e);
-            }
-            
-        }
-
         private void WriteStream(Stream stream, IEnumerable<IEvent> events)
         {
             var eventsDto = events.Select(_serializer.Serialize).ToList();

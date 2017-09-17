@@ -14,13 +14,11 @@ namespace Chronos.Core.Orders.NiceHash
         
         private class Status
         {
-            private readonly Order _order;
             public Amount Spent { get; set; }
             public double Speed { get; set; }
             
-            public Status(Order order, Amount spent)
+            public Status(Amount spent)
             {
-                _order = order;
                 Spent = spent;
                 Speed = 0.0;
             }
@@ -35,7 +33,7 @@ namespace Chronos.Core.Orders.NiceHash
                 PriceAsset = unitPrice.AssetId,
                 Price = unitPrice.Quantity
             });     
-            _status = new Status(this,Amount.Null());
+            _status = new Status(Amount.Null());
         }
 
         public void Track(int updateInterval)

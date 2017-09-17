@@ -40,7 +40,7 @@ namespace Chronos.Tests
             _commandBus = commandBus;
             _queryProcessor = queryProcessor;
             _timeNavigator = timeNavigator;
-            eventStore.AggregateEvents.Subscribe(AddEvent);
+            eventStore.Events.Subscribe(AddEvent);
         }
         
         

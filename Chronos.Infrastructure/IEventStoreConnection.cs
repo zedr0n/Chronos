@@ -1,29 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
-using NodaTime;
 
 namespace Chronos.Infrastructure
 {
     public interface IEventStoreSubscriptions
     {
         IObservable<IEvent> Events { get; }
-        IObservable<IEvent> AggregateEvents { get; }
         IObservable<IEvent> GetEvents(StreamDetails stream, int eventNumber);
         IObservable<StreamDetails> GetStreams();
-        IObservable<ReplayCompleted> ReplayCompleted { get; }
 
-        void CompleteReplay(Instant date);
-        
-        IObservable<IEvent> TransientEvents { get; }
-        void SendTransient(IEvent e);
+        IObservable<IEvent> Alerts { get; }
+        void Alert(IEvent e);
     }
 
     public interface IEventStoreWriter
     {
-        void AppendToNull(IEnumerable<IEvent> enumerable);
-
         /// <summary>
         /// Appends events to the stream with the given details
         /// </summary>
