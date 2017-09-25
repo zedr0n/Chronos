@@ -42,7 +42,7 @@ namespace Chronos.Persistence
         public T Find<T>(Guid id) where T : class,ISaga, new()
         {         
             var stream = new StreamDetails(typeof(T),id);
-            var events = _connection.Reader.ReadStreamEventsForward(stream.Name, -1, int.MaxValue).ToList();
+            var events = _connection.Reader.ReadStreamEventsForward(stream, -1, int.MaxValue).ToList();
 
             if (!events.Any())
                 return null;

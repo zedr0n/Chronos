@@ -5,7 +5,9 @@ using Chronos.Infrastructure;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
 using Chronos.Persistence.Serialization;
+using Chronos.Persistence.Types;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using NodaTime.Text;
 using Stream = Chronos.Persistence.Types.Stream;
 
@@ -34,35 +36,41 @@ namespace Chronos.Persistence
 
         private void TimestampEvents(IEnumerable<IEvent> events)
         {
-            var timestamp = _timeline.Now();
-            foreach (var e in events)
+            var timestamp = _timeline.Now(); 
+            // we only update the timestamps where they haven't been preset
+            foreach (var e in events.Where(e => e.Timestamp == default(Instant)))
                 e.Timestamp = timestamp;
         }
 
         public bool Exists(StreamDetails stream)
         {
-            return GetStreamVersion(stream.Name) != -1;
+            return GetStreamVersion(stream) != -1;
         }
 
-        public IEnumerable<StreamDetails> GetStreams()
+        private IEnumerable<StreamDetails> GetStreams()
         {
             using (var context = _eventDb.GetContext())
             {
-                var streams = context.Set<Stream>().Select(s => new StreamDetails(s.Name)//new StreamDetails(s.SourceType,s.Key)
+                var streams = context.Set<Stream>()
+                    //.Where(s => s.TimelineId == _timeline.TimelineId)
+                    .Select(s => new StreamDetails(s.Name)//new StreamDetails(s.SourceType,s.Key)
                 {
                     SourceType = s.SourceType,
                     Version = s.Version,
-                    Key = s.Key
-                    
+                    Key = s.Key,
+                    BranchVersion = s.BranchVersion,
+                    Timeline = s.TimelineId
                 });
+                if (streams.Any(s => s.Timeline == _timeline.TimelineId))
+                    streams = streams.Where(s => s.Timeline == _timeline.TimelineId);
                 return streams.ToList();
             }
         }
 
-        private Stream OpenStreamForWriting(DbContext context, StreamDetails details)
+        private Stream OpenStreamForWriting(DbContext context, StreamDetails details) 
         {
             var streamName = details.Name;
-            var version = GetStreamVersion(streamName);
+            var version = GetStreamVersion(details);
 
             Stream stream;
 
@@ -75,9 +83,28 @@ namespace Chronos.Persistence
                     Name = streamName,
                     SourceType = details.SourceType,
                     Key = details.Key,
-                    Version = 0
+                    Version = 0,
+                    TimelineId = details.Timeline
                 };
                 context.Set<Stream>().Add(stream);
+
+                if (details.Timeline == Guid.Empty)
+                    return stream;
+                
+                // cloning the original stream up to current time
+                var events = ReadStreamEventsForwardFromLiveTimeline(details,
+                    -1, int.MaxValue).ToList();
+                    
+                if (!events.Any())
+                {
+                    // do not clone the stream if no events exist?
+                    //stream.TimelineId = Guid.Empty;
+                    return stream;
+                }
+                    
+                stream.BranchVersion = events.Last().Version;
+                details.BranchVersion = stream.BranchVersion;
+                stream.Events.AddRange(events.Select(_serializer.Serialize));
             }
             else
             {
@@ -88,12 +115,33 @@ namespace Chronos.Persistence
                     Name = streamName,
                     SourceType = details.SourceType,
                     Key = details.Key,
-                    Version = version
+                    Version = version,
+                    TimelineId = details.Timeline
                 };
                 context.Set<Stream>().Attach(stream);
-            }
 
+                if (details.Timeline == Guid.Empty)
+                    return stream;
+                
+                // read new events from the original timeline if any from the original branch point
+                var events = ReadStreamEventsForwardFromLiveTimeline(details,
+                    GetStreamBranchVersion(details), int.MaxValue).ToList();
+                   
+                MergeStreams(stream,events);
+            }
+            
             return stream;
+        }
+
+        private void MergeStreams(Stream stream,IList<IEvent> events)
+        {
+            if (!events.Any())
+                return;
+            if(stream.Version != events.First().Version)
+                throw new NotImplementedException(" Merging strategy for new events not implemented yet ");
+            
+            stream.Events.AddRange(events
+                .Select(_serializer.Serialize));
         }
 
         private static void ForEach<T1, T2>(IEnumerable<T1> to, IEnumerable<T2> from, Action<T1,T2> action)
@@ -113,7 +161,11 @@ namespace Chronos.Persistence
             foreach (var e in eventsDto)
             {
                 stream.Events.Add(e);
+                // stream.Version will be ahead of aggregate version
+                // at the end of the stream if a retroactive event is added
+                // 
                 stream.Version++;
+                
                 //Debug.WriteLine(stream.Name + " : " + e.Payload);
             }
 
@@ -139,6 +191,9 @@ namespace Chronos.Persistence
             if (!events.Any())
                 return;
 
+            // we are always appending to current active timeline
+            streamDetails.Timeline = _timeline.TimelineId;
+
             using (var context = _eventDb.GetContext())
             {
                 var stream = OpenStreamForWriting(context, streamDetails);
@@ -149,18 +204,26 @@ namespace Chronos.Persistence
                 if (stream.Version > expectedVersion)
                 {
                     // check event numbers to see if we are trying to write a past event again
-                    var futureEvents = ReadStreamEventsForward(stream.Name, expectedVersion,events.Count()).ToList();
+                    var futureEvents = ReadStreamEventsForward(streamDetails, expectedVersion,events.Count).ToList();
                     var futureEventIds = futureEvents.Select(e => e.EventNumber);
-                    if(!events.Select(e => e.EventNumber).SequenceEqual(futureEventIds))
-                        throw new InvalidOperationException("Trying to change past for stream " + stream.Name + " : "
-                                                            + stream.Version + " > " + expectedVersion);
+
+                    if (!events.Select(e => e.EventNumber).SequenceEqual(futureEventIds))
+                    {
+                        if (_timeline.Live) // concurrency exception
+                            throw new InvalidOperationException("Trying to change past for stream " + stream.Name +
+                                                                " : " + stream.Version + " > " + expectedVersion);
+                        // we are inserting in historical mode
+                        // what checks can we do to validate such an insertion?
+                        if(!events.All(e => e.Insertable))
+                            throw new InvalidOperationException("Trying to insert an event which is not insertable " + stream.Name + 
+                                                                " : " + stream.Version + " > " + expectedVersion);                        
+                    }
                 }
 
                 TimestampEvents(events);
-                WriteStream(stream,events);
-                                
-                streamDetails.Version = expectedVersion + events.Count;
-
+                WriteStream(stream, events);
+                
+                streamDetails.Version = stream.Version; //expectedVersion + events.Count;
                 
                 context.SaveChanges();
 
@@ -168,8 +231,6 @@ namespace Chronos.Persistence
                 ForEach(events,stream.Events,(e1,e2) => e1.EventNumber = e2.EventNumber);
                 LogEvents(streamDetails,events);
                 
-                //context.SaveChanges();
-
                 foreach (var e in events)
                     _subscriptions.OnEventAppended(streamDetails, e);
                 
@@ -182,23 +243,35 @@ namespace Chronos.Persistence
             }
         }
 
-        private int GetStreamVersion(string name)
+        private int GetStreamVersion(StreamDetails stream)
         {
-            var version = _subscriptions.GetStreamVersion(name);
+            var version = _subscriptions.GetStreamVersions(stream).Item1;
             return version;
         }
 
-        public IEnumerable<IEvent> ReadStreamEventsForward(string streamName, long start, int count)
+        private int GetStreamBranchVersion(StreamDetails stream)
         {
-            if (GetStreamVersion(streamName) <= start)
+            var version = _subscriptions.GetStreamVersions(stream).Item2;
+            return version;
+        }
+
+        private IEnumerable<IEvent> ReadStreamEventsForwardFromLiveTimeline(StreamDetails stream, long start, int count)
+        {
+            return ReadStreamEventsForwardFromTimeline(new StreamDetails(stream) {Timeline = Guid.Empty}, start, count);
+        }
+
+        private IEnumerable<IEvent> ReadStreamEventsForwardFromTimeline(StreamDetails stream, long start, int count)
+        {
+            if (GetStreamVersion(stream) <= start)
                 return new List<IEvent>();
             
             using (var db = _eventDb.GetContext())
             {
-                var streamId = streamName.HashString();
-                var streamQuery = db.Set<Stream>().Where(x => x.HashId == streamId);
-                var allEvents = streamQuery.SelectMany(x => x.Events).OrderBy(e => e.EventNumber);
+                var streamId = stream.Name.HashString();
+                var streamQuery = db.Set<Stream>().Where(x => x.HashId == streamId && x.TimelineId == stream.Timeline);
+                var allEvents = streamQuery.SelectMany(x => x.Events).OrderBy(e => e.Version);
 
+                // we need to also read the events which are applied retroactively
                 var iStart = (int) start;
                 
                 var events = allEvents.Skip(iStart).Take(count);
@@ -217,7 +290,20 @@ namespace Chronos.Persistence
                 
                 ForEach(ievents, events, (e1,e2) => e1.EventNumber = e2.EventNumber );
                 return ievents;
-            }
+            } 
+        }
+        
+        // start is usually aggregate version number
+        // if we have inserted a historical event its version will be n+1
+        // timestamp would place it somewhere between k and k+1
+        // when doing correct historical replay ( start = -1 ) up to timestamp(k+1) 
+        // we will have all events filtered by that timestamp
+        // so it will include (1..k,n+1) events
+        // then they need to be reordered by timestamp to be applied in correct order
+        public IEnumerable<IEvent> ReadStreamEventsForward(StreamDetails stream, long start, int count)
+        {
+            return ReadStreamEventsForwardFromTimeline(new StreamDetails(stream) {Timeline = _timeline.TimelineId},
+                start, count);
         }
     }
 }

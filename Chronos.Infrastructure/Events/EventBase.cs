@@ -14,6 +14,8 @@ namespace Chronos.Infrastructure.Events
             internal int EventNumber { get; set; } = -1;
         }
 
+        public bool Insertable { get; protected set; }
+
         public Instant Timestamp
         {
             set => _eventInfo.Timestamp = value;

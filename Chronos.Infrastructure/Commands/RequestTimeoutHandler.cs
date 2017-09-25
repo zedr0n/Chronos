@@ -12,8 +12,8 @@ namespace Chronos.Infrastructure.Commands
         private readonly IEventStoreConnection _connection;
         private readonly ITimeline _timeline;
 
-        private IDisposable _subscription;
-        
+        private readonly Dictionary<Guid, IDisposable> _subscriptions = new Dictionary<Guid, IDisposable>();
+
         public RequestTimeoutHandler(IDomainRepository domainRepository, IEventStoreConnection connection, ITimeline timeline) : base(domainRepository)
         {
             _connection = connection;
@@ -22,12 +22,6 @@ namespace Chronos.Infrastructure.Commands
 
         public void Handle(RequestTimeoutCommand command)
         {
-            /*_connection.Writer.AppendToNull(new[] { new TimeoutRequested
-            {
-                ScheduleId = command.TargetId,
-                When = command.When
-            } });*/
-
             var when = command.When;
             
             if (when == default(Instant))
@@ -36,15 +30,15 @@ namespace Chronos.Infrastructure.Commands
                     throw new InvalidOperationException("Timers cannot work in historical mode?");
                 when = _timeline.Now().Plus(command.Duration);
             }
-            
-            _subscription = _timeline.StopAt(when, new TimeoutCompleted
+            lock (_subscriptions)
+                _subscriptions[command.TargetId] = _timeline.StopAt(when, new TimeoutCompleted
                 {
                     ScheduleId = command.TargetId
                 })
                 .Subscribe(e =>
                 {
-                    lock(_subscription)
-                        _subscription.Dispose();
+                    //lock(_subscriptions)
+                        _subscriptions[e.ScheduleId].Dispose();
                     //_connection.Writer.AppendToNull(new[] {e});
                     _connection.Subscriptions.Alert(e);
                 });

@@ -1,7 +1,7 @@
 ﻿using System;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Assets.Projections;
-using Chronos.Core.Orders.NiceHash.Projections;
+using Chronos.Core.Nicehash.Projections;
 using Chronos.Core.Projections;
 using Microsoft.EntityFrameworkCore;
 

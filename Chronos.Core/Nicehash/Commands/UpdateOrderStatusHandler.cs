@@ -1,12 +1,12 @@
 ﻿using System;
 using Chronos.Core.Assets;
-using Chronos.Core.Orders.NiceHash.Projections;
-using Chronos.Core.Orders.NiceHash.Queries;
+using Chronos.Core.Nicehash.Projections;
+using Chronos.Core.Nicehash.Queries;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Queries;
 
-namespace Chronos.Core.Orders.NiceHash.Commands
+namespace Chronos.Core.Nicehash.Commands
 {
 	public class UpdateOrderStatusHandler : ICommandHandler<UpdateOrderStatusCommand>
 	{

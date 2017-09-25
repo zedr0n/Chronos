@@ -4,5 +4,6 @@ namespace Chronos.Persistence
     {
         public EventDb(string dbName, bool isPersistent, bool inMemory)
             : base(dbName,isPersistent, inMemory) { }
+
     }
 }

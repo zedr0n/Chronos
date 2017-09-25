@@ -1,6 +1,6 @@
 ﻿using Chronos.Infrastructure.Commands;
 
-namespace Chronos.Core.Orders.NiceHash.Commands
+namespace Chronos.Core.Nicehash.Commands
 {
     public class UpdateOrderStatusCommand : CommandBase
     {

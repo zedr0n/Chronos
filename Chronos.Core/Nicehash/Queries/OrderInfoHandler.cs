@@ -1,10 +1,10 @@
 ﻿using System;
-using Chronos.Core.Orders.NiceHash.Projections;
+using Chronos.Core.Nicehash.Projections;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Projections.New;
 using Chronos.Infrastructure.Queries;
 
-namespace Chronos.Core.Orders.NiceHash.Queries
+namespace Chronos.Core.Nicehash.Queries
 {
     public class OrderInfoHandler : IQueryHandler<OrderInfoQuery, OrderInfo>
         {

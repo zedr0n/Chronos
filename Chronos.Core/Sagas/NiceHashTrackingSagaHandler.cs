@@ -1,5 +1,5 @@
 ﻿using Chronos.Core.Net.Json.Events;
-using Chronos.Core.Orders.NiceHash.Events;
+using Chronos.Core.Nicehash.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Logging;

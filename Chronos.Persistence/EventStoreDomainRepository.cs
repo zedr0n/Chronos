@@ -74,6 +74,20 @@ namespace Chronos.Persistence
 
             _connection.Writer.AppendToStream(stream, aggregate.Version - events.Count, events);
 
+            // we added a retroactive event which was saved at the end of the stream
+            // doubles for versions?
+            // or parallel stream copy merging the original stream events?
+            // that would have to clone on each new retroactive event though
+            // or we can only clone up to original version and then merge events
+            // when explicit timeline advance is requested?
+            // although we don't want to clone at all for simple retroactive events
+            // unless we handle those directly without switching to historical mode
+            // which will always clone so is expensive
+            if (stream.Version > aggregate.Version)
+            {
+                
+            }
+            
             aggregate.ClearUncommitedEvents();
             _cache.Set(aggregate);
 
@@ -94,7 +108,7 @@ namespace Chronos.Persistence
             if (_streams.ContainsKey(id))
                 streamDetails = _streams[id];
             
-            var events = _connection.Reader.ReadStreamEventsForward(streamDetails.Name, version, int.MaxValue).ToList();
+            var events = _connection.Reader.ReadStreamEventsForward(streamDetails, version, int.MaxValue).ToList();
 
             if (!events.Any() && version == 0)
                 return null;

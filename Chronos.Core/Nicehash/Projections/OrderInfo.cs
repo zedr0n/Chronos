@@ -1,8 +1,8 @@
 ﻿using System;
-using Chronos.Core.Orders.NiceHash.Events;
+using Chronos.Core.Nicehash.Events;
 using Chronos.Infrastructure;
 
-namespace Chronos.Core.Orders.NiceHash.Projections
+namespace Chronos.Core.Nicehash.Projections
 {
     public class OrderInfo : ReadModelBase<Guid>
     {

@@ -24,7 +24,7 @@ namespace Chronos.Infrastructure.Commands
 		{
 			_timeNavigator.GoTo(command.At);
 			_handler.Handle(command.Command);
-			_timeNavigator.Reset();
+			//_timeNavigator.Reset();
 		}
 	}	
 }

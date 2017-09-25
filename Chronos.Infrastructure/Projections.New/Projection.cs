@@ -12,10 +12,11 @@ namespace Chronos.Infrastructure.Projections.New
     {
         private readonly IEventStoreSubscriptions _eventStore;
 
-        public IObservable<StreamDetails> Streams { get; set; }
+        private IObservable<StreamDetails> _streams;
+        private readonly List<StreamDetails> _observedStreams = new List<StreamDetails>();
+        public Selector<StreamDetails> Selector { get; set; } = new Selector<StreamDetails>();
 
-        private Dictionary<int, int> _lastEvents = new Dictionary<int, int>();
-        private int _lastEvent = -1;
+        private readonly Dictionary<int, int> _lastEvents = new Dictionary<int, int>();
 
         private IDisposable _streamsSubscription;
         private readonly Dictionary<string, IDisposable> _eventSubscriptions = new Dictionary<string, IDisposable>();
@@ -23,14 +24,19 @@ namespace Chronos.Infrastructure.Projections.New
         protected Projection(IEventStoreSubscriptions eventStore)
         {
             _eventStore = eventStore;
-
-            Streams = _eventStore.GetStreams().Where(s => !s.Name.Contains("Saga"));
         }
 
         public void OnReplay()
         {
-            _lastEvent = -1;
+            Reset();
             Start();
+        }
+
+        private void Reset()
+        {
+            //foreach(var s in _observedStreams)
+            //    When(s, new StateReset());
+            _lastEvents.Clear();
         }
         
         protected virtual void When(StreamDetails stream, IEvent e)
@@ -54,15 +60,17 @@ namespace Chronos.Infrastructure.Projections.New
 
             _eventSubscriptions[stream.Name] = GetEvents(stream)//.SubscribeOn(Scheduler.Default)
                 .Subscribe(e => When(stream, e));
+            _observedStreams.Add(stream);
         }
         
         protected virtual IObservable<IEvent> GetEvents(StreamDetails stream)
         {
-            return _eventStore.GetEvents(stream, _lastEvent);
+            return _eventStore.GetEvents(stream, _lastEvents[stream.Name.HashString()]);
         }
 
         private void Unsubscribe()
         {
+            _observedStreams.Clear();
             _streamsSubscription?.Dispose();
             foreach (var s in _eventSubscriptions.Values)
                 s.Dispose();
@@ -72,8 +80,9 @@ namespace Chronos.Infrastructure.Projections.New
         public void Start()
         {
             Unsubscribe();
+            _streams = _eventStore.GetStreams().Where(Selector);
             
-            _streamsSubscription = Streams.Subscribe(OnStreamAdded);
+            _streamsSubscription = _streams.Subscribe(OnStreamAdded);
         }
     }
 }

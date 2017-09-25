@@ -6,7 +6,7 @@ using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Queries;
 
-namespace Chronos.Core.Orders.NiceHash.Commands
+namespace Chronos.Core.Nicehash.Commands
 {
     public class CreateOrderHandler : ICommandHandler<CreateOrderCommand>
     {

@@ -31,7 +31,7 @@ namespace Chronos.Persistence
 
             private readonly SqlStoreConnection _connection;
 
-            private readonly Dictionary<string, int> _versions = new Dictionary<string, int>();
+            private readonly Dictionary<ValueTuple<string,Guid>, ValueTuple<int,int>> _versions = new Dictionary<(string, Guid), ValueTuple<int, int>>(); 
 
             public IObservable<IEvent> Events => _events.AsObservable()
                 .Where(env => !env.Stream.Name.Contains("Saga"))
@@ -42,7 +42,7 @@ namespace Chronos.Persistence
             internal EventStoreSubscriptions(SqlStoreConnection connection)
             {
                 _connection = connection;
-                GetStreams().Subscribe(s => _versions[s.Name] = s.Version);
+                GetStreams().Subscribe(s => _versions[(s.Name,s.Timeline)] = (s.Version,s.BranchVersion));
             }
 
             public void Alert(IEvent e)
@@ -50,11 +50,11 @@ namespace Chronos.Persistence
                 _alerts.OnNext(e);
             }
 
-            public int GetStreamVersion(string streamName)
+            public ValueTuple<int,int> GetStreamVersions(StreamDetails stream)
             {
-                if (!_versions.ContainsKey(streamName))
-                    return -1;
-                return _versions[streamName];
+                if (!_versions.ContainsKey((stream.Name,stream.Timeline)))
+                    return (-1,-1);
+                return _versions[(stream.Name,stream.Timeline)];
             }
             
             public IObservable<StreamDetails> GetStreams()
@@ -75,7 +75,7 @@ namespace Chronos.Persistence
             {
                 return Observable.Create((IObserver<IEvent> observer) =>
                 {
-                    var events = _connection.ReadStreamEventsForward(stream.Name, eventNumber, int.MaxValue)
+                    var events = _connection.ReadStreamEventsForward(stream, eventNumber, int.MaxValue)
                         .OrderBy(e => e.Timestamp);
                         //.Where(e => e.Timestamp <= _connection._timeline.Now());
                     foreach (var e in events)
@@ -91,7 +91,7 @@ namespace Chronos.Persistence
 
             internal void OnEventAppended(StreamDetails stream,IEvent e)
             {
-                _versions[stream.Name] = stream.Version;
+                _versions[(stream.Name,stream.Timeline)] = (stream.Version,stream.BranchVersion);
                 _events.OnNext(new Envelope(e, stream));
             }
 

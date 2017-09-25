@@ -7,5 +7,10 @@ namespace Chronos.Core.Assets.Events
     {
         public Guid AssetId { get; set; }
         public double Price { get; set; }
+
+        public AssetPriceUpdated()
+        {
+            Insertable = true;
+        }
     }
 }

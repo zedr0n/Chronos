@@ -27,6 +27,7 @@ namespace Chronos.Infrastructure
         {
             _debugLog.WriteLine("Warping to " + InstantPattern.ExtendedIso.Format(date));
             //_timerService.Reset();
+            _timeline.Alternate(Guid.NewGuid());
             _timeline.Set(date);
             Replay(date);
         }
@@ -46,7 +47,9 @@ namespace Chronos.Infrastructure
                 throw new InvalidOperationException("Time cannot be advance when not in historical state");
 
             var date = _timeline.Now().Plus(duration);
-            GoTo(date);
+            //GoTo(date);
+            _timeline.Set(date);
+            Replay(date);
         }
     }
 }

@@ -28,19 +28,26 @@ namespace Chronos.Persistence.Migrations
 
                     b.Property<int?>("StreamHashId");
 
+                    b.Property<Guid?>("StreamTimelineId");
+
                     b.Property<DateTime>("TimestampUtc");
+
+                    b.Property<int>("Version");
 
                     b.HasKey("EventNumber");
 
-                    b.HasIndex("StreamHashId");
+                    b.HasIndex("StreamHashId", "StreamTimelineId");
 
                     b.ToTable("Events");
                 });
 
             modelBuilder.Entity("Chronos.Persistence.Types.Stream", b =>
                 {
-                    b.Property<int>("HashId")
-                        .ValueGeneratedOnAdd();
+                    b.Property<int>("HashId");
+
+                    b.Property<Guid>("TimelineId");
+
+                    b.Property<int>("BranchVersion");
 
                     b.Property<Guid>("Key");
 
@@ -50,7 +57,7 @@ namespace Chronos.Persistence.Migrations
 
                     b.Property<int>("Version");
 
-                    b.HasKey("HashId");
+                    b.HasKey("HashId", "TimelineId");
 
                     b.ToTable("Streams");
                 });
@@ -59,7 +66,7 @@ namespace Chronos.Persistence.Migrations
                 {
                     b.HasOne("Chronos.Persistence.Types.Stream")
                         .WithMany("Events")
-                        .HasForeignKey("StreamHashId");
+                        .HasForeignKey("StreamHashId", "StreamTimelineId");
                 });
 #pragma warning restore 612, 618
         }

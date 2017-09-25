@@ -9,5 +9,7 @@ namespace Chronos.Persistence.Types
         public string Payload { get; set; }
         [Key]
         public int EventNumber { get; set; }
+        
+        public int Version { get; set; }
     }
 }

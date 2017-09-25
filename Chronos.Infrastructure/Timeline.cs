@@ -34,8 +34,16 @@ namespace Chronos.Infrastructure
             });
         }
 
+        private Guid _timelineId = Guid.NewGuid();
+        
+        public Guid TimelineId => Live ? Guid.Empty : _timelineId;
         public bool Live { get; private set; } = true;
 
+        public void Alternate(Guid timelineId)
+        {
+            _timelineId = timelineId;
+        }
+        
         public void Set(Instant date)
         {
             _current = _clock.GetCurrentInstant();
@@ -44,12 +52,16 @@ namespace Chronos.Infrastructure
 
             Live = false;
             _current = date;
+            
+            if(_timelineId == Guid.Empty)
+                throw new InvalidOperationException("Alternative timeline detected but not initialized");
         }
 
         public void Reset()
         {
             Live = true;
-
+            _timelineId = Guid.Empty;
+            
             _current = _clock.GetCurrentInstant();
         }
 

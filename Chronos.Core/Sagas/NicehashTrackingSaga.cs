@@ -2,8 +2,9 @@
 using System.Diagnostics;
 using Chronos.Core.Net.Json.Commands;
 using Chronos.Core.Net.Json.Events;
-using Chronos.Core.Orders.NiceHash.Commands;
-using Chronos.Core.Orders.NiceHash.Events;
+using Chronos.Core.Nicehash.Commands;
+using Chronos.Core.Nicehash.Events;
+using Chronos.Core.Nicehash.Json;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Sagas;
@@ -69,13 +70,13 @@ namespace Chronos.Core.Sagas
             {
                 _requestId = e.OrderId;
             
-                SendMessage(new CreateRequestCommand<Orders.NiceHash.Json.Orders>
+                SendMessage(new CreateRequestCommand<Orders>
                 {
                     TargetId = _requestId
                 }); 
             }
 
-            SendMessage(new TrackRequestCommand<Orders.NiceHash.Json.Orders>
+            SendMessage(new TrackRequestCommand<Orders>
             {
                 TargetId = _requestId,
                 UpdateInterval = e.UpdateInterval

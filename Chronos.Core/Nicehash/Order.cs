@@ -1,9 +1,9 @@
 ﻿using System;
 using Chronos.Core.Assets;
-using Chronos.Core.Orders.NiceHash.Events;
+using Chronos.Core.Nicehash.Events;
 using Chronos.Infrastructure;
 
-namespace Chronos.Core.Orders.NiceHash
+namespace Chronos.Core.Nicehash
 {
     public class Order : AggregateBase
     {

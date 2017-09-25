@@ -317,9 +317,9 @@ namespace Chronos.Tests
         }
 
         [Fact]
-        public void CanCreateAccountInThePast()
+        public void CanStartTimelineFromEmpty()
         {
-            var container = CreateContainer(nameof(CanCreateAccountInThePast));
+            var container = CreateContainer(nameof(CanStartTimelineFromEmpty));
 
             var navigator = container.GetInstance<ITimeNavigator>();            
             var pastDate = new ZonedDateTime(new LocalDateTime(2017,07,08,0,0), DateTimeZone.Utc,Offset.Zero).ToInstant();
@@ -384,9 +384,9 @@ namespace Chronos.Tests
         }
 
         [Fact]
-        public void CanReplayEventsUpToPointInPast()
+        public void CanCreateTimelineFromDate()
         {
-            var container = CreateContainer(nameof(CanReplayEventsUpToPointInPast));
+            var container = CreateContainer(nameof(CanCreateTimelineFromDate));
 
             var accountId = Guid.NewGuid();
             var createAccountCommand = new CreateAccountCommand

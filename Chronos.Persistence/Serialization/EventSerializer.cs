@@ -24,6 +24,7 @@ namespace Chronos.Persistence.Serialization
                 serialized = new Event
                 {
                     TimestampUtc = e.Timestamp.ToDateTimeUtc(),
+                    Version = e.Version,
                     Payload = writer.ToString()
                 };
             }

@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Projections;
 using Chronos.Core.Accounts.Events;
+using Chronos.Infrastructure.Events;
 using NodaTime;
 
 namespace Chronos.Core.Accounts.Projections
@@ -20,6 +21,15 @@ namespace Chronos.Core.Accounts.Projections
         
         public DateTime CreatedAtUtc { get; private set; }
 
+        private void When(StateReset e)
+        {
+            Name = null;
+            Currency = null;
+            Balance = 0;
+            CreatedAt = default(Instant);
+            CreatedAtUtc = default(DateTime);
+        }
+        
         private void When( AccountCreated e)
         {
             Name = e.Name;

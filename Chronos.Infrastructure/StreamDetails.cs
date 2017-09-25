@@ -9,7 +9,19 @@ namespace Chronos.Infrastructure
         public string SourceType { get; set; }
         public Guid Key { get; set; }
         public int Version { get; set; } = -1;
+        
+        public Guid Timeline { get; set; }
+        public int BranchVersion { get; set; }
 
+        public StreamDetails(StreamDetails rhs)
+        {
+            Name = rhs.Name;
+            SourceType = rhs.SourceType;
+            Key = rhs.Key;
+            Version = rhs.Version;
+            Timeline = rhs.Timeline;
+        }
+        
         public StreamDetails(string name)
         {
             Name = name;

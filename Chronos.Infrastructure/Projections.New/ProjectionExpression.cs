@@ -38,6 +38,7 @@ namespace Chronos.Infrastructure.Projections.New
         }
         
         private IObservable<StreamDetails> _streams;
+        private Selector<StreamDetails> _streamSelector = new Selector<StreamDetails>();
         private bool _forEachStream;
         
         private readonly ReplaySubject<Projection> _projectionSubject = new ReplaySubject<Projection>();
@@ -83,14 +84,18 @@ namespace Chronos.Infrastructure.Projections.New
         public IProjectionExpression<T> From<TAggregate>()
             where TAggregate : IAggregate
         {
-            _streams = _streams.Where(s => s.SourceType == typeof(TAggregate).Name);
+            //var criteria = _streamSelector;
+            _streamSelector = _streamSelector.Where(x => x.SourceType == typeof(TAggregate).Name);
+            //_streamSelector = s => criteria(s).Where(x => x.SourceType == typeof(TAggregate).Name);
+            //_streams = _streams.Where(s => s.SourceType == typeof(TAggregate).Name);
             return this;
         }
 
         public IProjectionExpression<T> From<TAggregate>(Guid id) where TAggregate : IAggregate
         {
             From<TAggregate>();
-            _streams = _streams.Where(s => s.Key == id);
+            _streamSelector = _streamSelector.Where(x => x.Key == id);
+            //_streams = _streams.Where(s => s.Key == id);
             return this;
         }
 
@@ -98,7 +103,7 @@ namespace Chronos.Infrastructure.Projections.New
         {
             Projection = new TransientProjection<T>(_eventStore)
             {
-                Streams = _streams
+                Selector = _streamSelector
             };
 
             return this;
@@ -108,7 +113,7 @@ namespace Chronos.Infrastructure.Projections.New
         {
             Projection = new HistoricalProjection<T>(_eventStore, date)
             {
-                Streams = _streams
+                Selector = _streamSelector
             };
 
             return this;
@@ -127,7 +132,7 @@ namespace Chronos.Infrastructure.Projections.New
             
             Projection = new PersistentPartitionedProjection<T>(_eventStore,_writer)
             {
-                Streams = _streams
+                Selector = _streamSelector
             };
 
             return this;
@@ -140,7 +145,7 @@ namespace Chronos.Infrastructure.Projections.New
             
             Projection = new PersistentProjection<TKey,T>(_eventStore,_writer)
             {
-                Streams = _streams,
+                Selector = _streamSelector,
                 Key = s => key
             };
 

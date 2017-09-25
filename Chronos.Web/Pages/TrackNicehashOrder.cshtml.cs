@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
-using Chronos.Core.Orders.NiceHash.Commands;
-using Chronos.Core.Orders.NiceHash.Projections;
-using Chronos.Core.Orders.NiceHash.Queries;
+using Chronos.Core.Nicehash.Commands;
+using Chronos.Core.Nicehash.Projections;
+using Chronos.Core.Nicehash.Queries;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Queries;
 using Microsoft.AspNetCore.Mvc;

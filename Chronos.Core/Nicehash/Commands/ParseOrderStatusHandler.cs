@@ -4,7 +4,7 @@ using Chronos.Core.Net.Json.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 
-namespace Chronos.Core.Orders.NiceHash.Commands
+namespace Chronos.Core.Nicehash.Commands
 {
     public class ParseOrderStatusHandler : ICommandHandler<ParseOrderStatusCommand>
     {

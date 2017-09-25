@@ -46,12 +46,12 @@ namespace Chronos.Infrastructure.Sagas
             _alerts.OfType<TEvent>().Subscribe(action);
         }
 
-        protected void RegisterAlert<TEvent>(Func<TEvent, Guid> sagaId)
+        protected void RegisterAlert<TEvent>(Func<TEvent, Guid> sagaId,bool createNew = false)
             where TEvent : class, IEvent
         {
             RegisterAlert<TEvent>(e => 
                 Send(e,
-                    Get(sagaId(e))));
+                    Get(sagaId(e),createNew)));
         }
 
         private TSaga Get(Guid sagaId, bool createNew = true)
@@ -68,6 +68,8 @@ namespace Chronos.Infrastructure.Sagas
 
         private void Send<TEvent>(TEvent e,TSaga saga) where TEvent : class, IEvent
         {
+            if (saga == null)
+                return;
             (saga as IHandle<TEvent>)?.When(e);
             _repository.Save(saga); 
         }

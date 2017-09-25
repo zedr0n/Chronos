@@ -1,7 +1,7 @@
 ﻿using System;
 using Chronos.Infrastructure.Events;
 
-namespace Chronos.Core.Orders.NiceHash.Events
+namespace Chronos.Core.Nicehash.Events
 {
     public class NicehashOrderCreated  : EventBase
     {

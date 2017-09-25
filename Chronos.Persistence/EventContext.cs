@@ -1,4 +1,5 @@
-﻿using Chronos.Persistence.Types;
+﻿using System;
+using Chronos.Persistence.Types;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chronos.Persistence
@@ -14,6 +15,11 @@ namespace Chronos.Persistence
         public DbSet<Event> Events { get; set; }
         public DbSet<Stream> Streams { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Stream>().HasKey(x => new {x.HashId, x.TimelineId});
+        }
+        
         public override void Clear()
         {
             Events.RemoveRange(Events);

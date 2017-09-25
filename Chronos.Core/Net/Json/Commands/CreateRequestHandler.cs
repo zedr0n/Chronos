@@ -15,8 +15,8 @@ namespace Chronos.Core.Net.Json.Commands
     
         public void Handle(CreateRequestCommand<T> command)
         {
-            if(_domainRepository.Exists<Request<T>>(command.TargetId))
-                throw new InvalidOperationException("Request already exists");
+            //if(_domainRepository.Exists<Request<T>>(command.TargetId))
+            //    throw new InvalidOperationException("Request already exists");
             
     		var request = new Request<T>(command.TargetId,command.Url);  
             _domainRepository.Save(request);

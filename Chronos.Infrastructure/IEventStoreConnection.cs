@@ -31,11 +31,11 @@ namespace Chronos.Infrastructure
         /// <summary>
         /// Read specified number events from the stream forward from starting position
         /// </summary>
-        /// <param name="streamName"></param>
+        /// <param name="stream"></param>
         /// <param name="start"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        IEnumerable<IEvent> ReadStreamEventsForward(string streamName, long start, int count);
+        IEnumerable<IEvent> ReadStreamEventsForward(StreamDetails stream, long start, int count);
     }
 
     public interface IEventStoreConnection

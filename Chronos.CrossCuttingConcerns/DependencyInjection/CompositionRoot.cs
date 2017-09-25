@@ -10,11 +10,10 @@ using Chronos.Core.Assets.Commands;
 using Chronos.Core.Assets.Projections;
 using Chronos.Core.Assets.Queries;
 using Chronos.Core.Net.Json.Commands;
-using Chronos.Core.Orders.NiceHash;
-using Chronos.Core.Orders.NiceHash.Commands;
-using Chronos.Core.Orders.NiceHash.Json;
-using Chronos.Core.Orders.NiceHash.Projections;
-using Chronos.Core.Orders.NiceHash.Queries;
+using Chronos.Core.Nicehash.Commands;
+using Chronos.Core.Nicehash.Json;
+using Chronos.Core.Nicehash.Projections;
+using Chronos.Core.Nicehash.Queries;
 using Chronos.Core.Projections;
 using Chronos.Core.Sagas;
 using Chronos.Core.Transactions.Commands;
@@ -28,6 +27,7 @@ using Chronos.Persistence.Serialization;
 using Chronos.Net;
 using NodaTime;
 using SimpleInjector;
+using OrderStatus = Chronos.Core.Nicehash.Projections.OrderStatus;
 
 namespace Chronos.CrossCuttingConcerns.DependencyInjection
 {
@@ -192,7 +192,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.RegisterQuery<AccountInfoQuery,AccountInfo>(typeof(AccountInfoHandler), Lifestyle.Singleton);
             container.RegisterQuery<CoinInfoQuery,CoinInfo>(typeof(CoinInfoHandler),Lifestyle.Singleton);
             container.RegisterQuery<OrderInfoQuery,OrderInfo>(typeof(OrderInfoHandler),Lifestyle.Singleton);
-            container.RegisterQuery<OrderStatusQuery,Core.Orders.NiceHash.Projections.OrderStatus>(typeof(OrderStatusHandler),Lifestyle.Singleton);
+            container.RegisterQuery<OrderStatusQuery,OrderStatus>(typeof(OrderStatusHandler),Lifestyle.Singleton);
             container.RegisterQuery<TotalMovementQuery,TotalMovement>(typeof(TotalMovementHandler),Lifestyle.Singleton);
             
             container.RegisterQuery<StatsQuery,Stats>(typeof(StatsHandler),Lifestyle.Singleton);
