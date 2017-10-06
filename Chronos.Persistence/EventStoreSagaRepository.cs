@@ -18,19 +18,28 @@ namespace Chronos.Persistence
     {
         private readonly ICommandBus _commandBus;
         private readonly IEventStoreConnection _connection;
+        private readonly StreamTracker _streamTracker;
 
-        public EventStoreSagaRepository(IEventStoreConnection connection, ICommandBus commandBus)
+        public EventStoreSagaRepository(IEventStoreConnection connection, ICommandBus commandBus, StreamTracker streamTracker)
         {
             _connection = connection;
             _commandBus = commandBus;
+            _streamTracker = streamTracker;
         }
 
         public void Save<T>(T saga) where T : class,ISaga, new()
         {
             var events = saga.UncommitedEvents.ToList();
 
-            var stream = new StreamDetails(saga);
-            _connection.Writer.AppendToStream(stream,saga.Version - events.Count,events);
+            var expectedVersion = saga.Version - events.Count;
+
+            StreamDetails stream;
+            if (expectedVersion == 0)
+                stream = _streamTracker.Add(saga);
+            else 
+                stream = _streamTracker.Get(saga);  
+            
+            _connection.AppendToStream(stream,expectedVersion,events);
 
             foreach (var e in saga.UndispatchedMessages)
                 _commandBus.Send(e as ICommand);
@@ -41,8 +50,12 @@ namespace Chronos.Persistence
 
         public T Find<T>(Guid id) where T : class,ISaga, new()
         {         
-            var stream = new StreamDetails(typeof(T),id);
-            var events = _connection.Reader.ReadStreamEventsForward(stream, -1, int.MaxValue).ToList();
+            //var stream = new StreamDetails(typeof(T),id);
+            var stream = _streamTracker.Get(typeof(T), id);
+            if (stream == null)
+                return null;
+            
+            var events = _connection.ReadStreamEventsForward(stream, -1, int.MaxValue).ToList();
 
             if (!events.Any())
                 return null;

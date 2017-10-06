@@ -11,7 +11,7 @@ namespace Chronos.Infrastructure
         public T Find<TKey, T>(TKey key) where T : class,IReadModel
             where TKey: IEquatable<TKey>
         {
-            if (!_dictionary.TryGetValue(typeof(T), out var readModels) || !readModels.Any<IReadModel>())
+            if (!_dictionary.TryGetValue(typeof(T), out var readModels) || !readModels.Any())
                 return null;
 
             var readModel = readModels.Cast<IReadModel<TKey>>()?.SingleOrDefault(p => p.Key.Equals(key));
@@ -21,7 +21,7 @@ namespace Chronos.Infrastructure
 
         public T Find<T>(Func<T, bool> predicate) where T : class, IReadModel
         {
-            if (!_dictionary.TryGetValue(typeof(T), out var readModels) || !readModels.Any<IReadModel>())
+            if (!_dictionary.TryGetValue(typeof(T), out var readModels) || !readModels.Any())
                 return null;
 
             return readModels.OfType<T>().SingleOrDefault(predicate);

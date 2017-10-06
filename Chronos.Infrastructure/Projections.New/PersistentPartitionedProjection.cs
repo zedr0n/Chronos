@@ -1,14 +1,30 @@
 ﻿using System;
+using System.Reactive.Linq;
+using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Interfaces;
+using NodaTime;
 
 namespace Chronos.Infrastructure.Projections.New
 {
     public class PersistentPartitionedProjection<T> : PersistentProjection<Guid,T>
         where T : class, IReadModel, new()
     {
-        internal PersistentPartitionedProjection(IEventStoreSubscriptions eventStore, IStateWriter writer)
-            : base(eventStore, writer)
+        public PersistentPartitionedProjection(IEventStore eventStore, IStateWriter writer, IReadRepository readRepository) 
+            : base(eventStore, writer, readRepository)
         {
-            Key = stream => stream.Key;
+            KeyFunc = s => s.Key;
+        }
+
+        protected override void Reset(ref IObservable<GroupedObservable<StreamDetails, IEvent>> events)
+        {
+            events = events.Select(x => new GroupedObservable<StreamDetails, IEvent>
+            {
+                Key = x.Key,
+                Observable = x.Observable.StartWith(new StateReset
+                {
+                    Timestamp = Instant.MinValue
+                })
+            });
         }
     }
 }

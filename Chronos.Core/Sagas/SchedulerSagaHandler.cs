@@ -7,7 +7,7 @@ namespace Chronos.Core.Sagas
 {
     public class SchedulerSagaHandler : SagaHandlerBase<SchedulerSaga>
     {
-        public SchedulerSagaHandler(ISagaRepository repository, IDebugLog debugLog, IEventStoreSubscriptions eventStore) 
+        public SchedulerSagaHandler(ISagaRepository repository, IDebugLog debugLog, IEventStore eventStore) 
             : base(repository, debugLog, eventStore)
         {
             RegisterAlert<CommandScheduled>(e => e.ScheduleId,true);

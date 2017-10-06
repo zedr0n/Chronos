@@ -8,10 +8,10 @@ namespace Chronos.Core.Nicehash.Commands
 {
     public class ParseOrderStatusHandler : ICommandHandler<ParseOrderStatusCommand>
     {
-        private readonly IEventStoreSubscriptions _eventStore;
+        private readonly IEventStore _eventStore;
         private readonly IJsonConnector _jsonConnector;
         
-        public ParseOrderStatusHandler(IEventStoreSubscriptions eventStore, IJsonConnector jsonConnector)
+        public ParseOrderStatusHandler(IEventStore eventStore, IJsonConnector jsonConnector)
         {
             _eventStore = eventStore;
             _jsonConnector = jsonConnector;

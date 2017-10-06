@@ -153,10 +153,10 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 container.Register<ICommandHandler<ClearDatabaseCommand>,ClearDatabaseHandler>(Lifestyle.Singleton);
             }
             container.Register<IEventSerializer,EventSerializer>(Lifestyle.Singleton);
-            container.Register(
-                () => container.GetInstance<IEventStoreConnection>().Subscriptions, Lifestyle.Singleton);
             container.Register(typeof(IBaseProjectionExpression<>),typeof(ProjectionExpression<>));
             container.Register<IProjectionManager,ProjectionManager>(Lifestyle.Singleton);
+            container.Register<IEventStore, EventStore>(Lifestyle.Singleton);
+            container.Register<StreamTracker>(Lifestyle.Singleton);
 
             container.Register(typeof(ICommandHandler<>),new[] {
                 typeof(CreateAccountHandler),

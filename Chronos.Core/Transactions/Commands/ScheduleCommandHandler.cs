@@ -7,17 +7,17 @@ namespace Chronos.Core.Transactions.Commands
     public class ScheduleCommandHandler : ICommandHandler<ScheduleCommand>
     {
         private readonly ITimeline _timeline;
-        private readonly IEventStoreConnection _connection;
+        private readonly IEventStore _eventStore;
 
-        public ScheduleCommandHandler(ITimeline timeline, IEventStoreConnection connection)
+        public ScheduleCommandHandler(ITimeline timeline, IEventStore eventStore)
         {
             _timeline = timeline;
-            _connection = connection;
+            _eventStore = eventStore;
         }
 
         public void Handle(ScheduleCommand command)
         {
-            _connection.Subscriptions.Alert(
+            _eventStore.Alert(
                 new CommandScheduled
                 {
                     ScheduleId = command.ScheduleId,

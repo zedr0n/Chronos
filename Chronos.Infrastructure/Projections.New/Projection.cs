@@ -1,88 +1,80 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Text.RegularExpressions;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure.Projections.New
 {
+
+    public struct StreamRequest
+    {
+        public StreamDetails Stream { get; }
+        public int Version { get; }
+
+        public StreamRequest(StreamDetails stream, int version)
+        {
+            Stream = stream;
+            Version = version;
+        }
+    }
+    
     public class Projection : IProjection
     {
-        private readonly IEventStoreSubscriptions _eventStore;
+        private readonly IEventStore _eventStore;
 
         private IObservable<StreamDetails> _streams;
-        private readonly List<StreamDetails> _observedStreams = new List<StreamDetails>();
+        
         public Selector<StreamDetails> Selector { get; set; } = new Selector<StreamDetails>();
 
-        private readonly Dictionary<int, int> _lastEvents = new Dictionary<int, int>();
+        private IDisposable _subscription;
 
-        private IDisposable _streamsSubscription;
-        private readonly Dictionary<string, IDisposable> _eventSubscriptions = new Dictionary<string, IDisposable>();
-
-        protected Projection(IEventStoreSubscriptions eventStore)
+        protected Projection(IEventStore eventStore)
         {
             _eventStore = eventStore;
+            _eventStore.Alerts.OfType<ReplayCompleted>().Subscribe(e => Start(true));
         }
 
-        public void OnReplay()
-        {
-            Reset();
-            Start();
-        }
-
-        private void Reset()
-        {
-            //foreach(var s in _observedStreams)
-            //    When(s, new StateReset());
-            _lastEvents.Clear();
-        }
-        
         protected virtual void When(StreamDetails stream, IEvent e)
         {
-            var hash = stream.Name.HashString();
-            Debug.Assert(_lastEvents.ContainsKey(hash));
-            if (e.Version > _lastEvents[hash])
-                _lastEvents[hash] = e.Version;
-        }
-
-        private void OnStreamAdded(StreamDetails stream)
-        {
-            Debug.Assert(!_eventSubscriptions.ContainsKey(stream.Name));
-            if (!_lastEvents.ContainsKey(stream.Name.HashString()))
-            {
-                var resetState = !_lastEvents.Any();
-                _lastEvents[stream.Name.HashString()] = -1;
-                if(resetState)
-                    When(stream, new StateReset());
-            }
-
-            _eventSubscriptions[stream.Name] = GetEvents(stream)//.SubscribeOn(Scheduler.Default)
-                .Subscribe(e => When(stream, e));
-            _observedStreams.Add(stream);
-        }
-        
-        protected virtual IObservable<IEvent> GetEvents(StreamDetails stream)
-        {
-            return _eventStore.GetEvents(stream, _lastEvents[stream.Name.HashString()]);
         }
 
         private void Unsubscribe()
         {
-            _observedStreams.Clear();
-            _streamsSubscription?.Dispose();
-            foreach (var s in _eventSubscriptions.Values)
-                s.Dispose();
-            _eventSubscriptions.Clear();
+            _subscription?.Dispose();
         }
 
-        public void Start()
+        protected virtual int GetVersion(StreamDetails stream)
+        {
+            return -1;
+        }
+
+        protected virtual void Reset(ref IObservable<GroupedObservable<StreamDetails,IEvent>> events) {}
+        
+        public void Start(bool reset = false)
         {
             Unsubscribe();
-            _streams = _eventStore.GetStreams().Where(Selector);
+
+            _streams = _eventStore.GetLiveStreams().Where(Selector);
+            var requests = _streams.Select(s => new StreamRequest(s, reset ? 0 : GetVersion(s)+1));
             
-            _streamsSubscription = _streams.Subscribe(OnStreamAdded);
+            var events = _eventStore.GetEvents(requests)
+                .Select(x => new GroupedObservable<StreamDetails,IEvent>
+            {
+                Key = x.Key,
+                Observable = x.AsObservable()
+            });
+
+            if (reset)
+                Reset(ref events); 
+            
+            _subscription = events.Subscribe(x =>
+                x.Observable.Subscribe(e => When(x.Key, e)));
         }
     }
 }

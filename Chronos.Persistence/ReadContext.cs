@@ -21,7 +21,7 @@ namespace Chronos.Persistence
         public DbSet<OrderInfo> Orders { get; set; }
         public DbSet<OrderStatus> OrderStatuses { get; set; }
         
-        public override void Clear()
+        public virtual void Clear()
         {
             Accounts.RemoveRange(Accounts);
             Movements.RemoveRange(Movements);

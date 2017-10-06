@@ -10,13 +10,17 @@ namespace Chronos.Infrastructure.Projections.New
     {
         private readonly Instant _date;
 
-        internal HistoricalProjection(IEventStoreSubscriptions eventStore, Instant date)
+        internal HistoricalProjection(IEventStore eventStore,Instant date)
             : base(eventStore)
         {
             _date = date;
         }
 
-        protected override IObservable<IEvent> GetEvents(StreamDetails stream) => base.GetEvents(stream)
-            .Where(e => e.Timestamp <= _date);
+        protected override void When(StreamDetails stream, IEvent e)
+        {
+            if (e.Timestamp > _date)
+                return;
+            base.When(stream, e);
+        }
     }
 }

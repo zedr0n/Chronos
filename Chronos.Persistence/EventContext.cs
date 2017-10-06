@@ -20,7 +20,7 @@ namespace Chronos.Persistence
             modelBuilder.Entity<Stream>().HasKey(x => new {x.HashId, x.TimelineId});
         }
         
-        public override void Clear()
+        public virtual void Clear()
         {
             Events.RemoveRange(Events);
             SaveChanges();

@@ -2,6 +2,8 @@
 using Chronos.Core.Assets;
 using Chronos.Core.Assets.Projections;
 using Chronos.Core.Assets.Queries;
+using Chronos.Core.Nicehash.Projections;
+using Chronos.Core.Nicehash.Queries;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Queries;
@@ -12,13 +14,15 @@ namespace Chronos.Core.Nicehash.Commands
     {
         private readonly IDomainRepository _domainRepository;
         private readonly IQueryHandler<CoinInfoQuery, CoinInfo> _coinInfoHandler;
+        private readonly IQueryHandler<OrderInfoQuery, OrderInfo> _orderInfoHandler;
         
         private Guid _btcId;
 
-        public CreateOrderHandler(IDomainRepository domainRepository, IQueryHandler<CoinInfoQuery, CoinInfo> coinInfoHandler)
+        public CreateOrderHandler(IDomainRepository domainRepository, IQueryHandler<CoinInfoQuery, CoinInfo> coinInfoHandler, IQueryHandler<OrderInfoQuery, OrderInfo> orderInfoHandler)
         {
             _domainRepository = domainRepository;
             _coinInfoHandler = coinInfoHandler;
+            _orderInfoHandler = orderInfoHandler;
 
             _btcId = _coinInfoHandler.Handle(new CoinInfoQuery
             {
@@ -36,8 +40,13 @@ namespace Chronos.Core.Nicehash.Commands
                 })?.Key ?? Guid.Empty;    
             }
 
-            if (_domainRepository.Exists<Order>(command.TargetId))
+            if (_orderInfoHandler.Handle(new OrderInfoQuery
+            {
+                OrderNumber = command.OrderNumber
+            }) != null)
                 return;
+            //if (_domainRepository.Exists<Order>(command.TargetId))
+            //    return;
             
             var amount = new Amount(_btcId, command.Price);
 		    var order = new Order(command.TargetId,command.OrderNumber,amount);    

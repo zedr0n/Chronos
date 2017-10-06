@@ -2,6 +2,7 @@
 using Chronos.Core.Assets.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Core.Projections
 {
@@ -29,6 +30,14 @@ namespace Chronos.Core.Projections
         {
             NumberOfAccounts = 0;
             NumberOfAssets = 0;
-        }       
+        }
+
+        public override void When(IEvent e)
+        {
+            base.When(e);
+            // as stats are aggregated from multiple streams
+            // we will always read it from scratch on load/replay
+            Version = -1;
+        }
     }
 }

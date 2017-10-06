@@ -28,6 +28,7 @@ namespace Chronos.Core.Accounts.Projections
             Balance = 0;
             CreatedAt = default(Instant);
             CreatedAtUtc = default(DateTime);
+            // Version will be -1 as StateReset version is always -1
         }
         
         private void When( AccountCreated e)

@@ -13,6 +13,8 @@ namespace Chronos.Infrastructure
         public Guid Timeline { get; set; }
         public int BranchVersion { get; set; }
 
+        public bool IsBranch => Timeline == Guid.Empty;
+        
         public StreamDetails(StreamDetails rhs)
         {
             Name = rhs.Name;

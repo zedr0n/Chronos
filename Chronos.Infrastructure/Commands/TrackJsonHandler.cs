@@ -5,16 +5,16 @@ namespace Chronos.Infrastructure.Commands
 {
     public class TrackJsonHandler<T> : ICommandHandler<TrackJsonCommand<T>>
     {
-        private readonly IEventStoreConnection _connection;
+        private readonly IEventStore _eventStore;
 
-        public TrackJsonHandler(IEventStoreConnection connection)
+        public TrackJsonHandler(IEventStore eventStore)
         {
-            _connection = connection;
+            _eventStore = eventStore;
         }
 
         public void Handle(TrackJsonCommand<T> command)
         {
-            _connection.Subscriptions.Alert(
+            _eventStore.Alert(
                 new JsonTrackingRequested<T>
                 {
                     RequestId = command.RequestId,

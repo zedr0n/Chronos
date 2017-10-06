@@ -7,7 +7,8 @@ namespace Chronos.Core.Sagas
 {
     public class TransferSagaHandler : SagaHandlerBase<TransferSaga>
     {
-        public TransferSagaHandler(ISagaRepository repository, IDebugLog debugLog, IEventStoreSubscriptions eventStore) : base(repository, debugLog, eventStore)
+        public TransferSagaHandler(ISagaRepository repository, IDebugLog debugLog, IEventStore eventStore) 
+            : base(repository, debugLog, eventStore)
         {
             Register<CashTransferCreated>(e => e.TransferId);
         }

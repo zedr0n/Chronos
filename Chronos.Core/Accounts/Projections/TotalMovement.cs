@@ -1,6 +1,7 @@
 ﻿using System;
 using Chronos.Core.Accounts.Events;
 using Chronos.Infrastructure;
+using Chronos.Infrastructure.Events;
 
 namespace Chronos.Core.Accounts.Projections
 {
@@ -11,6 +12,11 @@ namespace Chronos.Core.Accounts.Projections
     {
         public double Value { get; private set; }
 
+        private void When(StateReset e)
+        {
+            Value = 0;
+        }
+        
         private void When(CashDeposited e)
         {
             Value += Math.Abs(e.Amount);

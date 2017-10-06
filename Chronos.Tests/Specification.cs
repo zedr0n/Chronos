@@ -33,7 +33,7 @@ namespace Chronos.Tests
         
         public Specification(IDomainRepository repository,
             ICommandBus commandBus, 
-            IEventStoreSubscriptions eventStore,
+            IEventStore eventStore,
             IQueryProcessor queryProcessor, ITimeNavigator timeNavigator)
         {
             _repository = repository;

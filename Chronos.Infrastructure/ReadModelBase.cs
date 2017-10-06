@@ -13,16 +13,21 @@ namespace Chronos.Infrastructure
 
         [Key]
         public TKey Key { get; set; }
+        // originating stream version
+        public int Version { get; set; }
         
         protected ReadModelBase()
         {
             foreach (var m in GetType().GetTypeInfo().GetDeclaredMethods("When"))
-                _when.Add(m.GetParameters().First().ParameterType, (e) => m.Invoke(this, new object[] { e }));
+                _when.Add(m.GetParameters().First().ParameterType, e => m.Invoke(this, new object[] { e }));
         }
-        public void When(IEvent e)
+        public virtual void When(IEvent e)
         {
-            if (_when.ContainsKey(e.GetType()))
-                _when[e.GetType()](e);
+            if (!_when.ContainsKey(e.GetType()))
+                return;
+            
+            Version = e.Version;
+            _when[e.GetType()](e);
         }
     }
 }

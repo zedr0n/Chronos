@@ -9,7 +9,7 @@ namespace Chronos.Core.Sagas
 {
     public class NicehashTrackingSagaHandler : SagaHandlerBase<NicehashTrackingSaga>
     {
-        public NicehashTrackingSagaHandler(ISagaRepository repository, IDebugLog debugLog, IEventStoreSubscriptions eventStore) 
+        public NicehashTrackingSagaHandler(ISagaRepository repository, IDebugLog debugLog, IEventStore eventStore) 
             : base(repository, debugLog, eventStore)
         {
             Register<NicehashOrderTrackingRequested>(e => e.OrderId);

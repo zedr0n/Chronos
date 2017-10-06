@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
@@ -17,19 +18,19 @@ namespace Chronos.Persistence
     /// </summary>
     public class EventStoreDomainRepository : IDomainRepository
     {
-        private readonly IEventStoreConnection _connection;
+        //private readonly IEventStoreConnection _connection;
+        private readonly IEventStore _eventStore;
         private readonly IDebugLog _debugLog;
         private readonly IAggregateFactory _aggregateFactory;
+        private readonly StreamTracker _streamTracker;
 
-        private readonly Dictionary<Guid, StreamDetails> _streams = new Dictionary<Guid, StreamDetails>();        
-        
-        public EventStoreDomainRepository(IEventStoreConnection connection, IDebugLog debugLog, IAggregateFactory aggregateFactory)
+        public EventStoreDomainRepository(IDebugLog debugLog, IAggregateFactory aggregateFactory, IEventStore eventStore, StreamTracker streamTracker)
         {
-            _connection = connection;
+            //_connection = connection;
             _debugLog = debugLog;
             _aggregateFactory = aggregateFactory;
-
-            _connection.Subscriptions.GetStreams().Subscribe(s => _streams[s.Key] = s );
+            _eventStore = eventStore;
+            _streamTracker = streamTracker;
         }
 
         private readonly Cache _cache = new Cache();
@@ -58,7 +59,6 @@ namespace Chronos.Persistence
             }
         }
 
-
         public void Save<T>(T aggregate) where T :class,IAggregate
         {
             if (aggregate == null)
@@ -68,35 +68,26 @@ namespace Chronos.Persistence
             if (!events.Any())
                 return;
 
+            var expectedVersion = aggregate.Version - events.Count;            
+            
             _debugLog.WriteLine("@" + typeof(T).Name + " : ");
 
-            var stream = new StreamDetails(aggregate);
+            StreamDetails stream;
+            if (expectedVersion == 0)
+                stream = _streamTracker.Add(aggregate);
+            else 
+                stream = _streamTracker.Get(aggregate);
 
-            _connection.Writer.AppendToStream(stream, aggregate.Version - events.Count, events);
+            _eventStore.Connection.AppendToStream(stream,expectedVersion,events);
 
-            // we added a retroactive event which was saved at the end of the stream
-            // doubles for versions?
-            // or parallel stream copy merging the original stream events?
-            // that would have to clone on each new retroactive event though
-            // or we can only clone up to original version and then merge events
-            // when explicit timeline advance is requested?
-            // although we don't want to clone at all for simple retroactive events
-            // unless we handle those directly without switching to historical mode
-            // which will always clone so is expensive
-            if (stream.Version > aggregate.Version)
-            {
-                
-            }
-            
             aggregate.ClearUncommitedEvents();
             _cache.Set(aggregate);
-
         }
 
         public void Save<T>(Guid id, IEnumerable<IEvent> events)
         {
-            var stream = new StreamDetails(typeof(T),id);
-            _connection.Writer.AppendToStream(stream, 0 , events);
+            var stream = _streamTracker.Add(typeof(T), id);
+            _eventStore.Connection.AppendToStream(stream, 0 , events);
         }
 
         public T Find<T>(Guid id) where T : class,IAggregate
@@ -104,17 +95,17 @@ namespace Chronos.Persistence
             var cached = _cache.Get<T>(id);
             var version = cached?.Version ?? 0;
 
-            var streamDetails = new StreamDetails(typeof(T),id);
-            if (_streams.ContainsKey(id))
-                streamDetails = _streams[id];
+            var stream = _streamTracker.Get(typeof(T), id);
+            if (stream == null)
+                return null;
             
-            var events = _connection.Reader.ReadStreamEventsForward(streamDetails, version, int.MaxValue).ToList();
+            var events = _eventStore.Connection.ReadStreamEventsForward(stream , version, int.MaxValue).ToList();
 
             if (!events.Any() && version == 0)
                 return null;
 
             //var aggregate = cached ?? new T();
-            var aggregate = cached ?? _aggregateFactory.Create<T>(streamDetails.SourceType);
+            var aggregate = cached ?? _aggregateFactory.Create<T>(stream.SourceType);
             aggregate.LoadFrom<T>(id, events);
             return aggregate;
         }
@@ -126,11 +117,6 @@ namespace Chronos.Persistence
                 throw new InvalidOperationException("Aggregate not found, has it been created?");
 
             return entity;
-        }
-
-        public bool Exists<T>(Guid id) where T : class,IAggregate
-        {
-            return _connection.Exists(new StreamDetails(typeof(T),id));
         }
 
         public void Replay(Instant date)
@@ -145,7 +131,7 @@ namespace Chronos.Persistence
             //foreach (dynamic e in events)
             //    _eventBus.Publish(e);
 
-            _connection.Subscriptions.Alert(new ReplayCompleted
+            _eventStore.Alert(new ReplayCompleted
             {
                 Timestamp = date
             });

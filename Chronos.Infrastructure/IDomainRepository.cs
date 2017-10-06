@@ -22,8 +22,6 @@ namespace Chronos.Infrastructure
         /// <typeparam name="T">Aggregate type</typeparam>
         void Save<T>(Guid id, IEnumerable<IEvent> events);
 
-        bool Exists<T>(Guid id) where T : class, IAggregate;
-
         /// <summary>
         /// Rebuild the aggregate from event history extracted from Event Store
         /// </summary>

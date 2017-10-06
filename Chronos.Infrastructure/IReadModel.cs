@@ -4,6 +4,7 @@ namespace Chronos.Infrastructure
 {
     public interface IReadModel
     {
+        int Version { get; set; }
         void When(IEvent e);
     }
 

@@ -19,5 +19,10 @@ namespace Chronos.Infrastructure.Projections.New
         {
             return _predicates.Aggregate(observable, (current, p) => current.Where(p));
         }
+
+        public bool Predicate(T key)
+        {
+            return _predicates.Aggregate(true, (current, p) => current & p(key));
+        }
     }
 }

@@ -29,14 +29,13 @@ namespace Chronos.Persistence
         //private readonly string _dbName;
         //private readonly bool _inMemory;
 
-        public Context() { }
-        public Context(DbContextOptions options)
+        protected Context() { }
+
+        protected Context(DbContextOptions options)
             : base(options)
         {
         }
-        
-        public virtual void Clear() {}
-        
+
         public virtual Context WithOptions(DbContextOptions options) => new Context(options);
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

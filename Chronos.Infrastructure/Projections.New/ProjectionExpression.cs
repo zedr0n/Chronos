@@ -9,8 +9,9 @@ namespace Chronos.Infrastructure.Projections.New
     public class ProjectionExpression<T> : IBaseProjectionExpression<T>, ITransientProjectionExpression<T>, IPersistentProjectionExpression<T>
         where T : class, IReadModel,new()
     {
-        private readonly IEventStoreSubscriptions _eventStore;
+        private readonly IEventStore _eventStore;
         private readonly IStateWriter _writer;
+        private readonly IReadRepository _readRepository;
 
         private Projection _projection;
         private Projection Projection
@@ -36,8 +37,7 @@ namespace Chronos.Infrastructure.Projections.New
             Start();
             return Projection as ITransientProjection<T>;
         }
-        
-        private IObservable<StreamDetails> _streams;
+
         private Selector<StreamDetails> _streamSelector = new Selector<StreamDetails>();
         private bool _forEachStream;
         
@@ -52,7 +52,7 @@ namespace Chronos.Infrastructure.Projections.New
         
         private ProjectionExpression(ProjectionExpression<T> rhs)
         {
-            _streams = rhs._streams;
+            _readRepository = rhs._readRepository;
             _forEachStream = rhs._forEachStream;
 
             _eventStore = rhs._eventStore;
@@ -61,22 +61,23 @@ namespace Chronos.Infrastructure.Projections.New
             _projectionSubject.Subscribe(p =>
                 //_eventStore.AggregateEvents.OfType<ReplayCompleted>().Subscribe(e => p.OnReplay()));
                 //_eventStore.ReplayCompleted.Subscribe(e => p.OnReplay()));
-                    _eventStore.Alerts.OfType<ReplayCompleted>().Subscribe(e => p.OnReplay()));
+                    _eventStore.Alerts.OfType<ReplayCompleted>().Subscribe(e => p.Start(true)));
 
             //_projectionSubject.Subscribe(p => _eventBus.Subscribe<ReplayCompleted>(e => p.OnReplay()));  
         }
         
-        public ProjectionExpression(IEventStoreSubscriptions eventStore, IStateWriter writer)
+        public ProjectionExpression(IEventStore eventStore, IStateWriter writer, IReadRepository readRepository)
         {
             _eventStore = eventStore;
             _writer = writer;
+            _readRepository = readRepository;
 
-            _streams = _eventStore.GetStreams().Where(s => !s.Name.Contains("Saga"));
+            _streamSelector = new Selector<StreamDetails>().Where(s => !s.Name.Contains("Saga"));
 
             _projectionSubject.Subscribe(p =>
                 //_eventStore.AggregateEvents.OfType<ReplayCompleted>().Subscribe(e => p.OnReplay()));
                     //_eventStore.ReplayCompleted.Subscribe(e => p.OnReplay()));
-                    _eventStore.Alerts.OfType<ReplayCompleted>().Subscribe(e => p.OnReplay()));
+                    _eventStore.Alerts.OfType<ReplayCompleted>().Subscribe(e => p.Start(true)));
 
             //_projectionSubject.Subscribe(p => _eventBus.Subscribe<ReplayCompleted>(e => p.OnReplay()));  
         }
@@ -111,7 +112,7 @@ namespace Chronos.Infrastructure.Projections.New
 
         public ITransientProjectionExpression<T> AsOf(Instant date)
         {
-            Projection = new HistoricalProjection<T>(_eventStore, date)
+            Projection = new HistoricalProjection<T>(_eventStore,date)
             {
                 Selector = _streamSelector
             };
@@ -130,7 +131,7 @@ namespace Chronos.Infrastructure.Projections.New
             if(!_forEachStream)
                 throw new InvalidOperationException("No key defined for projection state persistence");
             
-            Projection = new PersistentPartitionedProjection<T>(_eventStore,_writer)
+            Projection = new PersistentPartitionedProjection<T>(_eventStore,_writer,_readRepository)
             {
                 Selector = _streamSelector
             };
@@ -143,10 +144,10 @@ namespace Chronos.Infrastructure.Projections.New
             if(_forEachStream)
                 throw new InvalidOperationException("Cannot output partitioned projection to single state");
             
-            Projection = new PersistentProjection<TKey,T>(_eventStore,_writer)
+            Projection = new MultiProjection<TKey,T>(_eventStore,_writer,_readRepository)
             {
                 Selector = _streamSelector,
-                Key = s => key
+                Key = key
             };
 
             return this;

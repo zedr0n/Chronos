@@ -9,14 +9,14 @@ namespace Chronos.Infrastructure.Commands
 {
     public class RequestTimeoutHandler : CommandHandlerBase, ICommandHandler<RequestTimeoutCommand>
     {
-        private readonly IEventStoreConnection _connection;
+        private readonly IEventStore _eventStore;
         private readonly ITimeline _timeline;
 
         private readonly Dictionary<Guid, IDisposable> _subscriptions = new Dictionary<Guid, IDisposable>();
 
-        public RequestTimeoutHandler(IDomainRepository domainRepository, IEventStoreConnection connection, ITimeline timeline) : base(domainRepository)
+        public RequestTimeoutHandler(IDomainRepository domainRepository, IEventStore eventStore, ITimeline timeline) : base(domainRepository)
         {
-            _connection = connection;
+            _eventStore = eventStore;
             _timeline = timeline;
         }
 
@@ -40,7 +40,7 @@ namespace Chronos.Infrastructure.Commands
                     //lock(_subscriptions)
                         _subscriptions[e.ScheduleId].Dispose();
                     //_connection.Writer.AppendToNull(new[] {e});
-                    _connection.Subscriptions.Alert(e);
+                    _eventStore.Alert(e);
                 });
         }
     }

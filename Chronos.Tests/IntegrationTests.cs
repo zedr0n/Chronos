@@ -44,7 +44,6 @@ namespace Chronos.Tests
             var container = CreateContainer(nameof(CanCreateMultipleAccounts));
             var bus = container.GetInstance<ICommandBus>();
             var processor = container.GetInstance<IQueryProcessor>();
-            var queryHandler = container.GetInstance<IQueryHandler<AccountInfoQuery, AccountInfo>>();
 
             var id = Guid.NewGuid();
             var command = new CreateAccountCommand

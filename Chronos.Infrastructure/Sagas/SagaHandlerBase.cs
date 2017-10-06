@@ -16,7 +16,7 @@ namespace Chronos.Infrastructure.Sagas
         private readonly IConnectableObservable<IEvent> _events;
         private readonly IConnectableObservable<IEvent> _alerts;
 
-        protected SagaHandlerBase(ISagaRepository repository, IDebugLog debugLog, IEventStoreSubscriptions eventStore)
+        protected SagaHandlerBase(ISagaRepository repository, IDebugLog debugLog, IEventStore eventStore)
         {
             _repository = repository;
             _debugLog = debugLog;
