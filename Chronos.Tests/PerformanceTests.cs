@@ -1,7 +1,10 @@
 ﻿using System;
 using Chronos.Core.Accounts.Commands;
+using Chronos.Core.Accounts.Projections;
+using Chronos.Core.Accounts.Queries;
 using Chronos.Core.Transactions.Commands;
 using Chronos.Infrastructure.Commands;
+using Chronos.Infrastructure.Queries;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -28,6 +31,8 @@ namespace Chronos.Tests
 
             var handler2 = container.GetInstance<ICommandHandler<CreatePurchaseCommand>>();
 
+            var totalMovement = 100 * numberOfTransactions;
+            
             while (numberOfTransactions-- > 0)
             {
                 var command = new CreatePurchaseCommand
@@ -41,6 +46,11 @@ namespace Chronos.Tests
 
                 handler2.Handle(command);
             }
+
+            var processor = container.GetInstance<IQueryProcessor>();
+
+            var movement = processor.Process<TotalMovementQuery,TotalMovement>(new TotalMovementQuery());
+            Assert.Equal(totalMovement,movement.Value);
         }
 
         public PerformanceTests(ITestOutputHelper output) : base(output)
