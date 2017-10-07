@@ -11,19 +11,6 @@ using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure.Projections.New
 {
-
-    public struct StreamRequest
-    {
-        public StreamDetails Stream { get; }
-        public int Version { get; }
-
-        public StreamRequest(StreamDetails stream, int version)
-        {
-            Stream = stream;
-            Version = version;
-        }
-    }
-    
     public class Projection : IProjection
     {
         private readonly IEventStore _eventStore;

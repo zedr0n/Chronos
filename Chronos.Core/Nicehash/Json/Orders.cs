@@ -2,7 +2,7 @@
 
 namespace Chronos.Core.Nicehash.Json
 {
-    public class OrderStatus
+    public class OrderStatusJson
     {
         public int Id { get; set; }
         public double Accepted_Speed { get; set; }
@@ -11,7 +11,7 @@ namespace Chronos.Core.Nicehash.Json
 
     public class Result
     {
-        public List<OrderStatus> Orders { get; set; }
+        public List<OrderStatusJson> Orders { get; set; }
     }
     
     public class Orders
