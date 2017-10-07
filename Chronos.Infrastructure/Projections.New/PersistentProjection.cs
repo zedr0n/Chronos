@@ -23,9 +23,9 @@ namespace Chronos.Infrastructure.Projections.New
         {
             _writer.Write<TKey,T>(KeyFunc(stream),x =>
             {
+                x.Timeline = Timeline;
                 x.When(e);
             });
-            //Write(_key(stream),e);
             base.When(stream, e);
         }
 

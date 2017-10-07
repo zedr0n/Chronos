@@ -17,6 +17,7 @@ namespace Chronos.Infrastructure
         void Alert(IEvent e);
         
         IEventStoreConnection Connection { get; }
+        ITimeline Timeline { get; }
         IObservable<StreamDetails> GetLiveStreams();
     }
 

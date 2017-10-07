@@ -13,6 +13,8 @@ namespace Chronos.Persistence
         private readonly IObservable<Envelope> _events; 
         private readonly Subject<IEvent> _alerts = new Subject<IEvent>();
 
+        public ITimeline Timeline { get; }
+
         public IEventStoreConnection Connection { get; }
         public IObservable<IEvent> Events => _events.Where(e => !e.SagaEvent).Select(e => e.Event);
         public IObservable<IEvent> Alerts => _alerts.AsObservable();
@@ -20,6 +22,7 @@ namespace Chronos.Persistence
         public IObservable<StreamDetails> GetLiveStreams()
         {
             var streams = Connection.GetStreams()
+                .Where(s => s.Timeline == Guid.Empty || s.Timeline == Timeline.TimelineId)
                 .GroupBy(x => x.Name)
                 .SelectMany(x => x.OrderBy(s => s.IsBranch).Take(1));
 
@@ -51,9 +54,10 @@ namespace Chronos.Persistence
             return events.GroupBy(x => x.Stream, x => x.Event);
         }
 
-        public EventStore(IEventStoreConnection connection)
+        public EventStore(IEventStoreConnection connection, ITimeline timeline)
         {
             Connection = connection;
+            Timeline = timeline;
             _events = Connection.Events;
             
             //LiveStreams = Connection.GetLiveStreams().ToObservable()

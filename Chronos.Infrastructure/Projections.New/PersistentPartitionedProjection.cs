@@ -20,10 +20,7 @@ namespace Chronos.Infrastructure.Projections.New
             events = events.Select(x => new GroupedObservable<StreamDetails, IEvent>
             {
                 Key = x.Key,
-                Observable = x.Observable.StartWith(new StateReset
-                {
-                    Timestamp = Instant.MinValue
-                })
+                Observable = x.Observable.StartWith(ResetState())
             });
         }
     }

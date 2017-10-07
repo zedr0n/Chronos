@@ -341,6 +341,10 @@ namespace Chronos.Tests
             var accountInfo = queryHandler.Handle(query);
 
             Assert.Equal(pastDate,accountInfo.CreatedAt);
+            
+            navigator.Reset();
+            var mainAccountInfo = queryHandler.Handle(query);
+            Assert.Null(mainAccountInfo);
         }
 
         [Fact]

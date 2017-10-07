@@ -15,6 +15,7 @@ namespace Chronos.Infrastructure
         public TKey Key { get; set; }
         // originating stream version
         public int Version { get; set; }
+        public Guid Timeline { get; set; }
         
         protected ReadModelBase()
         {

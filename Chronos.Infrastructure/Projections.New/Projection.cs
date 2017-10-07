@@ -1,19 +1,15 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Text.RegularExpressions;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
+using NodaTime;
 
 namespace Chronos.Infrastructure.Projections.New
 {
     public class Projection : IProjection
     {
         private readonly IEventStore _eventStore;
+        protected Guid Timeline => _eventStore.Timeline.TimelineId;
 
         private IObservable<StreamDetails> _streams;
         
@@ -30,6 +26,12 @@ namespace Chronos.Infrastructure.Projections.New
         protected virtual void When(StreamDetails stream, IEvent e)
         {
         }
+        
+        protected StateReset ResetState() => 
+            new StateReset
+            {
+                Timestamp = Instant.MinValue
+            };
 
         private void Unsubscribe()
         {
