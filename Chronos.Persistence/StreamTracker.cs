@@ -120,7 +120,7 @@ namespace Chronos.Persistence
         {
             lock (_streams)
             {
-                return _streams.SingleOrDefault(s =>
+                return _streams.SingleOrDefault(s => !s.Name.Contains("Saga") && 
                     s.Key == id && _aggregateTracker.Is<T>(s.SourceType) && s.Timeline == _timeline.TimelineId);
             }
         }

@@ -16,6 +16,7 @@ using Chronos.Core.Nicehash.Projections;
 using Chronos.Core.Nicehash.Queries;
 using Chronos.Core.Projections;
 using Chronos.Core.Sagas;
+using Chronos.Core.Transactions;
 using Chronos.Core.Transactions.Commands;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
@@ -121,7 +122,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Options.RegisterParameterConvention(new AggregateListConvention(new List<Type>
             {
                 typeof(Account),
-                typeof(Coin)
+                typeof(Coin),
+                typeof(Purchase)
             }) );
             
             // register infrastructure
