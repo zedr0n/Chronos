@@ -10,7 +10,6 @@ using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Misc;
 using Chronos.Infrastructure.Sagas;
 using NodaTime;
-using StreamExtensions = Chronos.Infrastructure.StreamExtensions;
 
 namespace Chronos.Persistence
 {

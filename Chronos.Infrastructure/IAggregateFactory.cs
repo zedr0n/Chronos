@@ -8,5 +8,7 @@ namespace Chronos.Infrastructure
         
         TInterface Create<TInterface>(string runtimeType)
             where TInterface : IAggregate;
+
+        bool Is<TInterface>(string runtimeType) where TInterface : IAggregate;
     }
 }

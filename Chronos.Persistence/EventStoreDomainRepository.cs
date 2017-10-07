@@ -9,12 +9,11 @@ using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
 using NodaTime;
 using Remotion.Linq.Clauses.ResultOperators;
-using StreamExtensions = Chronos.Infrastructure.StreamExtensions;
 
 namespace Chronos.Persistence
 {
     /// <summary>
-    /// The event sourcing store
+    /// Event store backed domain repository
     /// </summary>
     public class EventStoreDomainRepository : IDomainRepository
     {
@@ -95,7 +94,7 @@ namespace Chronos.Persistence
             var cached = _cache.Get<T>(id);
             var version = cached?.Version ?? 0;
 
-            var stream = _streamTracker.Get(typeof(T), id);
+            var stream = _streamTracker.Get<T>(id);
             if (stream == null)
                 return null;
             

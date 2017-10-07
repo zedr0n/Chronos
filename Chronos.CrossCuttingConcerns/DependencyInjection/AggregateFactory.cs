@@ -19,6 +19,19 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
         {
             _aggregateTypes[type.Name] = type;
         }
+
+        public bool Is<TInterface>(string runtimeType) where TInterface : IAggregate
+        {
+            if(!_aggregateTypes.ContainsKey(runtimeType))
+                throw new InvalidOperationException("Aggregate type not recognized");
+
+            var aggregateType = _aggregateTypes[runtimeType];
+
+            if (!typeof(TInterface).IsAssignableFrom(aggregateType))
+                return false;
+            
+            return true;
+        }
         
         public TInterface Create<TInterface>(string runtimeType) where TInterface : IAggregate
         {

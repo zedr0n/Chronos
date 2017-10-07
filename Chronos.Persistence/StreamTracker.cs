@@ -11,10 +11,12 @@ namespace Chronos.Persistence
         private readonly List<StreamDetails> _streams = new List<StreamDetails>();
         private readonly IDisposable _subscription;
         private readonly ITimeline _timeline;
+        private readonly IAggregateFactory _aggregateTracker;
 
-        public StreamTracker(ITimeline timeline, IEventStoreConnection connection)
+        public StreamTracker(ITimeline timeline, IEventStoreConnection connection, IAggregateFactory aggregateTracker)
         {
             _timeline = timeline;
+            _aggregateTracker = aggregateTracker;
             _subscription = connection.GetStreams().ToObservable()
                 .Concat(connection.Events.Select(e => e.Stream))
                 .Subscribe(Set); 
@@ -103,14 +105,23 @@ namespace Chronos.Persistence
                 return stream;
             }
         }
-
+        
         public StreamDetails Get(Type sourceType, Guid id)
         {
             lock (_streams)
             {
                 return _streams.SingleOrDefault(s =>
                     s.Key == id && s.SourceType == sourceType.Name && s.Timeline == _timeline.TimelineId);
+            }
+        }
 
+        public StreamDetails Get<T>(Guid id)
+            where T : IAggregate
+        {
+            lock (_streams)
+            {
+                return _streams.SingleOrDefault(s =>
+                    s.Key == id && _aggregateTracker.Is<T>(s.SourceType) && s.Timeline == _timeline.TimelineId);
             }
         }
         

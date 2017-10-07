@@ -116,7 +116,7 @@ namespace Chronos.Tests
                 }).Then(History.CoinCreated);
         }
 
-        //[Fact]
+        [Fact]
         public void CanUpdatePrice()
         {
             GetInstance<Specification>()

@@ -425,7 +425,8 @@ namespace Chronos.Tests
             var accountInfo = queryHandler.Handle(query);
             Assert.Equal(0,accountInfo.Balance);
 
-            navigator.Reset();
+            navigator.Reset(); 
+            Assert.Equal(-command.Amount,queryHandler.Handle(query).Balance);
         }
 
         [Fact]
