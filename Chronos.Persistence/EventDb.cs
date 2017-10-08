@@ -1,3 +1,5 @@
+using Chronos.Persistence.Contexts;
+
 namespace Chronos.Persistence
 {
     public class EventDb : BaseDb<EventContext>, IEventDb

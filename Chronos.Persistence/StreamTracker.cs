@@ -106,12 +106,12 @@ namespace Chronos.Persistence
             }
         }
         
-        public StreamDetails Get(Type sourceType, Guid id)
+        public StreamDetails GetSaga(Type sagaType, Guid id)
         {
             lock (_streams)
             {
-                return _streams.SingleOrDefault(s =>
-                    s.Key == id && s.SourceType == sourceType.Name && s.Timeline == _timeline.TimelineId);
+                return _streams.SingleOrDefault(s => s.IsSaga &&
+                    s.Key == id && s.SourceType == sagaType.Name && s.Timeline == _timeline.TimelineId);
             }
         }
 
@@ -120,7 +120,7 @@ namespace Chronos.Persistence
         {
             lock (_streams)
             {
-                return _streams.SingleOrDefault(s => !s.Name.Contains("Saga") && 
+                return _streams.SingleOrDefault(s => !s.IsSaga &&
                     s.Key == id && _aggregateTracker.Is<T>(s.SourceType) && s.Timeline == _timeline.TimelineId);
             }
         }

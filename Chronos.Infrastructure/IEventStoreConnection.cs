@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reactive.Linq;
 using Chronos.Infrastructure.Interfaces;
-using Chronos.Infrastructure.Projections.New;
+using NodaTime;
 
 namespace Chronos.Infrastructure
 {
@@ -26,6 +26,9 @@ namespace Chronos.Infrastructure
         IEnumerable<StreamDetails> GetStreams();
         IObservable<Envelope> Events { get; }
 
+        void AppendCommand(ICommand command);
+        IEnumerable<ICommand> ReadCommands(Instant from, Instant to,Guid timeline);
+        
         /// <summary>
         /// Appends events to the stream with the given details
         /// </summary>

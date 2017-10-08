@@ -7,10 +7,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using System;
+using Chronos.Persistence.Contexts;
 
 namespace Chronos.Persistence.Migrations.Read
 {
-    [DbContext(typeof(ReadContext))]
+    [DbContext(contextType: typeof(ReadContext))]
     partial class ReadContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

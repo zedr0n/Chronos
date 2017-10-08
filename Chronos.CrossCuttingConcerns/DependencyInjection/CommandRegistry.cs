@@ -30,7 +30,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
         public CommandRegistry(Container container)
         {
             foreach(var handler in container.GetCurrentRegistrations()
-                .Where(x => x.ServiceType.IsClosedTypeOf(typeof(ICommandHandler<>)))
+                .Where(x => x.ServiceType.IsClosedTypeOf(typeof(ICommandHandler<>))) 
                 .Select(x => new
                 {
                     Instance = x.GetInstance() as ICommandHandler,

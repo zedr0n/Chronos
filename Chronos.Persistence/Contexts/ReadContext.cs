@@ -1,11 +1,10 @@
-﻿using System;
-using Chronos.Core.Accounts.Projections;
+﻿using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Assets.Projections;
 using Chronos.Core.Nicehash.Projections;
 using Chronos.Core.Projections;
 using Microsoft.EntityFrameworkCore;
 
-namespace Chronos.Persistence
+namespace Chronos.Persistence.Contexts
 {
     public class ReadContext : Context
     {

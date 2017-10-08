@@ -6,7 +6,7 @@ namespace Chronos.Infrastructure
     {       
         public IEvent Event { get; }
         public StreamDetails Stream { get; }
-        public bool SagaEvent => Stream.Name.Contains("Saga");
+        public bool SagaEvent => Stream.IsSaga;
         
         public Envelope(IEvent @event, StreamDetails stream)
         {

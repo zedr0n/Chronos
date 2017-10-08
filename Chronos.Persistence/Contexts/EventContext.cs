@@ -1,8 +1,7 @@
-﻿using System;
-using Chronos.Persistence.Types;
+﻿using Chronos.Persistence.Types;
 using Microsoft.EntityFrameworkCore;
 
-namespace Chronos.Persistence
+namespace Chronos.Persistence.Contexts
 {
     public class EventContext : Context
     {
@@ -14,6 +13,7 @@ namespace Chronos.Persistence
 
         public DbSet<Event> Events { get; set; }
         public DbSet<Stream> Streams { get; set; }
+        public DbSet<Command> Commands { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,6 +23,7 @@ namespace Chronos.Persistence
         public virtual void Clear()
         {
             Events.RemoveRange(Events);
+            Commands.RemoveRange(Commands);
             SaveChanges();
         }
     }

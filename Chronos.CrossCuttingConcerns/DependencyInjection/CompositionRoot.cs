@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Chronos.Core.Accounts;
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
@@ -155,6 +156,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 container.Register<ICommandHandler<ClearDatabaseCommand>,ClearDatabaseHandler>(Lifestyle.Singleton);
             }
             container.Register<IEventSerializer,EventSerializer>(Lifestyle.Singleton);
+            container.Register<ICommandSerializer,CommandSerializer>(Lifestyle.Singleton);
             container.Register(typeof(IBaseProjectionExpression<>),typeof(ProjectionExpression<>));
             container.Register<IProjectionManager,ProjectionManager>(Lifestyle.Singleton);
             container.Register<IEventStore, EventStore>(Lifestyle.Singleton);
@@ -180,7 +182,14 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(ExecuteRequestHandler<Orders>),
                 typeof(TrackRequestHandler<Orders>)
             } ,Lifestyle.Singleton);
+            //container.Register(typeof(IHistoricalCommandHandler<>),typeof(NullCommandHandler<>),Lifestyle.Singleton);
+            //container.Register(typeof(IHistoricalCommandHandler<>),typeof(HistoricalCommandHandler<>),Lifestyle.Singleton);
             //container.Register<ICommandHandler<ParseJsonRequestCommand<Orders,UpdateOrderStatusCommand>>,ParseOrderStatusHandler>();
+
+            //container.RegisterDecorator(typeof(ICommandHandler<>),typeof(HistoricalCommandHandler<>),context => 
+            //    typeof(IHistoricalCommand).IsAssignableFrom(context.ServiceType.GetGenericArguments().First()));
+            container.RegisterDecorator(typeof(ICommandHandler<>),typeof(CommandRecorder<>),Lifestyle.Singleton, context =>
+                !context.AppliedDecorators.Any(d => d.IsClosedTypeOf(typeof(CommandRecorder<>)))); 
             
             container.Register(typeof(ISagaHandler<>), new[]
             {

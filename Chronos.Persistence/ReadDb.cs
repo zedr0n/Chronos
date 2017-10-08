@@ -1,4 +1,6 @@
-﻿namespace Chronos.Persistence
+﻿using Chronos.Persistence.Contexts;
+
+namespace Chronos.Persistence
 {
     public class ReadDb : BaseDb<ReadContext>,IReadDb
     {

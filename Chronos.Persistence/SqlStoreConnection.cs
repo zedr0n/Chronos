@@ -18,7 +18,8 @@ namespace Chronos.Persistence
     public class SqlStoreConnection : IEventStoreConnection
     {
         private readonly IEventDb _eventDb;
-        private readonly IEventSerializer _serializer;
+        private readonly IEventSerializer _eventSerializer;
+        private readonly ICommandSerializer _commandSerializer;
         private readonly ITimeline _timeline;
 
         private readonly Subject<Envelope> _events = new Subject<Envelope>();
@@ -26,12 +27,35 @@ namespace Chronos.Persistence
 
         private readonly IDebugLog _debugLog;
 
-        public SqlStoreConnection(IEventDb eventDb, IEventSerializer serializer, ITimeline timeline, IDebugLog debugLog)
+        public SqlStoreConnection(IEventDb eventDb, IEventSerializer eventSerializer, ITimeline timeline, IDebugLog debugLog, ICommandSerializer commandSerializer)
         {
             _eventDb = eventDb;
             _timeline = timeline;
             _debugLog = debugLog;
-            _serializer = serializer;
+            _commandSerializer = commandSerializer;
+            _eventSerializer = eventSerializer;
+        }
+
+        public void AppendCommand(ICommand command)
+        {
+            command.Timestamp = _timeline.Now();
+            using (var context = _eventDb.GetContext())
+            {
+                var commandDto = _commandSerializer.Serialize(command);
+                context.Set<Command>().Add(commandDto);
+                context.SaveChanges();
+            }
+        }
+
+        public IEnumerable<ICommand> ReadCommands(Instant from, Instant to, Guid timeline)
+        {
+            using (var context = _eventDb.GetContext())
+            {
+                var commands = context.Set<Command>().Where(c => c.TimestampUtc >= from.ToDateTimeUtc() &&
+                                                                 c.TimestampUtc <= to.ToDateTimeUtc() &&
+                                                                 c.Timeline == timeline);
+                return commands.Select(_commandSerializer.Deserialize).ToList();
+            }
         }
 
         private void TimestampEvents(IEnumerable<IEvent> events)
@@ -98,7 +122,7 @@ namespace Chronos.Persistence
                     
                 stream.BranchVersion = events.Last().Version;
                 details.BranchVersion = stream.BranchVersion;
-                stream.Events.AddRange(events.Select(_serializer.Serialize));
+                stream.Events.AddRange(events.Select(_eventSerializer.Serialize));
             }
             else
             {
@@ -135,7 +159,7 @@ namespace Chronos.Persistence
                 throw new NotImplementedException(" Merging strategy for new events not implemented yet ");
             
             stream.Events.AddRange(events
-                .Select(_serializer.Serialize));
+                .Select(_eventSerializer.Serialize));
         }
 
         private static void ForEach<T1, T2>(IEnumerable<T1> to, IEnumerable<T2> from, Action<T1,T2> action)
@@ -150,7 +174,7 @@ namespace Chronos.Persistence
 
         private void WriteStream(Stream stream, IEnumerable<IEvent> events)
         {
-            var eventsDto = events.Select(_serializer.Serialize).ToList();
+            var eventsDto = events.Select(_eventSerializer.Serialize).ToList();
 
             foreach (var e in eventsDto)
             {
@@ -167,16 +191,36 @@ namespace Chronos.Persistence
 
         private void LogEvents(StreamDetails stream,IList<IEvent> events)
         {
-            if (stream.Name.Contains("Saga"))
+            if (stream.IsSaga)
                 return;
 
             foreach (var e in events)
             {
                 _debugLog.WriteLine(e.GetType().Name + "( " +
                                     InstantPattern.ExtendedIso.Format(e.Timestamp) + " )");
-                _debugLog.WriteLine(_serializer.Serialize(e).Payload);
+                _debugLog.WriteLine(_eventSerializer.Serialize(e).Payload);
 
             }
+        }
+
+        private bool Validate(IList<IEvent> events, IList<IEvent> futureEvents)
+        {
+            var futureEventIds = futureEvents.Select(e => e.Version);
+
+            if (!events.Select(e => e.Version).SequenceEqual(futureEventIds))
+            {
+                if (_timeline.Live) // concurrency exception
+                    return false;
+            }
+            // check if the events produced are different 
+            if (!events.Select(e => e.Hash).SequenceEqual(futureEvents.Select(x => x.Hash)))
+            {
+                if (_timeline.Live)
+                    return false;
+                        
+                throw new NotImplementedException("Modifying events not implemented yet");
+            }
+            return true;
         }
 
         public void AppendToStream(StreamDetails streamDetails, int expectedVersion, IEnumerable<IEvent> enumerable)
@@ -199,28 +243,10 @@ namespace Chronos.Persistence
                 {
                     // check event numbers to see if we are trying to write a past event again
                     var futureEvents = ReadStreamEventsForward(streamDetails, expectedVersion,events.Count).ToList();
-                    var futureEventIds = futureEvents.Select(e => e.Version);
-
-                    if (!events.Select(e => e.Version).SequenceEqual(futureEventIds))
-                    {
-                        if (_timeline.Live) // concurrency exception
-                            throw new InvalidOperationException("Trying to change past for stream " + stream.Name +
-                                                                " : " + stream.Version + " > " + expectedVersion);
-                        // we are inserting in historical mode
-                        // what checks can we do to validate such an insertion?
-                        if(!events.All(e => e.Insertable))
-                            throw new InvalidOperationException("Trying to insert an event which is not insertable " + stream.Name + 
-                                                                " : " + stream.Version + " > " + expectedVersion);                        
-                    }
-                    // check if the events produced are different 
-                    if (!events.Select(e => e.Hash).SequenceEqual(futureEvents.Select(x => x.Hash)))
-                    {
-                        if (_timeline.Live) 
-                            throw new InvalidOperationException("Trying to change past for stream " + stream.Name +
-                                                                " : " + stream.Version + " > " + expectedVersion);
-                        
-                        throw new NotImplementedException("Modifying events not implemented yet");
-                    }
+                    
+                    if(!Validate(events,futureEvents))
+                        throw new InvalidOperationException("Trying to modify past for stream " + stream.Name + 
+                                                            " : " + stream.Version + " > " + expectedVersion);    
                     
                     // otherwise we do not need to write an event again
                     return;
@@ -241,15 +267,6 @@ namespace Chronos.Persistence
                 
                 foreach (var e in events)
                     _events.OnNext(new Envelope(e,streamDetails));
-                    //_subscriptions.OnEventAppended(streamDetails, e);
-                
-                
-                // if no other events were present in the stream
-                // this needs to happen after  
-                // as otherwise events will be double processed
-                // here and in OnEventAppended subscribers
-                //if (streamDetails.Version == events.Count)
-                //    _subscriptions.OnStreamAdded(streamDetails);
             }
         }
 
@@ -299,7 +316,7 @@ namespace Chronos.Persistence
 
                 var ievents = events.ToList()
                     .Where(e => e.TimestampUtc <= now.ToDateTimeUtc())
-                    .Select(_serializer.Deserialize)
+                    .Select(_eventSerializer.Deserialize)
                     .OrderBy(e => e.Timestamp);
                 
                 ForEach(ievents, events, (e1,e2) => e1.EventNumber = e2.EventNumber );

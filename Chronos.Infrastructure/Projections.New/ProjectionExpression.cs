@@ -72,7 +72,7 @@ namespace Chronos.Infrastructure.Projections.New
             _writer = writer;
             _readRepository = readRepository;
 
-            _streamSelector = new Selector<StreamDetails>().Where(s => !s.Name.Contains("Saga"));
+            _streamSelector = new Selector<StreamDetails>().Where(s => !s.IsSaga);
 
             _projectionSubject.Subscribe(p =>
                 //_eventStore.AggregateEvents.OfType<ReplayCompleted>().Subscribe(e => p.OnReplay()));

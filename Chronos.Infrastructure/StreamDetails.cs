@@ -1,5 +1,6 @@
 ﻿using System;
 using Chronos.Infrastructure.Sagas;
+using NodaTime;
 
 namespace Chronos.Infrastructure
 {
@@ -14,6 +15,7 @@ namespace Chronos.Infrastructure
         public int BranchVersion { get; set; }
 
         public bool IsBranch => Timeline == Guid.Empty;
+        public bool IsSaga => Name.Contains("Saga");
         
         public StreamDetails(StreamDetails rhs)
         {

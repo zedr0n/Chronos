@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 
-namespace Chronos.Persistence
+namespace Chronos.Persistence.Contexts
 {
     public static class ContextExtensions
     {

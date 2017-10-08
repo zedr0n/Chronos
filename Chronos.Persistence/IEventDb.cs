@@ -1,3 +1,4 @@
+using Chronos.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chronos.Persistence

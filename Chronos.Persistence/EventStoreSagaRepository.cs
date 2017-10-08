@@ -50,7 +50,7 @@ namespace Chronos.Persistence
         public T Find<T>(Guid id) where T : class,ISaga, new()
         {         
             //var stream = new StreamDetails(typeof(T),id);
-            var stream = _streamTracker.Get(typeof(T), id);
+            var stream = _streamTracker.GetSaga(typeof(T), id);
             if (stream == null)
                 return null;
             
