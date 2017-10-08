@@ -5,7 +5,7 @@ using Chronos.Infrastructure.Events;
 using NodaTime;
 using NodaTime.Extensions;
 
-namespace Chronos.Infrastructure
+namespace Chronos.Infrastructure.ReplayStrategies
 {
     public class DefaultReplayStrategy : IReplayStrategy
     {

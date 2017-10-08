@@ -23,6 +23,7 @@ using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Projections.New;
 using Chronos.Infrastructure.Queries;
+using Chronos.Infrastructure.ReplayStrategies;
 using Chronos.Infrastructure.Sagas;
 using Chronos.Persistence;
 using Chronos.Persistence.Serialization;
