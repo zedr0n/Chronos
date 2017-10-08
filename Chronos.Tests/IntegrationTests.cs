@@ -469,6 +469,9 @@ namespace Chronos.Tests
             waitHandle.WaitOne();
             Assert.True(repository.Find<Account>(id) != null);
             timer.Dispose();
+
+            var navigator = container.GetInstance<ITimeNavigator>();
+            navigator.Reset();
         }
 
         [Fact]

@@ -22,6 +22,9 @@ namespace Chronos.Infrastructure.Commands
 
         public void Handle(RequestTimeoutCommand command)
         {
+            if(_subscriptions.ContainsKey(command.TargetId))
+                _subscriptions[command.TargetId].Dispose();
+            
             var when = command.When;
             
             if (when == default(Instant))

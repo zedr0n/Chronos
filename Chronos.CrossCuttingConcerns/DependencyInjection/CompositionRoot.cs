@@ -111,11 +111,6 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
         ICompositionRootWrite ICompositionRootWrite.Persistent() => _writeConfiguration.Persistent();
         ICompositionRoot ICompositionRootWrite.Database(string dbName) => _writeConfiguration.Database(dbName);
 
-        private void RegisterAggregates()
-        {
-            
-        }
-        
         public virtual void ComposeApplication(Container container)
         {
             container.Options.RegisterParameterConventions( _readConfiguration?.GetConventions() );
@@ -211,13 +206,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(HistoricalQueryHandler<AccountInfoQuery,AccountInfo>), Lifestyle.Singleton);
             container.Register(typeof(IHistoricalQueryHandler<TotalMovementQuery,TotalMovement>),
                 typeof(HistoricalQueryHandler<TotalMovementQuery,TotalMovement>), Lifestyle.Singleton);
-            container.Register(typeof(IHistoricalCommandHandler<>), new[]
-            {
-                typeof(HistoricalCommandHandler<CreateAccountCommand>),
-                typeof(HistoricalCommandHandler<CreateCoinCommand>)
-            }, Lifestyle.Singleton);
 
-
+            container.Register<IReplayStrategy,DefaultReplayStrategy>(Lifestyle.Singleton);
         }
 
     }

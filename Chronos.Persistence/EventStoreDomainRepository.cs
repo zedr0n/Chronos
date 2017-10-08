@@ -118,26 +118,9 @@ namespace Chronos.Persistence
             return entity;
         }
 
-        public void Replay(Instant date)
+        public void Reset()
         {
             _cache.Reset();
-            // the events should be resorted by timestamp as we might have modified the past
-            //var events = _connection.Reader.GetAggregateEvents().Where(e => e.Timestamp.CompareTo(date) <= 0)
-            //    .ToList()
-            //    .OrderBy(e => e.Timestamp)
-            //    .ThenBy(e => e.EventNumber);          
-
-            //foreach (dynamic e in events)
-            //    _eventBus.Publish(e);
-
-            _eventStore.Alert(new ReplayCompleted
-            {
-                Timestamp = date
-            });
-            //_connection.Subscriptions.CompleteReplay(date);
-            
-            //_connection.Writer.AppendToNull( new[] { new ReplayCompleted { Timestamp = date } });
-            //_eventBus.Publish(new ReplayCompleted { Timestamp = date });
         }
     }
 }

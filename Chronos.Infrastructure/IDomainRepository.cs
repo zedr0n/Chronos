@@ -36,10 +36,6 @@ namespace Chronos.Infrastructure
         /// <param name="id">The aggregate guid</param>
         /// <returns></returns>
         T Get<T>(Guid id) where T : class,IAggregate;
-        /// <summary>
-        /// Replay all the events up to date and push through event bus
-        /// </summary>
-        /// <param name="date"></param>
-        void Replay(Instant date);
+        void Reset();
     }
 }

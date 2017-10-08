@@ -74,6 +74,9 @@ namespace Chronos.Core.Sagas
 
         public void When(TimeoutCompleted e)
         {
+            if (StateMachine.IsInState(STATE.COMPLETED))
+                return;
+            
             StateMachine.Fire(TRIGGER.COMMAND_DUE);
             base.When(e);
         }

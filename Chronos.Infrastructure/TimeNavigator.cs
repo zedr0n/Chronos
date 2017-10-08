@@ -7,20 +7,21 @@ namespace Chronos.Infrastructure
 {
     public class TimeNavigator : ITimeNavigator
     {
-        private readonly IDomainRepository _domainRepository;
+        private readonly IReplayStrategy _replayStrategy;
         private readonly ITimeline _timeline;
         private readonly IDebugLog _debugLog;
 
-        public TimeNavigator(ITimeline timeline, IDomainRepository domainRepository, IDebugLog debugLog)
+        public TimeNavigator(ITimeline timeline, IDebugLog debugLog, IReplayStrategy replayStrategy)
         {
             _timeline = timeline;
-            _domainRepository = domainRepository;
             _debugLog = debugLog;
+            _replayStrategy = replayStrategy;
         }
 
         private void Replay(Instant date)
         {
-            _domainRepository.Replay(date);
+            _replayStrategy.Replay(date);
+            //_domainRepository.Reset(date);
         }
 
         public void GoTo(Instant date)
