@@ -15,6 +15,7 @@ namespace Chronos.Core.Sagas
             Register<JsonRequestTracked<T>>(e => e.RequestId);
             RegisterAlert<TimeoutCompleted>(e => e.ScheduleId);
             Register<JsonRequestCompleted>(e => e.RequestId);
+            Register<JsonRequestFailed>(e => e.RequestId);
         }
     }
 }
