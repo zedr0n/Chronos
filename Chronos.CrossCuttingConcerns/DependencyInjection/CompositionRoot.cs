@@ -10,7 +10,11 @@ using Chronos.Core.Assets;
 using Chronos.Core.Assets.Commands;
 using Chronos.Core.Assets.Projections;
 using Chronos.Core.Assets.Queries;
+using Chronos.Core.Net.Json;
 using Chronos.Core.Net.Json.Commands;
+using Chronos.Core.Net.Json.Projections;
+using Chronos.Core.Net.Json.Queries;
+using Chronos.Core.Nicehash;
 using Chronos.Core.Nicehash.Commands;
 using Chronos.Core.Nicehash.Json;
 using Chronos.Core.Nicehash.Projections;
@@ -120,7 +124,9 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             {
                 typeof(Account),
                 typeof(Coin),
-                typeof(Purchase)
+                typeof(Purchase),
+                typeof(Order),
+                typeof(Request<Orders>)
             }) );
             
             // register infrastructure
@@ -201,6 +207,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.RegisterQuery<OrderInfoQuery,OrderInfo>(typeof(OrderInfoHandler),Lifestyle.Singleton);
             container.RegisterQuery<OrderStatusQuery,OrderStatus>(typeof(OrderStatusHandler),Lifestyle.Singleton);
             container.RegisterQuery<TotalMovementQuery,TotalMovement>(typeof(TotalMovementHandler),Lifestyle.Singleton);
+            container.RegisterQuery<RequestInfoQuery<Orders>,RequestInfo<Orders>>(typeof(RequestInfoHandler<Orders>),Lifestyle.Singleton);
             
             container.RegisterQuery<StatsQuery,Stats>(typeof(StatsHandler),Lifestyle.Singleton);
             container.Register(typeof(IHistoricalQueryHandler<AccountInfoQuery,AccountInfo>),

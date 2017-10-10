@@ -19,6 +19,4 @@ namespace Chronos.Core.Nicehash.Commands
             _domainRepository.Save(order);
         }
     }
-
- 
 }

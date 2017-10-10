@@ -11,6 +11,7 @@ namespace Chronos.Core.Sagas
             : base(repository, debugLog, eventStore)
         {
             RegisterAlert<CommandScheduled>(e => e.ScheduleId,true);
+            RegisterAlert<TimeoutRequested>(e => e.ScheduleId);
             RegisterAlert<TimeoutCompleted>(e => e.ScheduleId);
         }
     }

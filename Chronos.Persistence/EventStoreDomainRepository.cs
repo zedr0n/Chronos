@@ -69,7 +69,7 @@ namespace Chronos.Persistence
 
             var expectedVersion = aggregate.Version - events.Count;            
             
-            _debugLog.WriteLine("@" + typeof(T).Name + " : ");
+            _debugLog.WriteLine("@" + typeof(T).SerializableName() + " : ");
 
             StreamDetails stream;
             if (expectedVersion == 0)

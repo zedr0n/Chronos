@@ -86,7 +86,7 @@ namespace Chronos.Infrastructure.Projections.New
             where TAggregate : IAggregate
         {
             //var criteria = _streamSelector;
-            _streamSelector = _streamSelector.Where(x => x.SourceType == typeof(TAggregate).Name);
+            _streamSelector = _streamSelector.Where(x => x.SourceType == typeof(TAggregate).SerializableName());
             //_streamSelector = s => criteria(s).Where(x => x.SourceType == typeof(TAggregate).Name);
             //_streams = _streams.Where(s => s.SourceType == typeof(TAggregate).Name);
             return this;

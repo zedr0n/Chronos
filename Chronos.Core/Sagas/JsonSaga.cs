@@ -1,8 +1,10 @@
 ﻿using System;
 using Chronos.Core.Net.Json.Commands;
 using Chronos.Core.Net.Json.Events;
+using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Sagas;
 using NodaTime;
 using Stateless;
@@ -12,7 +14,9 @@ namespace Chronos.Core.Sagas
     public class JsonSaga<T> : StatelessSaga<JsonSaga<T>.STATE,JsonSaga<T>.TRIGGER>,
         IHandle<JsonRequestTracked<T>>,
         IHandle<TimeoutCompleted>,
-        IHandle<JsonRequestCompleted>
+        IHandle<JsonRequestCompleted>,
+        IHandle<JsonRequestFailed>
+        where T : class
     {
         public enum STATE
         {
@@ -56,7 +60,15 @@ namespace Chronos.Core.Sagas
                 .Permit(TRIGGER.TERMINATE, STATE.COMPLETED);
 
             StateMachine.Configure(STATE.FETCHING)
-                .Permit(TRIGGER.JSON_RECEIVED, STATE.ACTIVE);
+                .Permit(TRIGGER.JSON_RECEIVED, STATE.ACTIVE)
+                .Permit(TRIGGER.TERMINATE, STATE.COMPLETED);
+            
+            base.ConfigureStateMachine();
+        }
+        
+        protected override void When(IEvent e)
+        {
+            When((dynamic) e);
         }
 
         public void When(JsonRequestTracked<T> e)
@@ -73,6 +85,9 @@ namespace Chronos.Core.Sagas
      
         public void When(TimeoutCompleted e)
         {
+            if (StateMachine.IsInState(STATE.COMPLETED))
+                return;
+            
             if (!StateMachine.IsInState(STATE.ACTIVE))
             {
                 SetUpdate();
@@ -93,6 +108,12 @@ namespace Chronos.Core.Sagas
         public void When(JsonRequestCompleted e)
         {
             StateMachine.Fire(TRIGGER.JSON_RECEIVED);
+            base.When(e);
+        }
+
+        public void When(JsonRequestFailed e)
+        {
+            StateMachine.Fire(TRIGGER.TERMINATE);
             base.When(e);
         }
     }

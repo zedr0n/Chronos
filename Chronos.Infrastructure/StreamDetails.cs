@@ -1,9 +1,20 @@
 ﻿using System;
+using System.Linq;
 using Chronos.Infrastructure.Sagas;
 using NodaTime;
 
 namespace Chronos.Infrastructure
 {
+    public static class TypeExtensions
+    {
+        public static string SerializableName(this Type type)
+        {
+            var name = type.GenericTypeArguments.Aggregate(type.Name, (current, g) => current + g.Name);
+            return name;
+        }
+    }
+    
+    
     public class StreamDetails
     {
         public string Name { get; }
@@ -40,7 +51,7 @@ namespace Chronos.Infrastructure
         { }
 
         public StreamDetails(Type sourceType, Guid key)
-            : this(sourceType.Name,key)
+            : this(sourceType.SerializableName(),key)
         {
         }
 

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Reactive.Linq;
 using Chronos.Core.Net.Json.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Core.Net.Json
 {
@@ -13,8 +15,15 @@ namespace Chronos.Core.Net.Json
         public enum STATUS
         {
             OPEN,
+            FAILED,
             TRACKING,
             COMPLETED
+        }
+        public Request() {}
+        
+        protected override void When(IEvent e)
+        {
+            When((dynamic) e);
         }
 
         public Request(Guid id, string url)
@@ -26,12 +35,17 @@ namespace Chronos.Core.Net.Json
             });
         }
 
-        public void Execute(IJsonConnector connector)
+        public void Complete()
         {
-            var result = connector.Get<T>(_url);
-            connector.Save(Id,result);
-            
             When(new JsonRequestCompleted
+            {
+                RequestId = Id
+            });
+        }
+
+        public void Fail()
+        {
+            When(new JsonRequestFailed
             {
                 RequestId = Id
             });
@@ -62,6 +76,12 @@ namespace Chronos.Core.Net.Json
         public void When(JsonRequestCompleted e)
         {
             _status = STATUS.COMPLETED;
+            base.When(e);
+        }
+
+        public void When(JsonRequestFailed e)
+        {
+            _status = STATUS.FAILED;
             base.When(e);
         }
 

@@ -51,14 +51,11 @@ namespace Chronos.Core.Sagas
 
             StateMachine.Configure(STATE.UPDATING)
                 .Permit(TRIGGER.UPDATE_COMPLETED, STATE.ACTIVE);
-
-        }
-
-        public void When()
-        {
             
+            base.ConfigureStateMachine();
+
         }
-        
+
         public void When(NicehashOrderTrackingRequested e)
         {
             Debug.Assert(SagaId == e.OrderId);

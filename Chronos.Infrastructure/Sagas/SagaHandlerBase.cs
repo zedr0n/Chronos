@@ -54,7 +54,7 @@ namespace Chronos.Infrastructure.Sagas
                     Get(sagaId(e),createNew)));
         }
 
-        private TSaga Get(Guid sagaId, bool createNew = true)
+        protected TSaga Get(Guid sagaId, bool createNew = true)
         {
             var saga = _repository.Find<TSaga>(sagaId) ??
                        (createNew ? new TSaga().LoadFrom<TSaga>(sagaId, new List<IEvent> () ) : null);
@@ -62,17 +62,21 @@ namespace Chronos.Infrastructure.Sagas
                 return null;
             saga.DebugLog = _debugLog;
 
-            _debugLog.WriteLine("   -> " + saga.GetType().Name);
+            _debugLog.WriteLine("   -> " + saga.GetType().SerializableName());
             return saga;
         }
 
-        private void Send<TEvent>(TEvent e,TSaga saga) where TEvent : class, IEvent
+        protected void Send<TEvent>(TEvent e,TSaga saga) where TEvent : class, IEvent
         {
             if (saga == null)
                 return;
             (saga as IHandle<TEvent>)?.When(e);
-            _repository.Save(saga); 
+            Save(saga);
         }
-        
+
+        protected void Save(TSaga saga)
+        {
+            _repository.Save(saga);
+        }
     }
 }

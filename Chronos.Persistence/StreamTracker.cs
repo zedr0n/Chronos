@@ -41,7 +41,9 @@ namespace Chronos.Persistence
         {
             lock (_streams)
             {
-                if(_streams.Any(s => s.Key == aggregate.Id && s.Timeline == _timeline.TimelineId))
+                if(_streams.Any(s => s.Key == aggregate.Id
+                                     && s.Timeline == _timeline.TimelineId
+                                     && s.SourceType == aggregate.GetType().SerializableName()))
                     throw new InvalidOperationException("Aggregate stream already exists");
                 var stream = new StreamDetails(aggregate)
                 {
@@ -64,7 +66,8 @@ namespace Chronos.Persistence
         {
             lock (_streams)
             {
-                return _streams.Single(s => s.Key == aggregate.Id && s.Timeline == _timeline.TimelineId);
+                return _streams.Single(s => s.Key == aggregate.Id && s.Timeline == _timeline.TimelineId
+                                            && s.SourceType == aggregate.GetType().SerializableName());
             }
         }
 
@@ -72,7 +75,7 @@ namespace Chronos.Persistence
         {
             lock (_streams)
             {
-                if(_streams.Any(s => s.Key == saga.SagaId && s.Timeline == _timeline.TimelineId && s.SourceType == saga.GetType().Name))
+                if(_streams.Any(s => s.Key == saga.SagaId && s.Timeline == _timeline.TimelineId && s.SourceType == saga.GetType().SerializableName()))
                     throw new InvalidOperationException("Saga stream already exists");
                 var stream = new StreamDetails(saga)
                 {
@@ -87,7 +90,8 @@ namespace Chronos.Persistence
         {
             lock (_streams)
             {
-                return _streams.Single(s => s.Key == saga.SagaId && s.Timeline == _timeline.TimelineId);
+                return _streams.Single(s => s.Key == saga.SagaId && s.Timeline == _timeline.TimelineId && 
+                                            s.SourceType == saga.GetType().SerializableName());
             }
         }
 
@@ -96,7 +100,7 @@ namespace Chronos.Persistence
             lock (_streams)
             {
                 if (_streams.Any(s =>
-                    s.Key == id && s.SourceType == aggregateType.Name && s.Timeline == _timeline.TimelineId))
+                    s.Key == id && s.SourceType == aggregateType.SerializableName() && s.Timeline == _timeline.TimelineId))
                     throw new InvalidOperationException("Stream already exists");
                 var stream = new StreamDetails(aggregateType, id)
                 {
@@ -111,7 +115,7 @@ namespace Chronos.Persistence
             lock (_streams)
             {
                 return _streams.SingleOrDefault(s => s.IsSaga &&
-                    s.Key == id && s.SourceType == sagaType.Name && s.Timeline == _timeline.TimelineId);
+                    s.Key == id && s.SourceType == sagaType.SerializableName() && s.Timeline == _timeline.TimelineId);
             }
         }
 

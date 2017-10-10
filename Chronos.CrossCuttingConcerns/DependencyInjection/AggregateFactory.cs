@@ -17,7 +17,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
 
         public void RegisterAggregate(Type type)
         {
-            _aggregateTypes[type.Name] = type;
+            _aggregateTypes[type.SerializableName()] = type;
         }
 
         public bool Is<TInterface>(string runtimeType) where TInterface : IAggregate

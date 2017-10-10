@@ -24,6 +24,9 @@ namespace Chronos.Core.Nicehash.Commands
                 throw new InvalidOperationException("Request not completed yet");
 
             var orderStatus = result.Result.Orders.SingleOrDefault(x => x.Id == command.OrderNumber);
+
+            if (orderStatus == null)
+                return;
             
             var @event = new OrderStatusParsed
             {

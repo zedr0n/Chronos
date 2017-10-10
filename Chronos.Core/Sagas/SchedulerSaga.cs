@@ -10,6 +10,7 @@ namespace Chronos.Core.Sagas
     public class SchedulerSaga : StatelessSaga<SchedulerSaga.STATE,SchedulerSaga.TRIGGER>
         , IHandle<CommandScheduled>
         , IHandle<TimeoutCompleted>
+        , IHandle<TimeoutRequested>
     {
         public enum STATE
         {
@@ -38,8 +39,7 @@ namespace Chronos.Core.Sagas
 
             StateMachine.Configure(STATE.SCHEDULED)
                 .Ignore(TRIGGER.COMMAND_SCHEDULED)
-                .Permit(TRIGGER.COMMAND_DUE, STATE.COMPLETED)
-                .OnEntry(RequestTimeout);
+                .Permit(TRIGGER.COMMAND_DUE, STATE.COMPLETED);
 
             StateMachine.Configure(STATE.COMPLETED)
                 .Ignore(TRIGGER.COMMAND_SCHEDULED)
@@ -68,10 +68,17 @@ namespace Chronos.Core.Sagas
             _command = e.Command;
             _scheduledOn = e.Time;
             
-            StateMachine.Fire(TRIGGER.COMMAND_SCHEDULED);
+            RequestTimeout();
+            //StateMachine.Fire(TRIGGER.COMMAND_SCHEDULED);
             base.When(e);
         }
 
+        public void When(TimeoutRequested e)
+        {
+            StateMachine.Fire(TRIGGER.COMMAND_SCHEDULED);
+            base.When(e);
+        }
+        
         public void When(TimeoutCompleted e)
         {
             if (StateMachine.IsInState(STATE.COMPLETED))

@@ -40,11 +40,16 @@ namespace Chronos.Infrastructure.Commands
                 })
                 .Subscribe(e =>
                 {
-                    //lock(_subscriptions)
-                        _subscriptions[e.ScheduleId].Dispose();
-                    //_connection.Writer.AppendToNull(new[] {e});
+                    _subscriptions[e.ScheduleId].Dispose();
+                    e.Timestamp = _timeline.Now();
                     _eventStore.Alert(e);
                 });
+            
+            _eventStore.Alert(new TimeoutRequested
+            {
+                ScheduleId = command.TargetId,
+                Timestamp = _timeline.Now()
+            });
         }
     }
 }
