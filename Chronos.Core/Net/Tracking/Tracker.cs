@@ -12,7 +12,7 @@ namespace Chronos.Core.Net.Tracking
 {
     public class Tracker : AggregateBase
     {
-        public static Guid TrackerId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        public static readonly Guid TrackerId = Guid.Parse("00000000-0000-0000-0000-000000000001");
         private readonly ConcurrentDictionary<Guid,IEvent> _trackedEntities = new ConcurrentDictionary<Guid, IEvent>();
 
         public void TrackAsset(Guid id, AssetType assetType,Duration updateInterval,string url)
