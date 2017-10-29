@@ -1,5 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using Chronos.Core.Assets.Projections;
+using Chronos.Core.Assets.Queries;
 using Chronos.Core.Net.Tracking.Commands;
 using Chronos.Core.Nicehash.Commands;
 using Chronos.Core.Nicehash.Projections;
@@ -52,12 +54,21 @@ namespace Chronos.Web.Pages
             OrderStatus = _queryProcessor.Process<OrderStatusQuery, OrderStatus>(query);
 
             var orderId = OrderStatus?.OrderId ?? Guid.NewGuid();
+
+            var btcId = _queryProcessor.Process<CoinInfoQuery, CoinInfo>(new CoinInfoQuery
+            {
+                Name = "Bitcoin"
+            })?.Key;
+            
+            if(btcId == null)
+                throw new InvalidOperationException("Bitcoin coin not found");
             
             if (OrderStatus == null)
             {
                 await _commandBus.SendAsync(new CreateOrderCommand
                 {
                     TargetId = orderId,
+                    PriceAssetId = btcId.Value,
                     OrderNumber = OrderNumber
                 });
                 OrderStatus = _queryProcessor.Process<OrderStatusQuery, OrderStatus>(query); 
