@@ -1,10 +1,8 @@
 ﻿using System;
-using Chronos.Core.Common.Commands;
-using Chronos.Core.Common.Events;
+using Chronos.Core.Common;
 using Chronos.Core.Net.Parsing.Commands;
 using Chronos.Core.Net.Tracking.Commands;
 using Chronos.Core.Net.Tracking.Events;
-using Chronos.Core.Sagas;
 using Chronos.Core.Scheduling.Commands;
 using Chronos.Core.Scheduling.Events;
 using Chronos.Infrastructure.Interfaces;
@@ -12,7 +10,7 @@ using Chronos.Infrastructure.Sagas;
 using NodaTime;
 using Stateless;
 
-namespace Chronos.Core.Common.Sagas
+namespace Chronos.Core.Sagas
 {
     public class AssetTrackingSaga : StatelessSaga<AssetTrackingSaga.State,AssetTrackingSaga.Trigger>,
         IHandle<JsonRequestFailed>,

@@ -1,14 +1,11 @@
-﻿using Chronos.Core.Common.Commands;
-using Chronos.Core.Common.Events;
-using Chronos.Core.Sagas;
-using Chronos.Core.Scheduling.Commands;
+﻿using Chronos.Core.Scheduling.Commands;
 using Chronos.Core.Scheduling.Events;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Sagas;
 using Stateless;
 
-namespace Chronos.Core.Common.Sagas
+namespace Chronos.Core.Sagas
 {
     public class SchedulerSaga : StatelessSaga<SchedulerSaga.State,SchedulerSaga.Trigger>,
         IHandle<CommandSchedulingRequested>,

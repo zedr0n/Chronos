@@ -1,6 +1,4 @@
 ﻿using System;
-using Chronos.Core.Common.Commands;
-using Chronos.Core.Common.Events;
 using Chronos.Core.Scheduling.Commands;
 using Chronos.Core.Scheduling.Events;
 using Chronos.Infrastructure;
@@ -10,7 +8,7 @@ using Chronos.Infrastructure.Logging;
 using Chronos.Infrastructure.Sagas;
 using NodaTime;
 
-namespace Chronos.Core.Common.Sagas
+namespace Chronos.Core.Sagas
 {
     public class SchedulerSagaHandler : SagaHandlerBase<SchedulerSaga>
     {

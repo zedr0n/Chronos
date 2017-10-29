@@ -1,11 +1,10 @@
-﻿using Chronos.Core.Common.Events;
-using Chronos.Core.Net.Tracking.Events;
+﻿using Chronos.Core.Net.Tracking.Events;
 using Chronos.Core.Scheduling.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Logging;
 using Chronos.Infrastructure.Sagas;
 
-namespace Chronos.Core.Common.Sagas
+namespace Chronos.Core.Sagas
 {
     public class AssetTrackingSagaHandler : SagaHandlerBase<AssetTrackingSaga>
     {
