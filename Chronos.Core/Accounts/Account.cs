@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Chronos.Core.Accounts.Events;
 using Chronos.Infrastructure;
 using NodaTime;
-using Chronos.Core.Assets;
+using Chronos.Core.Common;
 using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Core.Accounts

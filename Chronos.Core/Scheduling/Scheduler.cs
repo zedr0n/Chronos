@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Reactive.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Chronos.Core.Common.Events;
+using Chronos.Core.Scheduling.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
 using NodaTime;

@@ -1,9 +1,9 @@
 ﻿using System;
 using Chronos.Infrastructure.Events;
 
-namespace Chronos.Core.Common.Events
+namespace Chronos.Core.Scheduling.Events
 {
-    public class TimeoutCanceled : EventBase
+    public class TimeoutCompleted : EventBase
     {
         public Guid ScheduleId { get; set; }
     }

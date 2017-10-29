@@ -1,7 +1,7 @@
 ﻿using System;
 using Chronos.Infrastructure.Commands;
 
-namespace Chronos.Core.Common.Commands
+namespace Chronos.Core.Net.Parsing.Commands
 {
     public abstract class RequestParsingCommand : CommandBase
     {

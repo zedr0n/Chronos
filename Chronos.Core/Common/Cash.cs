@@ -1,4 +1,4 @@
-﻿namespace Chronos.Core.Assets
+﻿namespace Chronos.Core.Common
 {
     public struct Cash
     {

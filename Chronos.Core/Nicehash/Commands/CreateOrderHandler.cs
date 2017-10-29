@@ -2,6 +2,7 @@
 using Chronos.Core.Assets;
 using Chronos.Core.Assets.Projections;
 using Chronos.Core.Assets.Queries;
+using Chronos.Core.Common;
 using Chronos.Core.Nicehash.Projections;
 using Chronos.Core.Nicehash.Queries;
 using Chronos.Infrastructure;

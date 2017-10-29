@@ -1,5 +1,6 @@
 ﻿using System;
 using Chronos.Core.Common.Commands;
+using Chronos.Core.Net.Tracking.Commands;
 using NodaTime;
 
 namespace Chronos.Core.Nicehash.Commands

@@ -1,7 +1,7 @@
 ﻿using System;
 using Chronos.Infrastructure.Events;
 
-namespace Chronos.Core.Common.Events
+namespace Chronos.Core.Scheduling.Events
 {
     public class TimeoutRequested : EventBase
     {

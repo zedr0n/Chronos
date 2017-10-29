@@ -1,18 +1,18 @@
 ﻿using System;
 
-namespace Chronos.Core.Assets
+namespace Chronos.Core.Common
 {
     /// <summary>
     /// Value object representing a position in an asset
     /// </summary>
     public class Amount
     {
-        public Guid AssetId { get; }
+        public Guid EntityId { get; }
         public double Quantity { get; }
 
-        public Amount(Guid assetId, double quantity)
+        public Amount(Guid entityId, double quantity)
         {
-            AssetId = assetId;
+            EntityId = entityId;
             Quantity = quantity;
         }
 
@@ -20,12 +20,12 @@ namespace Chronos.Core.Assets
         
         public Amount Add(double quantity)
         {
-            return new Amount(AssetId,Quantity + quantity);
+            return new Amount(EntityId,Quantity + quantity);
         }
 
         public Amount Remove(double quantity)
         {
-            return new Amount(AssetId, Quantity - quantity);
+            return new Amount(EntityId, Quantity - quantity);
         }
     }
 }

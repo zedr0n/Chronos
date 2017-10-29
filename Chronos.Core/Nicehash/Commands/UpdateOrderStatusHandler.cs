@@ -1,5 +1,6 @@
 ﻿using System;
 using Chronos.Core.Assets;
+using Chronos.Core.Common;
 using Chronos.Core.Nicehash.Projections;
 using Chronos.Core.Nicehash.Queries;
 using Chronos.Infrastructure;

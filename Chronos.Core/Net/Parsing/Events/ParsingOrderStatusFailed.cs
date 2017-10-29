@@ -1,16 +1,15 @@
 ﻿using System;
 using Chronos.Infrastructure.Events;
 
-namespace Chronos.Core.Common.Events
+namespace Chronos.Core.Net.Parsing.Events
 {
-    public class OrderStatusNotParsed : EventBase
+    public class ParsingOrderStatusFailed : EventBase
     {
-        public OrderStatusNotParsed(Guid orderId)
+        public ParsingOrderStatusFailed(Guid orderId)
         {
             OrderId = orderId;
         }
 
         public Guid OrderId { get; }
-        
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Reactive.Linq;
 using Chronos.Core.Common.Commands;
 using Chronos.Core.Common.Events;
+using Chronos.Core.Scheduling.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using NodaTime;

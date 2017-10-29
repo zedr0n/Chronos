@@ -1,7 +1,7 @@
 ﻿using System;
 using Chronos.Infrastructure.Events;
 
-namespace Chronos.Core.Common.Events
+namespace Chronos.Core.Net.Tracking.Events
 {
     public class AssetJsonParsed : EventBase
     {

@@ -1,5 +1,6 @@
 ﻿using System;
 using Chronos.Core.Common.Events;
+using Chronos.Core.Scheduling.Events;
 using Chronos.Infrastructure.Events;
 using NodaTime;
 

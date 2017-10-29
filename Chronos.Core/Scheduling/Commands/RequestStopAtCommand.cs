@@ -2,7 +2,7 @@
 using Chronos.Infrastructure.Commands;
 using NodaTime;
 
-namespace Chronos.Core.Common.Commands
+namespace Chronos.Core.Scheduling.Commands
 {
     public class RequestStopAtCommand : CommandBase
     {

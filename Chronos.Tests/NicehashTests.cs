@@ -3,6 +3,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Chronos.Core.Common.Commands;
 using Chronos.Core.Common.Events;
+using Chronos.Core.Net.Parsing.Events;
 using Chronos.Core.Nicehash.Commands;
 using Chronos.Core.Nicehash.Json;
 using Chronos.Core.Nicehash.Projections;

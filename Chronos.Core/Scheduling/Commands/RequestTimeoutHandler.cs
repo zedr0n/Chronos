@@ -1,7 +1,8 @@
 ﻿using Chronos.Core.Common.Events;
+using Chronos.Core.Scheduling.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
-using RequestTimeoutCommand = Chronos.Core.Common.Commands.RequestTimeoutCommand;
+using RequestTimeoutCommand = Chronos.Core.Scheduling.Commands.RequestTimeoutCommand;
 
 namespace Chronos.Core.Scheduling.Commands
 {

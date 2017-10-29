@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Chronos.Core.Common.Commands;
 using Chronos.Core.Common.Events;
+using Chronos.Core.Net.Parsing.Events;
 using Chronos.Core.Nicehash.Json;
 using Chronos.Core.Nicehash.Projections;
 using Chronos.Core.Nicehash.Queries;

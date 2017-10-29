@@ -1,5 +1,6 @@
 ﻿using System;
 using Chronos.Core.Assets;
+using Chronos.Core.Common;
 using Chronos.Core.Nicehash.Events;
 using Chronos.Infrastructure;
 
@@ -30,7 +31,7 @@ namespace Chronos.Core.Nicehash
             {
                 OrderId = orderId,
                 OrderNumber = orderNumber,
-                PriceAsset = unitPrice.AssetId,
+                PriceAsset = unitPrice.EntityId,
                 Price = unitPrice.Quantity
             });     
             _status = new Status(Amount.Null());
@@ -48,7 +49,7 @@ namespace Chronos.Core.Nicehash
 
         public void UpdateStatus(Amount spent, double speed)
         {
-            if (spent.AssetId != _unitPrice.AssetId)
+            if (spent.EntityId != _unitPrice.EntityId)
                 throw new InvalidOperationException("Spend asset not consistent with price asset");
             
             When(new NicehashOrderUpdated
@@ -61,7 +62,7 @@ namespace Chronos.Core.Nicehash
 
         public void When(NicehashOrderUpdated e)
         {
-            _status.Spent = new Amount(_unitPrice.AssetId,e.Spent);
+            _status.Spent = new Amount(_unitPrice.EntityId,e.Spent);
             _status.Speed = e.Speed;
             base.When(e);
         }

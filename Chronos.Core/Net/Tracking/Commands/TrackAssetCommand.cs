@@ -1,9 +1,8 @@
 ﻿using System;
-using Chronos.Core.Net.Tracking;
 using Chronos.Infrastructure.Commands;
 using NodaTime;
 
-namespace Chronos.Core.Common.Commands
+namespace Chronos.Core.Net.Tracking.Commands
 {
     public class TrackAssetCommand : CommandBase
     {

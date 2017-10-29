@@ -1,6 +1,8 @@
 ﻿using System;
 using Chronos.Core.Common.Commands;
 using Chronos.Core.Common.Events;
+using Chronos.Core.Scheduling.Commands;
+using Chronos.Core.Scheduling.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
