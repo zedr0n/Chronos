@@ -16,7 +16,7 @@ namespace Chronos.Core.Nicehash.Handlers
         {
             SendCommand(new UpdateOrderStatusCommand
             {
-                TargetId = @event.Id,
+                TargetId = @event.OrderId,
                 Speed = @event.Speed,
                 Spent = @event.Spent
             });

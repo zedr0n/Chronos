@@ -4,15 +4,16 @@ using Chronos.Infrastructure.Events;
 
 namespace Chronos.Core.Common.Events
 {
-    public class OrderStatusParsed : AssetJsonParsed 
+    public class OrderStatusParsed : EventBase 
     {
         public OrderStatusParsed(Guid orderId,double speed, double spent) 
-            : base(orderId)
         {
             Speed = speed;
             Spent = spent;
+            OrderId = orderId;
         }
 
+        public Guid OrderId { get; }
         public double Speed { get; }
         public double Spent { get; }
     }
