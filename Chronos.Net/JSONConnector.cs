@@ -9,67 +9,24 @@ using Newtonsoft.Json;
 
 namespace Chronos.Net
 {
-    public class JsonConnector : IJsonConnector
+    public class JSONConnector : IJsonConnector
     {
-        private readonly Dictionary<Guid,object> _repository = new Dictionary<Guid, object>();
+        public IObservable<string> Request(string url)
+        {
+            return Observable.FromAsync(() => GetAsync(url)).Timeout(DateTimeOffset.Now.AddSeconds(10));
+        }
 
-        public T Get<T>(string url) 
-            where T : class
+        private async Task<string> GetAsync(string url) 
         {
             using (var w = new HttpClient())
             {
-                var jsonData = string.Empty;
-                try
-                {
-                    jsonData = w.GetStringAsync(url).Result;
-                }
-                catch (Exception) { }
+                var json = await w.GetStringAsync(url);
 
-                if (string.IsNullOrEmpty(jsonData))
+                if (string.IsNullOrEmpty(json))
                     return null;
-                
-                var jObject = JsonConvert.DeserializeObject<T>(jsonData);
-                return jObject;
+
+                return json;
             }
-        }
-
-        public IObservable<T> AsObservable<T>(Guid id,string url)
-            where T : class
-        {
-            return Observable.FromAsync(() => GetAsync<T>(url));
-        }
-        
-        public async Task<T> GetAsync<T>(string url) 
-            where T : class
-        {
-            using (var w = new HttpClient())
-            {
-                var jsonData = string.Empty;
-                try
-                {
-                    jsonData = await w.GetStringAsync(url);
-                }
-                catch (Exception) { }
-
-                if (string.IsNullOrEmpty(jsonData))
-                    return null;
-                
-                var jObject = JsonConvert.DeserializeObject<T>(jsonData);
-                return jObject;
-            }
-        }
-
-        public void Save<T>(Guid requestId, T result) where T : class
-        {
-            _repository[requestId] = result;
-        }
-
-        public T Find<T>(Guid requestId)
-            where T : class
-        {
-            if (_repository.ContainsKey(requestId))
-                return _repository[requestId] as T;
-            return null;
         }
     }
 }

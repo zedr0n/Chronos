@@ -19,9 +19,6 @@ namespace Chronos.Core.Assets.Commands
 
         public void Handle(CreateCoinCommand command)
         {
-            //if(_domainRepository.Exists<Coin>(command.TargetId))
-            //    throw new InvalidOperationException("Coin has already been created");
-
             var coinInfo = _handler.Handle(new CoinInfoQuery
             {
                 Name = command.Name

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Chronos.Core.Accounts;
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
@@ -10,24 +9,26 @@ using Chronos.Core.Assets;
 using Chronos.Core.Assets.Commands;
 using Chronos.Core.Assets.Projections;
 using Chronos.Core.Assets.Queries;
-using Chronos.Core.Net.Json;
-using Chronos.Core.Net.Json.Commands;
-using Chronos.Core.Net.Json.Projections;
-using Chronos.Core.Net.Json.Queries;
+using Chronos.Core.Common.Sagas;
+using Chronos.Core.Net.Parsing;
+using Chronos.Core.Net.Parsing.Commands;
+using Chronos.Core.Net.Tracking;
+using Chronos.Core.Net.Tracking.Commands;
 using Chronos.Core.Nicehash;
 using Chronos.Core.Nicehash.Commands;
 using Chronos.Core.Nicehash.Json;
 using Chronos.Core.Nicehash.Projections;
 using Chronos.Core.Nicehash.Queries;
 using Chronos.Core.Projections;
-using Chronos.Core.Sagas;
+using Chronos.Core.Scheduling;
+using Chronos.Core.Scheduling.Commands;
 using Chronos.Core.Transactions;
 using Chronos.Core.Transactions.Commands;
+using Chronos.Core.Transactions.Sagas;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Projections.New;
 using Chronos.Infrastructure.Queries;
-using Chronos.Infrastructure.ReplayStrategies;
 using Chronos.Infrastructure.Sagas;
 using Chronos.Persistence;
 using Chronos.Persistence.Serialization;
@@ -118,6 +119,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
 
         public virtual void ComposeApplication(Container container)
         {
+            container.Options.RegisterParameterConvention(new NicehashKeyConvention());
             container.Options.RegisterParameterConventions( _readConfiguration?.GetConventions() );
             container.Options.RegisterParameterConventions( _writeConfiguration?.GetConventions() );
             container.Options.RegisterParameterConvention(new AggregateListConvention(new List<Type>
@@ -126,7 +128,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(Coin),
                 typeof(Purchase),
                 typeof(Order),
-                typeof(Request<Orders>)
+                typeof(Tracker)
             }) );
             
             // register infrastructure
@@ -137,14 +139,17 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<ISagaRepository,EventStoreSagaRepository>(Lifestyle.Singleton);
             container.Register<ITimeline,Timeline>(Lifestyle.Singleton);
             container.Register<ITimeNavigator, TimeNavigator>(Lifestyle.Singleton);
+            container.Register<IScheduler,Scheduler>(Lifestyle.Singleton);
             container.Register<ICommandRegistry,CommandRegistry>(Lifestyle.Singleton);
             container.Register<ICommandBus, CommandBus>(Lifestyle.Singleton);
             container.Register<IQueryProcessor, QueryProcessor>(Lifestyle.Singleton);
-            //container.Register<ISagaManager,SagaManager>(Lifestyle.Singleton);
             container.Register<IClock,HighPrecisionClock>(Lifestyle.Singleton);
             container.Register<IAggregateFactory,AggregateFactory>(Lifestyle.Singleton);
-            container.Register<IJsonConnector,JsonConnector>(Lifestyle.Singleton);
-
+            container.Register<IJsonConnector,JSONConnector>(Lifestyle.Singleton);
+            container.AddRegistration<IEventBus>(Lifestyle.Singleton.CreateRegistration<EventStore>(container));
+            container.RegisterConditional<IUrlProvider,OrderUrlProvider>(Lifestyle.Singleton,
+                x => x.Consumer.ImplementationType == typeof(TrackOrderHandler));
+                
             if (_readConfiguration == null)
             {
                 container.Register<IReadRepository, ReadRepository>(Lifestyle.Singleton); 
@@ -157,6 +162,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 container.Register<IStateWriter, DbStateWriter>(Lifestyle.Singleton);
                 container.Register<ICommandHandler<ClearDatabaseCommand>,ClearDatabaseHandler>(Lifestyle.Singleton);
             }
+            container.Register<IJsonParser,JsonParser>(Lifestyle.Singleton);
             container.Register<IEventSerializer,EventSerializer>(Lifestyle.Singleton);
             container.Register<ICommandSerializer,CommandSerializer>(Lifestyle.Singleton);
             container.Register(typeof(IBaseProjectionExpression<>),typeof(ProjectionExpression<>));
@@ -165,6 +171,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<StreamTracker>(Lifestyle.Singleton);
 
             container.Register(typeof(ICommandHandler<>),new[] {
+                typeof(RequestTimeoutHandler),
                 typeof(CreateAccountHandler),
                 typeof(ChangeAccountHandler),
                 typeof(DepositCashHandler),
@@ -173,16 +180,14 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(CreatePurchaseHandler),
                 typeof(ScheduleCommandHandler),
                 typeof(CreateCashTransferHandler),
-                typeof(RequestTimeoutHandler),
                 typeof(CreateCoinHandler),
                 typeof(UpdateAssetPriceHandler),
                 typeof(CreateOrderHandler),
                 typeof(TrackOrderHandler),
                 typeof(UpdateOrderStatusHandler),
-                typeof(ParseOrderStatusHandler),
-                typeof(CreateRequestHandler<Orders>),
-                typeof(ExecuteRequestHandler<Orders>),
-                typeof(TrackRequestHandler<Orders>)
+                typeof(RequestJsonHandler),
+                typeof(OrderStatusParsingHandler),
+                typeof(RequestStopAtHandler)
             } ,Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(NullCommandHandler<>),Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(HistoricalCommandHandler<>),Lifestyle.Singleton);
@@ -196,10 +201,9 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register(typeof(ISagaHandler<>), new[]
             {
                 typeof(SchedulerSagaHandler),
-                typeof(JsonSagaHandler<Orders>),
-                typeof(NicehashTrackingSagaHandler),
                 typeof(TransactionSagaHandler),
-                typeof(TransferSagaHandler)
+                typeof(TransferSagaHandler),
+                typeof(AssetTrackingSagaHandler)
             });
             
             container.RegisterQuery<AccountInfoQuery,AccountInfo>(typeof(AccountInfoHandler), Lifestyle.Singleton);
@@ -207,15 +211,12 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.RegisterQuery<OrderInfoQuery,OrderInfo>(typeof(OrderInfoHandler),Lifestyle.Singleton);
             container.RegisterQuery<OrderStatusQuery,OrderStatus>(typeof(OrderStatusHandler),Lifestyle.Singleton);
             container.RegisterQuery<TotalMovementQuery,TotalMovement>(typeof(TotalMovementHandler),Lifestyle.Singleton);
-            container.RegisterQuery<RequestInfoQuery<Orders>,RequestInfo<Orders>>(typeof(RequestInfoHandler<Orders>),Lifestyle.Singleton);
             
             container.RegisterQuery<StatsQuery,Stats>(typeof(StatsHandler),Lifestyle.Singleton);
             container.Register(typeof(IHistoricalQueryHandler<AccountInfoQuery,AccountInfo>),
                 typeof(HistoricalQueryHandler<AccountInfoQuery,AccountInfo>), Lifestyle.Singleton);
             container.Register(typeof(IHistoricalQueryHandler<TotalMovementQuery,TotalMovement>),
                 typeof(HistoricalQueryHandler<TotalMovementQuery,TotalMovement>), Lifestyle.Singleton);
-
-            container.Register<IReplayStrategy,DefaultReplayStrategy>(Lifestyle.Singleton);
         }
 
     }

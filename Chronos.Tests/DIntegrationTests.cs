@@ -12,6 +12,8 @@ using Chronos.Core.Accounts.Queries;
 using Chronos.Core.Assets;
 using Chronos.Core.Assets.Commands;
 using Chronos.Core.Assets.Events;
+using Chronos.Core.Common.Commands;
+using Chronos.Core.Scheduling.Commands;
 using Chronos.Core.Transactions;
 using Chronos.Core.Transactions.Commands;
 using Chronos.Core.Transactions.Events;
@@ -295,7 +297,8 @@ namespace Chronos.Tests
                 AccountId = AccountId
             });
             
-            Assert.Equal(0, accountInfo.Balance);
+            Assert.Null(accountInfo);
+            //Assert.Equal(0, accountInfo.Balance);
         }
 
         [Fact]

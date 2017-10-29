@@ -59,6 +59,8 @@ namespace Chronos.Infrastructure.Sagas
         /// <param name="m"></param>
         protected void SendMessage(IMessage m)
         {
+            if (m == null)
+                return;
             _undispatchedMessages.Add(m);
         }
     }

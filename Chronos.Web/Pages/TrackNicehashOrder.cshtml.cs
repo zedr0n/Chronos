@@ -7,6 +7,7 @@ using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Queries;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using NodaTime;
 using static System.Double;
 
 namespace Chronos.Web.Pages
@@ -61,11 +62,8 @@ namespace Chronos.Web.Pages
                 OrderStatus = _queryProcessor.Process<OrderStatusQuery, OrderStatus>(query); 
             }
 
-            await _commandBus.SendAsync(new TrackOrderCommand
-            {
-                TargetId = orderId,
-                UpdateInterval = 10
-            });
+            await _commandBus.SendAsync(
+                new TrackOrderCommand(orderId, Duration.FromSeconds(10)));
 
             return Page();
         }

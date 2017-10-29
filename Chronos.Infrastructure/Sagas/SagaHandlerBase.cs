@@ -16,6 +16,8 @@ namespace Chronos.Infrastructure.Sagas
         private readonly IConnectableObservable<IEvent> _events;
         private readonly IConnectableObservable<IEvent> _alerts;
 
+        protected IReplayStrategy ReplayStrategy { private get; set; }
+
         protected SagaHandlerBase(ISagaRepository repository, IDebugLog debugLog, IEventStore eventStore)
         {
             _repository = repository;
@@ -33,12 +35,12 @@ namespace Chronos.Infrastructure.Sagas
             _events.OfType<TEvent>().Subscribe(action);
         }
 
-        protected void Register<TEvent>(Func<TEvent, Guid> sagaId)
+        protected void Register<TEvent>(Func<TEvent, Guid> sagaId,bool createNew = true)
             where TEvent : class,IEvent
         {
             Register<TEvent>(e => 
                 Send(e,
-                    Get(sagaId(e))));
+                    Get(sagaId(e),createNew)));
         }
 
         private void RegisterAlert<TEvent>(Action<TEvent> action) where TEvent : IEvent
@@ -56,7 +58,7 @@ namespace Chronos.Infrastructure.Sagas
 
         private TSaga Get(Guid sagaId, bool createNew = true)
         {
-            var saga = _repository.Find<TSaga>(sagaId) ??
+            var saga = _repository.Find<TSaga>(sagaId,ReplayStrategy) ??
                        (createNew ? new TSaga().LoadFrom<TSaga>(sagaId, new List<IEvent> () ) : null);
             if (saga == null)
                 return null;

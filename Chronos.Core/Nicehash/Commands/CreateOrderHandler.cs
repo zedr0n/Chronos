@@ -45,8 +45,6 @@ namespace Chronos.Core.Nicehash.Commands
                 OrderNumber = command.OrderNumber
             }) != null)
                 return;
-            //if (_domainRepository.Exists<Order>(command.TargetId))
-            //    return;
             
             var amount = new Amount(_btcId, command.Price);
 		    var order = new Order(command.TargetId,command.OrderNumber,amount);    

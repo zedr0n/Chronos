@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Interfaces;
 using SimpleInjector;
@@ -47,6 +48,9 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
         
         public ICommandHandler<T> Get<T>() where T : class, ICommand
         {
+            if(!_handlers.ContainsKey(typeof(T)))
+                throw new InvalidOperationException("Configuration is invalid. "
+                + typeof(T).SerializableName() + " is not registered with the command bus");
             return _handlers[typeof(T)] as ICommandHandler<T>;
         }
         

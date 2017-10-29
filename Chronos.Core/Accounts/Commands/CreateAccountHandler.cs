@@ -20,9 +20,6 @@ namespace Chronos.Core.Accounts.Commands
 
         public void Handle(CreateAccountCommand command)
         {
-            if(_handler.Handle(new AccountInfoQuery { Name = command.Name }) != null)
-                throw new InvalidOperationException("Account has already been created");
-                
             var account = new Account(command.TargetId,command.Name, command.Currency);
             _domainRepository.Save(account);
         }

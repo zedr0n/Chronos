@@ -4,7 +4,9 @@ using Chronos.Core.Accounts;
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Core.Accounts.Queries;
+using Chronos.Core.Common.Commands;
 using Chronos.Core.Projections;
+using Chronos.Core.Scheduling.Commands;
 using Chronos.Core.Transactions;
 using Chronos.Core.Transactions.Commands;
 using Chronos.Infrastructure;
@@ -423,7 +425,8 @@ namespace Chronos.Tests
             navigator.GoTo(createdAt);
 
             var accountInfo = queryHandler.Handle(query);
-            Assert.Equal(0,accountInfo.Balance);
+            Assert.Null(accountInfo);
+            //Assert.Equal(0,accountInfo.Balance);
 
             navigator.Reset(); 
             Assert.Equal(-command.Amount,queryHandler.Handle(query).Balance);

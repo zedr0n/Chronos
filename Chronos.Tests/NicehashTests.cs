@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Threading;
-using Chronos.Core.Net.Json.Projections;
-using Chronos.Core.Net.Json.Queries;
+using Chronos.Core.Common.Commands;
+using Chronos.Core.Common.Events;
 using Chronos.Core.Nicehash.Commands;
 using Chronos.Core.Nicehash.Json;
 using Chronos.Core.Nicehash.Projections;
 using Chronos.Core.Nicehash.Queries;
+using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Queries;
+using NodaTime;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -54,9 +55,10 @@ namespace Chronos.Tests
             var container = CreateContainer(nameof(CanTrackOrder));
             var commandBus = container.GetInstance<CommandBus>();
             var queryProcessor = container.GetInstance<IQueryProcessor>();
+            var eventStore = container.GetInstance<IEventStore>();
 
             var orderId = Guid.NewGuid();
-            var orderNumber = 4181102;
+            const int orderNumber = 4181102;
             
             var command = new CreateOrderCommand
             {
@@ -66,10 +68,9 @@ namespace Chronos.Tests
             
             commandBus.Send(command);
 
-            var trackCommand = new TrackOrderCommand
+            var trackCommand = new TrackOrderCommand(orderId,Duration.FromSeconds(1)) 
             {
-                TargetId = orderId,
-                UpdateInterval = 1
+                OrderNumber = orderNumber
             };
             
             commandBus.Send(trackCommand);
@@ -81,50 +82,30 @@ namespace Chronos.Tests
             Assert.NotNull(orderStatus);
             Assert.Equal(orderId,orderStatus.OrderId);
 
-
-
             var obs = Observable.Create((IObserver<long> o) =>
             {
-                var requestInfo = queryProcessor.Process<RequestInfoQuery<Orders>, RequestInfo<Orders>>(new RequestInfoQuery<Orders>
-                {
-                    RequestId = orderId
-                });
+                var observable = Observable.Interval(TimeSpan.FromSeconds(1));
+                var completed = false;
                 
-                var observable = Observable.Interval(TimeSpan.FromSeconds(1))
-                    .Do(x =>
-                    {
-                        orderStatus = queryProcessor.Process<OrderStatusQuery, OrderStatus>(new OrderStatusQuery
-                        {
-                            OrderNumber = orderNumber
-                        });
-                        
-                        requestInfo = queryProcessor.Process<RequestInfoQuery<Orders>, RequestInfo<Orders>>(new RequestInfoQuery<Orders>
-                        {
-                            RequestId = orderId
-                        });
-                    })
-                    .DistinctUntilChanged();
-
                 var subscription = observable.Subscribe(x =>
                 {
+                    orderStatus = queryProcessor.Process<OrderStatusQuery, OrderStatus>(new OrderStatusQuery
+                    {
+                        OrderNumber = orderNumber
+                    });
+                    
                     o.OnNext(x);
-                    if(requestInfo.Completed || requestInfo.Failed)
+                    if(completed) 
                         o.OnCompleted();
                 });
+
+                eventStore.Alerts.OfType<ParsingOrderStatusFailed>()
+                    .Subscribe(x => completed = true);
                 
                 return Disposable.Create(() => subscription.Dispose());
             });
             
             obs.Wait();
-            
-            var finalRequestInfo = queryProcessor.Process<RequestInfoQuery<Orders>, RequestInfo<Orders>>(new RequestInfoQuery<Orders>
-            {
-                RequestId = orderId
-            });
-            
-            Assert.True(finalRequestInfo.Failed);
         }
-         
-        
     }
 }

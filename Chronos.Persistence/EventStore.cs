@@ -8,7 +8,7 @@ using Chronos.Infrastructure.Projections.New;
 
 namespace Chronos.Persistence
 {
-    public class EventStore : IEventStore
+    public class EventStore : IEventStore,IEventBus
     {
         private readonly IObservable<Envelope> _events; 
         private readonly Subject<IEvent> _alerts = new Subject<IEvent>();

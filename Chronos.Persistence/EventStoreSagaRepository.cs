@@ -47,7 +47,7 @@ namespace Chronos.Persistence
             saga.ClearUndispatchedMessages();
         }
 
-        public T Find<T>(Guid id) where T : class,ISaga, new()
+        public T Find<T>(Guid id,IReplayStrategy strategy = null) where T : class,ISaga, new()
         {         
             //var stream = new StreamDetails(typeof(T),id);
             var stream = _streamTracker.GetSaga(typeof(T), id);
@@ -61,6 +61,9 @@ namespace Chronos.Persistence
 
             var saga = new T().LoadFrom<T>(id,events);
 
+            foreach(var e in saga.UndispatchedMessages.Where(m => strategy?.Replayable(m) ?? false))
+                _commandBus.Send(e as ICommand);       
+                
             saga.ClearUncommittedEvents();
             saga.ClearUndispatchedMessages();
             return saga;
