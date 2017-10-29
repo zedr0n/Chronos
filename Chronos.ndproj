@@ -4557,7 +4557,7 @@ select new {
 // because an API Breaking change can provoque significant
 // friction with consumers of the API.
 //</HowToFix>]]></Query>
-      <Query Active="True" DisplayList="True" DisplayStat="False" DisplaySelectionView="False" IsCriticalRule="True"><![CDATA[// <Name>API Breaking Changes: Interfaces and Abstract Classes</Name>
+      <Query Active="False" DisplayList="True" DisplayStat="False" DisplaySelectionView="False" IsCriticalRule="True"><![CDATA[// <Name>API Breaking Changes: Interfaces and Abstract Classes</Name>
 warnif count > 0 from tNewer in Application.Types where 
  (tNewer.IsInterface || tNewer.IsClass && tNewer.IsAbstract) && 
   tNewer.IsPubliclyVisible && 
@@ -7472,7 +7472,7 @@ let nonReportedTypeName = new [] { "Program", "NamespaceDoc", "Initial", "Startu
 
 // This rule matches also collisions between 
 // application and third-party types sharing a same name.
-let groups = JustMyCode.Types.Union(ThirdParty.Types)
+let groups = JustMyCode.Types//.Union(ThirdParty.Types)
                  // Discard nested types, whose name is
                  // prefixed with the parent type name.
                  .Where(t => !t.IsNested && !nonReportedTypeName.Contains(t.Name))
@@ -7570,6 +7570,7 @@ warnif count > 0
 let hashsetShortNames = Namespaces.Where(n => n.Name.Length > 0).Select(n => n.SimpleName).ToHashSet()
 
 from t in JustMyCode.Types
+where !t.ParentNamespace.Name.Contains("Migrations")
 where hashsetShortNames.Contains(t.Name)
 select new { 
    t, 
@@ -11293,5 +11294,4 @@ select new {
       </Group>
     </Group>
   </Queries>
-  <WarnFilter />
 </NDepend>
