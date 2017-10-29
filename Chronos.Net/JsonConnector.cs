@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace Chronos.Net
 {
-    public class JSONConnector : IJsonConnector
+    public class JsonConnector : IJsonConnector
     {
         public IObservable<string> Request(string url)
         {

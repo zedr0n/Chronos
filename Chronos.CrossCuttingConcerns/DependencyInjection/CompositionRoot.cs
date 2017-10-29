@@ -145,7 +145,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<IQueryProcessor, QueryProcessor>(Lifestyle.Singleton);
             container.Register<IClock,HighPrecisionClock>(Lifestyle.Singleton);
             container.Register<IAggregateFactory,AggregateFactory>(Lifestyle.Singleton);
-            container.Register<IJsonConnector,JSONConnector>(Lifestyle.Singleton);
+            container.Register<IJsonConnector,JsonConnector>(Lifestyle.Singleton);
             container.AddRegistration<IEventBus>(Lifestyle.Singleton.CreateRegistration<EventStore>(container));
             container.RegisterConditional<IUrlProvider,OrderUrlProvider>(Lifestyle.Singleton,
                 x => x.Consumer.ImplementationType == typeof(TrackOrderHandler));
