@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Chronos.Core.Net.Tracking.Commands;
 using Chronos.Core.Nicehash.Commands;
 using Chronos.Core.Nicehash.Projections;
 using Chronos.Core.Nicehash.Queries;

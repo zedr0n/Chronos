@@ -1,5 +1,4 @@
 ﻿using Chronos.Core.Common;
-using Chronos.Core.Nicehash.Commands;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 
