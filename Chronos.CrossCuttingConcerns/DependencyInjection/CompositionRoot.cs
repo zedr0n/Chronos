@@ -203,7 +203,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(SchedulerSagaHandler),
                 typeof(TransactionSagaHandler),
                 typeof(TransferSagaHandler),
-                typeof(AssetTrackingSagaHandler)
+                typeof(OrderTrackingSagaHandler)
             });
             
             container.RegisterQuery<AccountInfoQuery,AccountInfo>(typeof(AccountInfoHandler), Lifestyle.Singleton);

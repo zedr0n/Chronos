@@ -1,4 +1,4 @@
-﻿using Chronos.Core.Common;
+﻿using System;
 using Chronos.Core.Common.Commands;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
@@ -18,13 +18,14 @@ namespace Chronos.Core.Net.Tracking.Commands
             _urlProvider = urlProvider;
         }
 
-        public void Handle(TrackAssetCommand command,string url)
+        protected Tracker Tracker(Guid id)
         {
-            var tracker = _domainRepository.Find<Tracker>(command.TargetId) ?? new Tracker();
-            tracker.TrackAsset(command.AssetId,AssetType,command.UpdateInterval,url);
-            _domainRepository.Save(tracker);
+            return _domainRepository.Find<Tracker>(id) ?? new Tracker(); 
         }
 
-        protected abstract AssetType AssetType { get; }
+        protected void Save(Tracker tracker)
+        {
+            _domainRepository.Save(tracker); 
+        }
     }
 }

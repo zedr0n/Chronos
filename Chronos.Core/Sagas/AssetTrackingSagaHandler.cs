@@ -11,11 +11,17 @@ namespace Chronos.Core.Sagas
         public AssetTrackingSagaHandler(ISagaRepository repository, IDebugLog debugLog, IEventStore eventStore)
             : base(repository, debugLog, eventStore)
         {
-            Register<AssetTrackingRequested>(e => e.AssetId);
-            RegisterAlert<TimeoutCompleted>(e => e.ScheduleId);
-            RegisterAlert<JsonReceived>(e => e.RequestorId);
-            RegisterAlert<JsonRequestFailed>(e => e.RequestorId);
-            RegisterAlert<AssetJsonParsed>(e => e.Id);
+            //Register<AssetTrackingRequested>(e => e.AssetId);
+
+        }
+        
+        protected void Register<TSaga>()
+            where TSaga : AssetTrackingSaga, new()
+        {
+            RegisterAlert<TimeoutCompleted,TSaga>(e => e.ScheduleId);
+            RegisterAlert<JsonReceived,TSaga>(e => e.RequestorId);
+            RegisterAlert<JsonRequestFailed,TSaga>(e => e.RequestorId);
+            RegisterAlert<AssetJsonParsed,TSaga>(e => e.Id); 
         }
     }
 }

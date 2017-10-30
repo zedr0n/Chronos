@@ -15,6 +15,14 @@ namespace Chronos.Core.Net.Tracking
         public static readonly Guid TrackerId = Guid.Parse("00000000-0000-0000-0000-000000000001");
         private readonly ConcurrentDictionary<Guid,IEvent> _trackedEntities = new ConcurrentDictionary<Guid, IEvent>();
 
+        private void When(Guid id, IEvent e)
+        {
+            if (!_trackedEntities.TryAdd(id,e))
+                return;
+            
+            When(e);     
+        }
+        
         public void TrackAsset(Guid id, AssetType assetType,Duration updateInterval,string url)
         {
             var @event = new AssetTrackingRequested
@@ -25,10 +33,21 @@ namespace Chronos.Core.Net.Tracking
                 AssetType = assetType
             }; 
             
-            if (!_trackedEntities.TryAdd(id,@event))
-                return;
-            
-            When(@event);    
+            When(id,@event);
+        }
+
+        public void TrackOrder(Guid id, int orderNumber, Duration updateInterval, string url)
+        {
+            var @event = new OrderTrackingRequested
+            {
+                AssetId = id,
+                AssetType = AssetType.Order,
+                UpdateInterval = updateInterval,
+                Url = url,
+                OrderNumber = orderNumber
+            };
+
+            When(id,@event);
         }
     }
 }

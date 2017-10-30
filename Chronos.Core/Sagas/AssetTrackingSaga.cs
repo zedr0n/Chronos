@@ -44,7 +44,7 @@ namespace Chronos.Core.Sagas
         private Duration _updateInterval;
         private AssetType _assetType;
 
-        private StateMachine<State, Trigger>.TriggerWithParameters<AssetTrackingRequested> _trackingTrigger;
+        protected StateMachine<State, Trigger>.TriggerWithParameters<AssetTrackingRequested> TrackingTrigger;
         private StateMachine<State, Trigger>.TriggerWithParameters<string> _jsonReceivedTrigger;
 
         protected override void When(IEvent e)
@@ -56,16 +56,17 @@ namespace Chronos.Core.Sagas
         {
             StateMachine = new StateMachine<State,Trigger>(State.Open);
 
-            _trackingTrigger = StateMachine.SetTriggerParameters<AssetTrackingRequested>(Trigger.TrackingRequested);
+            TrackingTrigger = StateMachine.SetTriggerParameters<AssetTrackingRequested>(Trigger.TrackingRequested);
             _jsonReceivedTrigger = StateMachine.SetTriggerParameters<string>(Trigger.JsonReceived);
-            
+
             StateMachine.Configure(State.Open)
                 .Permit(Trigger.TrackingRequested, State.Active);
+                //.PermitReentry(Trigger.TrackingRequested);
 
             StateMachine.Configure(State.Active)
                 .Permit(Trigger.Pause, State.Paused)
                 .Permit(Trigger.JsonReceived, State.Received)
-                .OnEntryFrom(_trackingTrigger, OnTracking)
+                .OnEntryFrom(TrackingTrigger, OnTracking)
                 .OnEntry(RequestTimeout);
 
             StateMachine.Configure(State.Received)
@@ -77,11 +78,11 @@ namespace Chronos.Core.Sagas
         
         public void When(AssetTrackingRequested e)
         {
-            StateMachine.Fire(_trackingTrigger,e);    
+            StateMachine.Fire(TrackingTrigger,e);    
             base.When(e);
         }
         
-        private void OnTracking(AssetTrackingRequested e)
+        protected virtual void OnTracking(AssetTrackingRequested e)
         {
             _url = e.Url;
             _assetId = e.AssetId;
@@ -112,9 +113,9 @@ namespace Chronos.Core.Sagas
             StateMachine.Fire(_jsonReceivedTrigger,e.Result);
             base.When(e);
         }
-        
-        private void OnReceived(string json)
-        {
+
+        protected virtual void OnReceived(string json) {}
+        /*{
             RequestParsingCommand command = null;
             switch (_assetType)
             {
@@ -127,7 +128,7 @@ namespace Chronos.Core.Sagas
                     throw new ArgumentOutOfRangeException();
             }
             SendMessage(command);
-        }
+        }*/
 
         public void When(AssetJsonParsed e)
         {

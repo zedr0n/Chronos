@@ -10,6 +10,6 @@ namespace Chronos.Core.Net.Tracking.Events
         public Guid AssetId { get; set; }
         public Duration UpdateInterval { get; set; }
         public string Url { get; set; }
-        public AssetType AssetType { get; set; }
+        public virtual AssetType AssetType { get; set; }
     }
 }

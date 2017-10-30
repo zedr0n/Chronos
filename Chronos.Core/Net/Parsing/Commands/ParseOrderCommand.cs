@@ -5,8 +5,10 @@ namespace Chronos.Core.Net.Parsing.Commands
 {
     public class ParseOrderCommand : RequestParsingCommand
     {
-        public ParseOrderCommand(Guid assetId, string json) : base(assetId, json)
+        public int OrderNumber { get; set; }
+        public ParseOrderCommand(Guid assetId, int orderNumber, string json) : base(assetId, json)
         {
+            OrderNumber = orderNumber;
         }
     }
 }

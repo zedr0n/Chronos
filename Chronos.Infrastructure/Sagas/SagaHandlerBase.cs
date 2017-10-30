@@ -35,12 +35,22 @@ namespace Chronos.Infrastructure.Sagas
             _events.OfType<TEvent>().Subscribe(action);
         }
 
+        protected void Register<TEvent, T>(Func<TEvent, Guid> sagaId, bool createNew = true)
+            where TEvent : class,IEvent
+            where T : class,TSaga, new() 
+        {
+            Register<TEvent>(e =>
+                Send(e,
+                    Get<T>(sagaId(e),createNew)));
+        }
+        
         protected void Register<TEvent>(Func<TEvent, Guid> sagaId,bool createNew = true)
             where TEvent : class,IEvent
         {
-            Register<TEvent>(e => 
-                Send(e,
-                    Get(sagaId(e),createNew)));
+            Register<TEvent,TSaga>(sagaId,createNew);
+            //Register<TEvent>(e => 
+            //    Send(e,
+            //        Get(sagaId(e),createNew)));
         }
 
         private void RegisterAlert<TEvent>(Action<TEvent> action) where TEvent : IEvent
@@ -48,18 +58,31 @@ namespace Chronos.Infrastructure.Sagas
             _alerts.OfType<TEvent>().Subscribe(action);
         }
 
-        protected void RegisterAlert<TEvent>(Func<TEvent, Guid> sagaId,bool createNew = false)
+        protected void RegisterAlert<TEvent>(Func<TEvent, Guid> sagaId, bool createNew = false) 
             where TEvent : class, IEvent
+        {
+            RegisterAlert<TEvent,TSaga>(sagaId,createNew);
+        }
+        
+        protected void RegisterAlert<TEvent,T>(Func<TEvent, Guid> sagaId,bool createNew = false)
+            where TEvent : class, IEvent
+            where T : class, TSaga, new()
         {
             RegisterAlert<TEvent>(e => 
                 Send(e,
-                    Get(sagaId(e),createNew)));
+                    Get<T>(sagaId(e),createNew)));
         }
 
         private TSaga Get(Guid sagaId, bool createNew = true)
         {
-            var saga = _repository.Find<TSaga>(sagaId,ReplayStrategy) ??
-                       (createNew ? new TSaga().LoadFrom<TSaga>(sagaId, new List<IEvent> () ) : null);
+            return Get<TSaga>(sagaId, createNew);
+        }
+        
+        private T Get<T>(Guid sagaId, bool createNew = true)
+            where T : class, ISaga, new()
+        {
+            var saga = _repository.Find<T>(sagaId,ReplayStrategy) ??
+                       (createNew ? new T().LoadFrom<T>(sagaId, new List<IEvent> () ) : null);
             if (saga == null)
                 return null;
             saga.DebugLog = _debugLog;
@@ -68,7 +91,8 @@ namespace Chronos.Infrastructure.Sagas
             return saga;
         }
 
-        private void Send<TEvent>(TEvent e,TSaga saga) where TEvent : class, IEvent
+        private void Send<TEvent,T>(TEvent e,T saga) where TEvent : class, IEvent
+            where T : class, ISaga, new()
         {
             if (saga == null)
                 return;
@@ -76,7 +100,8 @@ namespace Chronos.Infrastructure.Sagas
             Save(saga);
         }
 
-        private void Save(TSaga saga)
+        private void Save<T>(T saga)
+            where T : class, ISaga, new()
         {
             _repository.Save(saga);
         }
