@@ -22,26 +22,12 @@ namespace Chronos.Core.Net.Tracking
             
             When(e);     
         }
-        
-        public void TrackAsset(Guid id, AssetType assetType,Duration updateInterval,string url)
-        {
-            var @event = new AssetTrackingRequested
-            {
-                AssetId = id,
-                UpdateInterval = updateInterval,
-                Url = url,
-                AssetType = assetType
-            }; 
-            
-            When(id,@event);
-        }
 
         public void TrackOrder(Guid id, int orderNumber, Duration updateInterval, string url)
         {
             var @event = new OrderTrackingRequested
             {
                 AssetId = id,
-                AssetType = AssetType.Order,
                 UpdateInterval = updateInterval,
                 Url = url,
                 OrderNumber = orderNumber

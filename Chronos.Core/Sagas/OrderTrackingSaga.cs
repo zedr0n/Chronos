@@ -11,11 +11,8 @@ namespace Chronos.Core.Sagas
     {
         private int _orderNumber;
         private Guid _orderId;
-        
-        public void When(OrderTrackingRequested e)
-        {
-            base.When(e);
-        }
+
+        public void When(OrderTrackingRequested e) => base.When(e);
 
         protected override void OnTracking(AssetTrackingRequested e)
         {

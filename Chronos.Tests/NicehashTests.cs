@@ -84,28 +84,11 @@ namespace Chronos.Tests
             Assert.NotNull(orderStatus);
             Assert.Equal(orderId,orderStatus.OrderId);
 
-            var obs = Observable.Create((IObserver<long> o) =>
-            {
-                var observable = Observable.Interval(TimeSpan.FromSeconds(1));
-                var completed = false;
-                
-                var subscription = observable.Subscribe(x =>
+            var obs = Observable.Interval(TimeSpan.FromSeconds(2))
+                .Select(x => queryProcessor.Process<OrderStatusQuery, OrderStatus>(new OrderStatusQuery
                 {
-                    orderStatus = queryProcessor.Process<OrderStatusQuery, OrderStatus>(new OrderStatusQuery
-                    {
-                        OrderNumber = orderNumber
-                    });
-                    
-                    o.OnNext(x);
-                    if(completed) 
-                        o.OnCompleted();
-                });
-
-                eventStore.Alerts.OfType<ParsingOrderStatusFailed>()
-                    .Subscribe(x => completed = true);
-                
-                return Disposable.Create(() => subscription.Dispose());
-            });
+                    OrderNumber = orderNumber
+                })).TakeUntil(eventStore.Alerts.OfType<ParsingOrderStatusFailed>());
             
             obs.Wait();
         }
