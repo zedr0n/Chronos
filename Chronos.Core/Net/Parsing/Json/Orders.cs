@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Chronos.Core.Nicehash.Json
+namespace Chronos.Core.Net.Parsing.Json
 {
     public class OrderStatusJson
     {

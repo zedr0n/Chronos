@@ -15,7 +15,6 @@ using Chronos.Core.Net.Tracking;
 using Chronos.Core.Net.Tracking.Commands;
 using Chronos.Core.Nicehash;
 using Chronos.Core.Nicehash.Commands;
-using Chronos.Core.Nicehash.Json;
 using Chronos.Core.Nicehash.Projections;
 using Chronos.Core.Nicehash.Queries;
 using Chronos.Core.Projections;
