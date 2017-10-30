@@ -84,7 +84,7 @@ namespace Chronos.Tests
             Assert.NotNull(orderStatus);
             Assert.Equal(orderId,orderStatus.OrderId);
 
-            var obs = Observable.Interval(TimeSpan.FromSeconds(2))
+            var obs = Observable.Interval(TimeSpan.FromSeconds(1))
                 .Select(x => queryProcessor.Process<OrderStatusQuery, OrderStatus>(new OrderStatusQuery
                 {
                     OrderNumber = orderNumber
