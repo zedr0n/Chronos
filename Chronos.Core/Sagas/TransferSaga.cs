@@ -1,11 +1,11 @@
 ﻿using System;
 using Chronos.Core.Accounts.Commands;
-using Chronos.Core.Sagas;
+using Chronos.Core.Transactions;
 using Chronos.Core.Transactions.Events;
 using Chronos.Infrastructure.Sagas;
 using Stateless;
 
-namespace Chronos.Core.Transactions.Sagas
+namespace Chronos.Core.Sagas
 {
     public class TransferSaga : StatelessSaga<TransferSaga.State,TransferSaga.Trigger>,
         IHandle<AssetTransferCreated>,
