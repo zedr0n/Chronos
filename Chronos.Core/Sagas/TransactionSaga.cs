@@ -1,11 +1,10 @@
 ﻿using System;
 using Chronos.Core.Accounts.Commands;
-using Chronos.Core.Sagas;
 using Chronos.Core.Transactions.Events;
 using Chronos.Infrastructure.Sagas;
 using Stateless;
 
-namespace Chronos.Core.Transactions.Sagas
+namespace Chronos.Core.Sagas
 {
     public class TransactionSaga : StatelessSaga<TransactionSaga.State, TransactionSaga.Trigger>,
         IHandle<PurchaseCreated>
