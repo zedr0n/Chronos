@@ -23,7 +23,6 @@ using Chronos.Core.Scheduling;
 using Chronos.Core.Scheduling.Commands;
 using Chronos.Core.Transactions;
 using Chronos.Core.Transactions.Commands;
-using Chronos.Core.Transactions.Sagas;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Projections.New;
