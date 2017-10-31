@@ -14,6 +14,7 @@ namespace Chronos.Web
     {
         public static void Main(string[] args)
         {
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(MyHandler);
             BuildWebHost(args).Run();
         }
 
@@ -21,5 +22,12 @@ namespace Chronos.Web
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .Build();
+        
+        static void MyHandler(object sender, UnhandledExceptionEventArgs args) 
+        {
+            Exception e = (Exception) args.ExceptionObject;
+            Console.WriteLine("MyHandler caught : " + e.Message);
+            Console.WriteLine("Runtime terminating: {0}", args.IsTerminating);
+        }
     }
 }

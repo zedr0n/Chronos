@@ -15,6 +15,11 @@ namespace Chronos.Core.Net.Tracking
         public static readonly Guid TrackerId = Guid.Parse("00000000-0000-0000-0000-000000000001");
         private readonly ConcurrentDictionary<Guid,IEvent> _trackedEntities = new ConcurrentDictionary<Guid, IEvent>();
 
+        public Tracker()
+        {
+            Id = TrackerId;
+        }
+        
         private void When(Guid id, IEvent e)
         {
             if (!_trackedEntities.TryAdd(id,e))

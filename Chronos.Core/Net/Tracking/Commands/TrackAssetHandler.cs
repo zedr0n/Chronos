@@ -21,7 +21,7 @@ namespace Chronos.Core.Net.Tracking.Commands
 
         protected Tracker Tracker(Guid id)
         {
-            return _domainRepository.Find<Tracker>(id) ?? new Tracker(); 
+            return _domainRepository.Find<Tracker>(id) ?? new Tracker();
         }
 
         protected void Save(Tracker tracker)

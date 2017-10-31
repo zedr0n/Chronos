@@ -13,7 +13,7 @@ namespace Chronos.Net
     {
         public IObservable<string> Request(string url)
         {
-            return Observable.FromAsync(() => GetAsync(url)).Timeout(DateTimeOffset.Now.AddSeconds(10));
+            return Observable.FromAsync(() => GetAsync(url)); //.Timeout(DateTimeOffset.Now.AddSeconds(10));
         }
 
         private async Task<string> GetAsync(string url) 

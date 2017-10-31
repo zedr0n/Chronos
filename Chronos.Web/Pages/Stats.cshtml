@@ -6,6 +6,7 @@
 }
 
 <p>
-    Number of accounts : @Model.Stats.NumberOfAccounts<br>
-    Number of assets : @Model.Stats.NumberOfAssets
+    Number of accounts : @Model.Stats?.NumberOfAccounts<br>
+    Number of assets : @Model.Stats?.NumberOfAssets<br>
+    Bitcoin price : @Model.CoinInfo.Price
 </p>

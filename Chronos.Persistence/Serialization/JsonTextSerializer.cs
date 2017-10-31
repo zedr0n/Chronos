@@ -17,7 +17,11 @@ namespace Chronos.Persistence.Serialization
                 TypeNameHandling = TypeNameHandling.All,
                 // In a version resilient way
                 TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
-                Converters = new List<JsonConverter> { new InstantJsonConverter() },
+                Converters = new List<JsonConverter>
+                {
+                    new InstantJsonConverter(),
+                    new DurationJsonConverter()
+                },
                 DateParseHandling = DateParseHandling.None
                 //TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
             });

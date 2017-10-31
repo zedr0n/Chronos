@@ -22,6 +22,14 @@ namespace Chronos.Persistence
                 .Subscribe(Set); 
         }
 
+        public void Clear()
+        {
+            lock (_streams)
+            {
+                _streams.Clear();
+            }
+        }
+        
         private void Set(StreamDetails stream)
         {
             lock (_streams)

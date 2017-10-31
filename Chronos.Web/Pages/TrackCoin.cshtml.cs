@@ -1,29 +1,30 @@
-using System;
 using System.Threading.Tasks;
-using Chronos.Core.Assets.Commands;
+using Chronos.Core.Assets.Projections;
+using Chronos.Core.Assets.Queries;
+using Chronos.Core.Net.Tracking.Commands;
 using Chronos.Infrastructure.Commands;
+using Chronos.Infrastructure.Queries;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using NodaTime;
-using NodaTime.Extensions;
-using NodaTime.Text;
 
 namespace Chronos.Web.Pages
 {
-    public class CreateCoinModel : PageModel
+    public class TrackCoinModel : PageModel
     {
         private readonly ICommandBus _commandBus;
+
+        private readonly IQueryProcessor _queryProcessor;
+        //private readonly IQueryHandler<CoinInfoQuery,CoinInfo> _queryHandler;
+        
         
         [BindProperty]
-        //public HistoricalCommand<CreateCoinCommand> Command { get; set; }
-        public CreateCoinCommand Command { get; set; }
+        public string Name { get; set; }
         
-        [BindProperty]
-        public string Date { get; set; }
-        
-        public CreateCoinModel(ICommandBus commandBus)
+        public TrackCoinModel(ICommandBus commandBus, IQueryProcessor queryProcessor)
         {
             _commandBus = commandBus;
+            _queryProcessor = queryProcessor;
         }
         
         public void OnGet()
@@ -37,12 +38,22 @@ namespace Chronos.Web.Pages
                 return Page();
             }
 
-            Command.TargetId = Guid.NewGuid();
+            var coinId = _queryProcessor.Process<CoinInfoQuery,CoinInfo>(new CoinInfoQuery
+            {
+                Name = Name
+            }).Key;
+            
+            var command = new TrackCoinCommand(coinId,Duration.FromSeconds(60))
+            {
+                Ticker = Name
+            };
+            
+            //Command.TargetId = Guid.NewGuid();
             //var pattern = LocalDatePattern.CreateWithInvariantCulture("MM/dd/yyyy");
             //var localDate = pattern.Parse(Date);
             //Command.At = new ZonedDateTime(localDate.Value.ToDateTimeUnspecified().ToLocalDateTime()
             //    ,DateTimeZone.Utc,Offset.Zero).ToInstant();
-            await _commandBus.SendAsync(Command);
+            await _commandBus.SendAsync(command);
             return RedirectToPage("/Index");
         }
         

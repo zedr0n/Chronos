@@ -1,0 +1,16 @@
+@page
+@model Chronos.Web.Pages.TrackCoinModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "";
+}
+
+<p>
+    Enter coin details
+</p>
+<div asp-validation-summary="All"></div>
+<form method="POST">
+    <div>Name <input asp-for="Name"/>
+    </div>
+    <input type="submit"/>
+</form>

@@ -43,6 +43,11 @@ namespace Chronos.Web.Pages
         {
             return RedirectToPage("/CreateCoin");
         }
+
+        public IActionResult OnPostTrackCoin()
+        {
+            return RedirectToPage("/TrackCoin");
+        }
         
         public void OnGet()
         {
