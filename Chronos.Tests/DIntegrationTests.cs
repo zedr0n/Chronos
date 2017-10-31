@@ -116,7 +116,7 @@ namespace Chronos.Tests
                     Ticker = "BTC"
                 }).Then(History.CoinCreated);
         }
-
+        
         [Fact]
         public void CanUpdatePrice()
         {

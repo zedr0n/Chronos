@@ -1,5 +1,4 @@
 ﻿using System;
-using Chronos.Core.Net.Tracking.Events;
 using Chronos.Infrastructure.Events;
 
 namespace Chronos.Core.Common.Events

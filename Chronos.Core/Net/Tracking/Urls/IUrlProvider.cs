@@ -1,4 +1,4 @@
-﻿namespace Chronos.Core.Net.Tracking.Commands
+﻿namespace Chronos.Core.Net.Tracking.Urls
 {
     public interface IUrlProvider
     {

@@ -1,4 +1,6 @@
-﻿namespace Chronos.Core.Net.Tracking.Commands
+﻿using Chronos.Core.Net.Tracking.Commands;
+
+namespace Chronos.Core.Net.Tracking.Urls
 {
     public class OrderUrlProvider : IUrlProvider
     {

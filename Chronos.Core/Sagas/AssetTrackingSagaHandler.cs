@@ -19,7 +19,7 @@ namespace Chronos.Core.Sagas
             RegisterAlert<TimeoutCompleted,TSaga>(e => e.ScheduleId);
             RegisterAlert<JsonReceived,TSaga>(e => e.RequestorId);
             RegisterAlert<JsonRequestFailed,TSaga>(e => e.RequestorId);
-            RegisterAlert<AssetJsonParsed,TSaga>(e => e.Id); 
+            //RegisterAlert<AssetJsonParsed,TSaga>(e => e.Id); 
         }
     }
 }

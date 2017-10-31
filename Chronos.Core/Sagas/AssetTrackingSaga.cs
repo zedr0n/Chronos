@@ -21,6 +21,7 @@ namespace Chronos.Core.Sagas
             Active,
             Paused,
             Received,
+            Parsed,
             Completed
         }
         public enum Trigger
@@ -28,7 +29,8 @@ namespace Chronos.Core.Sagas
             TrackingRequested,
             JsonReceived,
             Pause,
-            Parsed 
+            Parsed,
+            Sent
         }
         
         public AssetTrackingSaga()
@@ -65,7 +67,11 @@ namespace Chronos.Core.Sagas
 
             StateMachine.Configure(State.Received)
                 .OnEntryFrom(_jsonReceivedTrigger, OnReceived)
-                .Permit(Trigger.Parsed, State.Active);
+                .Permit(Trigger.Parsed, State.Parsed);
+
+            StateMachine.Configure(State.Parsed)
+                .OnEntry(OnParsed)
+                .Permit(Trigger.Sent,State.Active);
             
             base.ConfigureStateMachine();
         }
@@ -111,6 +117,11 @@ namespace Chronos.Core.Sagas
         {
             StateMachine.Fire(Trigger.Parsed);
             base.When(e);
+        }
+
+        protected virtual void OnParsed()
+        {
+            StateMachine.Fire(Trigger.Sent);
         }
     }
 }

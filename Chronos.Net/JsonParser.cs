@@ -1,4 +1,7 @@
-﻿using Chronos.Core.Net.Parsing;
+﻿using System;
+using System.Collections.Generic;
+using Chronos.Core.Net.Parsing;
+using Chronos.Infrastructure;
 using Newtonsoft.Json;
 
 namespace Chronos.Net
@@ -7,7 +10,10 @@ namespace Chronos.Net
     {
         public T Parse<T>(string json)
         {
-            return JsonConvert.DeserializeObject<T>(json);
+            var obj = JsonConvert.DeserializeObject<T>(json);
+            if (obj == null)
+                throw new InvalidOperationException("Cannot parse json to type " + typeof(T).SerializableName());
+            return obj;
         }
     }
 }

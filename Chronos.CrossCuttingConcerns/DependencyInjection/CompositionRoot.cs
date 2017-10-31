@@ -13,6 +13,7 @@ using Chronos.Core.Net.Parsing;
 using Chronos.Core.Net.Parsing.Commands;
 using Chronos.Core.Net.Tracking;
 using Chronos.Core.Net.Tracking.Commands;
+using Chronos.Core.Net.Tracking.Urls;
 using Chronos.Core.Nicehash;
 using Chronos.Core.Nicehash.Commands;
 using Chronos.Core.Nicehash.Projections;
@@ -147,6 +148,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.AddRegistration<IEventBus>(Lifestyle.Singleton.CreateRegistration<EventStore>(container));
             container.RegisterConditional<IUrlProvider,OrderUrlProvider>(Lifestyle.Singleton,
                 x => x.Consumer.ImplementationType == typeof(TrackOrderHandler));
+            container.RegisterConditional<IUrlProvider,CoinUrlProvider>(Lifestyle.Singleton,
+                x => x.Consumer.ImplementationType == typeof(TrackCoinHandler));
                 
             if (_readConfiguration == null)
             {
@@ -184,8 +187,10 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(TrackOrderHandler),
                 typeof(UpdateOrderStatusHandler),
                 typeof(RequestJsonHandler),
-                typeof(OrderStatusParsingHandler),
-                typeof(RequestStopAtHandler)
+                typeof(ParseOrderHandler),
+                typeof(RequestStopAtHandler),
+                typeof(TrackCoinHandler),
+                typeof(ParseCoinHandler)
             } ,Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(NullCommandHandler<>),Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(HistoricalCommandHandler<>),Lifestyle.Singleton);
@@ -200,9 +205,10 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             {
                 typeof(SchedulerSagaHandler),
                 typeof(TransactionSagaHandler),
-                typeof(TransferSagaHandler),
-                typeof(OrderTrackingSagaHandler)
+                typeof(TransferSagaHandler)
             });
+            container.Register<ISagaHandler<OrderTrackingSaga>,OrderTrackingSagaHandler>(Lifestyle.Singleton);
+            container.Register<ISagaHandler<CoinTrackingSaga>,CoinTrackingSagaHandler>(Lifestyle.Singleton);
             
             container.RegisterQuery<AccountInfoQuery,AccountInfo>(typeof(AccountInfoHandler), Lifestyle.Singleton);
             container.RegisterQuery<CoinInfoQuery,CoinInfo>(typeof(CoinInfoHandler),Lifestyle.Singleton);

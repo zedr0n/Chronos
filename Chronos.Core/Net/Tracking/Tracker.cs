@@ -35,5 +35,18 @@ namespace Chronos.Core.Net.Tracking
 
             When(id,@event);
         }
+
+        public void TrackCoin(Guid id, string ticker, Duration updateInterval, string url)
+        {
+            var @event = new CoinTrackingRequested
+            {
+                AssetId = id,
+                UpdateInterval = updateInterval,
+                Url = url,
+                Ticker = ticker
+            };
+            
+            When(id,@event);
+        }
     }
 }

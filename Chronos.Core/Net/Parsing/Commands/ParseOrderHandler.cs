@@ -8,12 +8,12 @@ using Chronos.Infrastructure.Commands;
 
 namespace Chronos.Core.Net.Parsing.Commands
 {
-    public class OrderStatusParsingHandler : ICommandHandler<ParseOrderCommand> 
+    public class ParseOrderHandler : ICommandHandler<ParseOrderCommand> 
     {
         private readonly IEventBus _eventBus;
         private readonly IJsonParser _parser;
 
-        public OrderStatusParsingHandler(IEventBus eventBus, IJsonParser parser) 
+        public ParseOrderHandler(IEventBus eventBus, IJsonParser parser) 
         {
             _eventBus = eventBus;
             _parser = parser;
@@ -30,7 +30,7 @@ namespace Chronos.Core.Net.Parsing.Commands
                     new ParsingOrderStatusFailed(command.AssetId));
             else
                 _eventBus.Alert(
-                new OrderStatusParsed(command.AssetId,status.Accepted_Speed, status.Btc_paid)); 
+                    new OrderStatusParsed(command.AssetId,status.Accepted_Speed, status.Btc_paid)); 
         }
     }
 }
