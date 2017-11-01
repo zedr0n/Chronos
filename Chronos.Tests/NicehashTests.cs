@@ -75,6 +75,7 @@ namespace Chronos.Tests
             };
             
             commandBus.Send(trackCommand);
+            commandBus.Send(new StartTrackingCommand());
             
             var orderStatus = queryProcessor.Process<OrderStatusQuery, OrderStatus>(new OrderStatusQuery
             {
