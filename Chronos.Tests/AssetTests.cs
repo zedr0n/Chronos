@@ -41,6 +41,8 @@ namespace Chronos.Tests
             
             commandBus.Send(
                 new TrackCoinCommand(coinId,Duration.FromSeconds(2)) { Ticker = "Bitcoin"} );
+            commandBus.Send(
+                new StartTrackingCommand());
 
             var query = new CoinInfoQuery
             {
