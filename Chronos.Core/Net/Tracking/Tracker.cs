@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using Chronos.Core.Common;
 using Chronos.Core.Net.Tracking.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Interfaces;
@@ -19,13 +16,38 @@ namespace Chronos.Core.Net.Tracking
         {
             Id = TrackerId;
         }
+
+        protected override void When(IEvent e)
+        {
+            if (e is AssetTrackingRequested o)
+                if (!_trackedEntities.TryAdd(o.AssetId, e))
+                    return;
+            
+            base.When(e);
+        }
         
-        private void When(Guid id, IEvent e)
+        
+        /*private void When(Guid id, IEvent e)
         {
             if (!_trackedEntities.TryAdd(id,e))
                 return;
             
             When(e);     
+        }*/
+
+        public void StartTracking(Guid? assetId)
+        {
+            if (assetId != null)
+            {
+                if (_trackedEntities.ContainsKey(assetId.Value))
+                {
+                    When(new StartRequested(assetId.Value));
+                    return;
+                }
+            }
+
+            foreach (var id in _trackedEntities.Keys)
+                When(new StartRequested(id));
         }
 
         public void TrackOrder(Guid id, int orderNumber, Duration updateInterval, string url)
@@ -38,7 +60,7 @@ namespace Chronos.Core.Net.Tracking
                 OrderNumber = orderNumber
             };
 
-            When(id,@event);
+            When(@event);
         }
 
         public void TrackCoin(Guid id, string ticker, Duration updateInterval, string url)
@@ -51,7 +73,7 @@ namespace Chronos.Core.Net.Tracking
                 Ticker = ticker
             };
             
-            When(id,@event);
+            When(@event);
         }
     }
 }

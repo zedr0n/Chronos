@@ -190,7 +190,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(ParseOrderHandler),
                 typeof(RequestStopAtHandler),
                 typeof(TrackCoinHandler),
-                typeof(ParseCoinHandler)
+                typeof(ParseCoinHandler),
+                typeof(StartTrackingHandler)
             } ,Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(NullCommandHandler<>),Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(HistoricalCommandHandler<>),Lifestyle.Singleton);

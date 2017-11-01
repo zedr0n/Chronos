@@ -13,7 +13,8 @@ namespace Chronos.Core.Sagas
         IHandle<JsonRequestFailed>,
         IHandle<JsonReceived>,
         IHandle<AssetJsonParsed>,
-        IHandle<TimeoutCompleted>
+        IHandle<TimeoutCompleted>,
+        IHandle<StartRequested>
     {
         public enum State
         {
@@ -29,6 +30,7 @@ namespace Chronos.Core.Sagas
             TrackingRequested,
             JsonReceived,
             Pause,
+            Start,
             Parsed,
             Sent
         }
@@ -56,22 +58,29 @@ namespace Chronos.Core.Sagas
             _jsonReceivedTrigger = StateMachine.SetTriggerParameters<string>(Trigger.JsonReceived);
 
             StateMachine.Configure(State.Open)
-                .Permit(Trigger.TrackingRequested, State.Active);
+                .Permit(Trigger.TrackingRequested, State.Paused);
                 //.PermitReentry(Trigger.TrackingRequested);
 
+            StateMachine.Configure(State.Paused)
+                .Permit(Trigger.Start, State.Active)
+                .OnEntryFrom(_trackingTrigger, OnTracking)
+                .Ignore(Trigger.Pause);
+
             StateMachine.Configure(State.Active)
+                .PermitReentry(Trigger.Start)
                 .Permit(Trigger.Pause, State.Paused)
                 .Permit(Trigger.JsonReceived, State.Received)
-                .OnEntryFrom(_trackingTrigger, OnTracking)
                 .OnEntry(RequestTimeout);
 
             StateMachine.Configure(State.Received)
                 .OnEntryFrom(_jsonReceivedTrigger, OnReceived)
-                .Permit(Trigger.Parsed, State.Parsed);
+                .Permit(Trigger.Parsed, State.Parsed)
+                .Permit(Trigger.Start, State.Active);
 
             StateMachine.Configure(State.Parsed)
                 .OnEntry(OnParsed)
-                .Permit(Trigger.Sent,State.Active);
+                .Permit(Trigger.Sent,State.Active)
+                .Permit(Trigger.Start,State.Active);
             
             base.ConfigureStateMachine();
         }
@@ -86,6 +95,12 @@ namespace Chronos.Core.Sagas
         {
             _url = e.Url;
             _updateInterval = e.UpdateInterval;
+        }
+        
+        public void When(StartRequested e)
+        {
+            StateMachine.Fire(Trigger.Start);
+            base.When(e);
         }
 
         private void RequestTimeout()
@@ -123,5 +138,7 @@ namespace Chronos.Core.Sagas
         {
             StateMachine.Fire(Trigger.Sent);
         }
+
+
     }
 }
