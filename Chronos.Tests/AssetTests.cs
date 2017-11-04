@@ -45,8 +45,6 @@ namespace Chronos.Tests
             
             commandBus.Send(
                 new TrackCoinCommand(coinId,Duration.FromSeconds(2)) { Ticker = "Bitcoin"} );
-            commandBus.Send(
-                new StartTrackingCommand());
 
             var query = new CoinInfoQuery
             {
@@ -56,12 +54,18 @@ namespace Chronos.Tests
             var obs = Observable.Interval(TimeSpan.FromSeconds(1))
                 .StartWith(0)
                 .TakeUntil(alerts.OfType<CoinInfoParsed>());
+            
+            commandBus.Send(
+                new StartTrackingCommand());
+            
             obs.Wait();
             
             var coinInfo = queryProcessor.Process<CoinInfoQuery, CoinInfo>(query);
             Assert.NotNull(coinInfo);
             Assert.True(coinInfo.Price > 0);
 
+
+            
             var timeoutObs = Observable.Interval(TimeSpan.FromSeconds(1))
                 .StartWith(0)
                 .TakeUntil(alerts.OfType<TimeoutCompleted>());

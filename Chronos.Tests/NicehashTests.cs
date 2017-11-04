@@ -78,7 +78,6 @@ namespace Chronos.Tests
             //alerts.Connect();
             
             commandBus.Send(trackCommand);
-            commandBus.Send(new StartTrackingCommand());
             
             var orderStatus = queryProcessor.Process<OrderStatusQuery, OrderStatus>(new OrderStatusQuery
             {
@@ -93,6 +92,8 @@ namespace Chronos.Tests
                 {
                     OrderNumber = orderNumber
                 })).TakeUntil(alerts.OfType<ParsingOrderStatusFailed>());
+            
+            commandBus.Send(new StartTrackingCommand());
             
             obs.Wait();
         }
