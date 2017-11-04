@@ -26,8 +26,11 @@ namespace Chronos.Core.Sagas
 
         protected override void OnReceived(string json)
         {
-            var command = new ParseCoinCommand(_coinId, _ticker, json);
-            SendMessage(command);
+            if (json != null)
+            {
+                var command = new ParseCoinCommand(_coinId, _ticker, json);
+                SendMessage(command);    
+            }
             base.OnReceived(json);
         }
 

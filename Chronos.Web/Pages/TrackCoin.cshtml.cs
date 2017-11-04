@@ -43,7 +43,7 @@ namespace Chronos.Web.Pages
                 Name = Name
             }).Key;
             
-            var command = new TrackCoinCommand(coinId,Duration.FromSeconds(60))
+            var command = new TrackCoinCommand(coinId,Duration.FromMinutes(30))
             {
                 Ticker = Name
             };

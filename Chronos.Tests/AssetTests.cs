@@ -5,6 +5,7 @@ using Chronos.Core.Assets.Projections;
 using Chronos.Core.Assets.Queries;
 using Chronos.Core.Common.Events;
 using Chronos.Core.Net.Tracking.Commands;
+using Chronos.Core.Scheduling.Events;
 using Chronos.CrossCuttingConcerns.DependencyInjection;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
@@ -53,12 +54,18 @@ namespace Chronos.Tests
             alerts.Connect();
 
             var obs = Observable.Interval(TimeSpan.FromSeconds(1))
+                .StartWith(0)
                 .TakeUntil(alerts.OfType<CoinInfoParsed>());
             obs.Wait();
             
             var coinInfo = queryProcessor.Process<CoinInfoQuery, CoinInfo>(query);
             Assert.NotNull(coinInfo);
             Assert.True(coinInfo.Price > 0);
+
+            var timeoutObs = Observable.Interval(TimeSpan.FromSeconds(1))
+                .StartWith(0)
+                .TakeUntil(alerts.OfType<TimeoutCompleted>());
+            timeoutObs.Wait();
         }
     }
 }

@@ -21,18 +21,14 @@ namespace Chronos.Core.Sagas
             Open,
             Active,
             Paused,
-            Received,
-            Parsed,
-            Completed
+            Received
         }
         public enum Trigger
         {
             TrackingRequested,
             JsonReceived,
             Pause,
-            Start,
-            Parsed,
-            Sent
+            Parsed
         }
         
         public AssetTrackingSaga()
@@ -59,29 +55,22 @@ namespace Chronos.Core.Sagas
 
             StateMachine.Configure(State.Open)
                 .Permit(Trigger.TrackingRequested, State.Paused);
-                //.PermitReentry(Trigger.TrackingRequested);
 
             StateMachine.Configure(State.Paused)
-                .Permit(Trigger.Start, State.Active)
+                .Permit(Trigger.JsonReceived, State.Received)
                 .OnEntryFrom(_trackingTrigger, OnTracking)
                 .Ignore(Trigger.Pause);
 
             StateMachine.Configure(State.Active)
-                .PermitReentry(Trigger.Start)
                 .Permit(Trigger.Pause, State.Paused)
                 .Permit(Trigger.JsonReceived, State.Received)
                 .OnEntry(RequestTimeout);
 
             StateMachine.Configure(State.Received)
                 .OnEntryFrom(_jsonReceivedTrigger, OnReceived)
-                .Permit(Trigger.Parsed, State.Parsed)
-                .Permit(Trigger.Start, State.Active);
+                .Permit(Trigger.Parsed, State.Active)
+                .OnExit(OnParsed);
 
-            StateMachine.Configure(State.Parsed)
-                .OnEntry(OnParsed)
-                .Permit(Trigger.Sent,State.Active)
-                .Permit(Trigger.Start,State.Active);
-            
             base.ConfigureStateMachine();
         }
 
@@ -99,8 +88,7 @@ namespace Chronos.Core.Sagas
         
         public void When(StartRequested e)
         {
-            StateMachine.Fire(Trigger.Start);
-            base.When(e);
+            SendMessage(new RequestJsonCommand(_url,SagaId));
         }
 
         private void RequestTimeout()
@@ -123,7 +111,8 @@ namespace Chronos.Core.Sagas
         public void When(JsonReceived e)
         {
             StateMachine.Fire(_jsonReceivedTrigger,e.Result);
-            base.When(e);
+            // do not store json
+            base.When(new JsonReceived(e.Url,null,e.RequestorId));
         }
 
         protected virtual void OnReceived(string json) {}
@@ -134,11 +123,6 @@ namespace Chronos.Core.Sagas
             base.When(e);
         }
 
-        protected virtual void OnParsed()
-        {
-            StateMachine.Fire(Trigger.Sent);
-        }
-
-
+        protected virtual void OnParsed() {}
     }
 }
