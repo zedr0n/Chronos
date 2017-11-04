@@ -73,6 +73,9 @@ namespace Chronos.Tests
             {
                 OrderNumber = orderNumber
             };
+
+            var alerts = eventStore.Alerts.Publish();
+            alerts.Connect();
             
             commandBus.Send(trackCommand);
             commandBus.Send(new StartTrackingCommand());
@@ -89,7 +92,7 @@ namespace Chronos.Tests
                 .Select(x => queryProcessor.Process<OrderStatusQuery, OrderStatus>(new OrderStatusQuery
                 {
                     OrderNumber = orderNumber
-                })).TakeUntil(eventStore.Alerts.OfType<ParsingOrderStatusFailed>());
+                })).TakeUntil(alerts.OfType<ParsingOrderStatusFailed>());
             
             obs.Wait();
         }

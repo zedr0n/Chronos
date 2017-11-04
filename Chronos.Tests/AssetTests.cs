@@ -40,6 +40,9 @@ namespace Chronos.Tests
                 Ticker = "BTC"
             });
             
+            var alerts = eventStore.Alerts.Publish();
+            alerts.Connect();
+            
             commandBus.Send(
                 new TrackCoinCommand(coinId,Duration.FromSeconds(2)) { Ticker = "Bitcoin"} );
             commandBus.Send(
@@ -49,9 +52,6 @@ namespace Chronos.Tests
             {
                 CoinId = coinId
             };
-
-            var alerts = eventStore.Alerts.Publish();
-            alerts.Connect();
 
             var obs = Observable.Interval(TimeSpan.FromSeconds(1))
                 .StartWith(0)
