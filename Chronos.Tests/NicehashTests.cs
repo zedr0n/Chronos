@@ -91,7 +91,8 @@ namespace Chronos.Tests
                 .Select(x => queryProcessor.Process<OrderStatusQuery, OrderStatus>(new OrderStatusQuery
                 {
                     OrderNumber = orderNumber
-                })).TakeUntil(alerts.OfType<ParsingOrderStatusFailed>());
+                })).TakeUntil(alerts.OfType<ParsingOrderStatusFailed>())
+                .Timeout(TimeSpan.FromSeconds(10));
             
             commandBus.Send(new StartTrackingCommand());
             

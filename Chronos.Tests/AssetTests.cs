@@ -53,7 +53,8 @@ namespace Chronos.Tests
 
             var obs = Observable.Interval(TimeSpan.FromSeconds(1))
                 .StartWith(0)
-                .TakeUntil(alerts.OfType<CoinInfoParsed>());
+                .TakeUntil(alerts.OfType<CoinInfoParsed>())
+                .Timeout(TimeSpan.FromSeconds(10));
             
             commandBus.Send(
                 new StartTrackingCommand());
@@ -64,8 +65,6 @@ namespace Chronos.Tests
             Assert.NotNull(coinInfo);
             Assert.True(coinInfo.Price > 0);
 
-
-            
             var timeoutObs = Observable.Interval(TimeSpan.FromSeconds(1))
                 .StartWith(0)
                 .TakeUntil(alerts.OfType<TimeoutCompleted>());
