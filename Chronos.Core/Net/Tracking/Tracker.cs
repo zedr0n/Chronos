@@ -26,7 +26,6 @@ namespace Chronos.Core.Net.Tracking
             base.When(e);
         }
         
-        
         /*private void When(Guid id, IEvent e)
         {
             if (!_trackedEntities.TryAdd(id,e))

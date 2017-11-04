@@ -42,6 +42,7 @@ namespace Chronos.Persistence
             using (var context = _eventDb.GetContext())
             {
                 var commandDto = _commandSerializer.Serialize(command);
+                _debugLog.WriteLine(commandDto.Payload);
                 context.Set<Command>().Add(commandDto);
                 context.SaveChanges();
             }
@@ -54,7 +55,7 @@ namespace Chronos.Persistence
                 var commands = context.Set<Command>().Where(c => c.TimestampUtc >= from.ToDateTimeUtc() &&
                                                                  c.TimestampUtc <= to.ToDateTimeUtc() &&
                                                                  c.Timeline == timeline);
-                return commands.Select(_commandSerializer.Deserialize).ToList();
+                return commands.ToList().Select(_commandSerializer.Deserialize);
             }
         }
 
