@@ -74,8 +74,8 @@ namespace Chronos.Tests
                 OrderNumber = orderNumber
             };
 
-            var alerts = eventStore.Alerts.Publish();
-            alerts.Connect();
+            var alerts = eventStore.Alerts;//.Publish();
+            //alerts.Connect();
             
             commandBus.Send(trackCommand);
             commandBus.Send(new StartTrackingCommand());

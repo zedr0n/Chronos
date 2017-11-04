@@ -39,9 +39,9 @@ namespace Chronos.Tests
                 TargetId = coinId,
                 Ticker = "BTC"
             });
-            
-            var alerts = eventStore.Alerts.Publish();
-            alerts.Connect();
+
+            var alerts = eventStore.Alerts;//.Publish();
+            //alerts.Connect();
             
             commandBus.Send(
                 new TrackCoinCommand(coinId,Duration.FromSeconds(2)) { Ticker = "Bitcoin"} );

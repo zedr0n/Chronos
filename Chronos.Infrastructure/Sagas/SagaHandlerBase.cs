@@ -13,8 +13,8 @@ namespace Chronos.Infrastructure.Sagas
         private readonly ISagaRepository _repository;
         private readonly IDebugLog _debugLog;
         
-        private readonly IConnectableObservable<IEvent> _events;
-        private readonly IConnectableObservable<IEvent> _alerts;
+        private readonly IObservable<IEvent> _events;
+        private readonly IObservable<IEvent> _alerts;
 
         protected IReplayStrategy ReplayStrategy { private get; set; }
 
@@ -23,11 +23,11 @@ namespace Chronos.Infrastructure.Sagas
             _repository = repository;
             _debugLog = debugLog;
 
-            _alerts = eventStore.Alerts.Publish();
-            _alerts.Connect();
-            
-            _events = eventStore.Events.Publish();
-            _events.Connect();
+            _alerts = eventStore.Alerts;//.Publish();
+            //_alerts.Connect();
+
+            _events = eventStore.Events;//.Publish();
+            //_events.Connect();
         }
         
         private void Register<TEvent>(Action<TEvent> action) where TEvent : IEvent
