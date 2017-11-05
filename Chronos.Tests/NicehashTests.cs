@@ -92,7 +92,7 @@ namespace Chronos.Tests
                 {
                     OrderNumber = orderNumber
                 })).TakeUntil(alerts.OfType<ParsingOrderStatusFailed>())
-                .Timeout(DateTimeOffset.UtcNow.AddSeconds(10));
+                .Timeout(DateTimeOffset.UtcNow.AddSeconds(15));
             
             commandBus.Send(new StartTrackingCommand());
             

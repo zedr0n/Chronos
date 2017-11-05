@@ -54,7 +54,7 @@ namespace Chronos.Tests
             var obs = Observable.Interval(TimeSpan.FromSeconds(1))
                 .StartWith(0)
                 .TakeUntil(alerts.OfType<CoinInfoParsed>())
-                .Timeout(DateTimeOffset.UtcNow.AddSeconds(10));
+                .Timeout(DateTimeOffset.UtcNow.AddSeconds(15));
             
             commandBus.Send(
                 new StartTrackingCommand());
