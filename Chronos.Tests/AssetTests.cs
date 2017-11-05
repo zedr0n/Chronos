@@ -6,11 +6,10 @@ using Chronos.Core.Assets.Queries;
 using Chronos.Core.Common.Events;
 using Chronos.Core.Net.Tracking.Commands;
 using Chronos.Core.Scheduling.Events;
-using Chronos.CrossCuttingConcerns.DependencyInjection;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
+using Chronos.Infrastructure.Logging;
 using Chronos.Infrastructure.Queries;
-using Chronos.Persistence;
 using NodaTime;
 using Xunit;
 using Xunit.Abstractions;
@@ -30,6 +29,7 @@ namespace Chronos.Tests
             var commandBus = container.GetInstance<ICommandBus>();
             var queryProcessor = container.GetInstance<IQueryProcessor>();
             var eventStore = container.GetInstance<IEventStore>();
+            var debugLog = container.GetInstance<IDebugLog>();
 
             var coinId = Guid.NewGuid();
             
@@ -68,6 +68,7 @@ namespace Chronos.Tests
             var timeoutObs = Observable.Interval(TimeSpan.FromSeconds(1))
                 .StartWith(0)
                 .TakeUntil(alerts.OfType<TimeoutCompleted>());
+            timeoutObs.Subscribe(l => debugLog.WriteLine(l.ToString()));
             timeoutObs.Wait();
         }
     }
