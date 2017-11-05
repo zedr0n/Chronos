@@ -59,6 +59,7 @@ namespace Chronos.Tests
             commandBus.Send(
                 new StartTrackingCommand());
             
+            obs.Subscribe(l => debugLog.WriteLine(l.ToString())); 
             obs.Wait();
             
             var coinInfo = queryProcessor.Process<CoinInfoQuery, CoinInfo>(query);
@@ -68,7 +69,7 @@ namespace Chronos.Tests
             var timeoutObs = Observable.Interval(TimeSpan.FromSeconds(1))
                 .StartWith(0)
                 .TakeUntil(alerts.OfType<TimeoutCompleted>());
-            timeoutObs.Subscribe(l => debugLog.WriteLine(l.ToString()));
+
             timeoutObs.Wait();
         }
     }
