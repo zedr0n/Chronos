@@ -25,7 +25,7 @@ namespace Chronos.Tests
         protected virtual ICompositionRoot CreateRoot(string dbName)
         {
             return new CompositionRoot()
-                .WriteWith().InMemory().Database(dbName); 
+                .WriteWith()/*.InMemory()*/.Database(dbName); 
         }
 
         protected Container CreateContainer(string dbName)
