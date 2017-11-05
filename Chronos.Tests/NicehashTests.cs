@@ -10,6 +10,7 @@ using Chronos.Core.Nicehash.Projections;
 using Chronos.Core.Nicehash.Queries;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
+using Chronos.Infrastructure.Logging;
 using Chronos.Infrastructure.Queries;
 using NodaTime;
 using Xunit;
@@ -57,6 +58,7 @@ namespace Chronos.Tests
             var commandBus = container.GetInstance<CommandBus>();
             var queryProcessor = container.GetInstance<IQueryProcessor>();
             var eventStore = container.GetInstance<IEventStore>();
+            var debugLog = container.GetInstance<IDebugLog>();
 
             var orderId = Guid.NewGuid();
             const int orderNumber = 4181102;
@@ -87,13 +89,10 @@ namespace Chronos.Tests
             Assert.Equal(orderId,orderStatus.OrderId);
 
             var obs = Observable.Interval(TimeSpan.FromSeconds(1))
-                .StartWith(0)
-                .Select(x => queryProcessor.Process<OrderStatusQuery, OrderStatus>(new OrderStatusQuery
-                {
-                    OrderNumber = orderNumber
-                })).TakeUntil(alerts.OfType<ParsingOrderStatusFailed>())
+                .StartWith(-1).TakeUntil(alerts.OfType<ParsingOrderStatusFailed>())
                 .Timeout(DateTimeOffset.UtcNow.AddSeconds(10));
-            
+
+            obs.Subscribe(i => debugLog.WriteLine(i.ToString()), i => debugLog.WriteLine("Completed"));
             commandBus.Send(new StartTrackingCommand());
             
             obs.Wait();
