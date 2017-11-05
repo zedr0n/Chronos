@@ -42,7 +42,7 @@ namespace Chronos.Persistence
             using (var context = _eventDb.GetContext())
             {
                 var commandDto = _commandSerializer.Serialize(command);
-                _debugLog.WriteLine(commandDto.Payload);
+                //_debugLog.WriteLine(commandDto.Payload);
                 context.Set<Command>().Add(commandDto);
                 context.SaveChanges();
             }

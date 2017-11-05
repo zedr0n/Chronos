@@ -16,14 +16,10 @@ namespace Chronos.Core.Net.Tracking
         {
             Id = TrackerId;
         }
-
+        
         protected override void When(IEvent e)
         {
-            if (e is AssetTrackingRequested o)
-                if (!_trackedEntities.TryAdd(o.AssetId, e))
-                    return;
-            
-            base.When(e);
+            When((dynamic) e);
         }
         
         /*private void When(Guid id, IEvent e)
@@ -46,7 +42,7 @@ namespace Chronos.Core.Net.Tracking
             }
 
             foreach (var id in _trackedEntities.Keys)
-                When(new StartRequested(id));
+                base.When(new StartRequested(id));
         }
 
         public void TrackOrder(Guid id, int orderNumber, Duration updateInterval, string url)
@@ -58,10 +54,17 @@ namespace Chronos.Core.Net.Tracking
                 Url = url,
                 OrderNumber = orderNumber
             };
-
+            
             When(@event);
         }
 
+        private void When(AssetTrackingRequested e)
+        {
+            if (!_trackedEntities.TryAdd(e.AssetId, e))
+                return;
+            base.When(e);
+        }
+        
         public void TrackCoin(Guid id, string ticker, Duration updateInterval, string url)
         {
             var @event = new CoinTrackingRequested
