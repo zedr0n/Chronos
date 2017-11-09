@@ -59,7 +59,6 @@ namespace Chronos.Tests
             commandBus.Send(
                 new StartTrackingCommand());
             
-            obs.Subscribe(l => debugLog.WriteLine(l.ToString())); 
             obs.Wait();
             
             var coinInfo = queryProcessor.Process<CoinInfoQuery, CoinInfo>(query);

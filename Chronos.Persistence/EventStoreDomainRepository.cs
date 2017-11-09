@@ -103,7 +103,6 @@ namespace Chronos.Persistence
             if (!events.Any() && version == 0)
                 return null;
 
-            //var aggregate = cached ?? new T();
             var aggregate = cached ?? _aggregateFactory.Create<T>(stream.SourceType);
             aggregate.LoadFrom<T>(id, events);
             return aggregate;

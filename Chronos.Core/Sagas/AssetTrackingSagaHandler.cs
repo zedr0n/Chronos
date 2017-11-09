@@ -8,8 +8,8 @@ namespace Chronos.Core.Sagas
 {
     public class AssetTrackingSagaHandler : SagaHandlerBase<AssetTrackingSaga>
     {
-        protected AssetTrackingSagaHandler(ISagaRepository repository, IDebugLog debugLog, IEventStore eventStore)
-            : base(repository, debugLog, eventStore)
+        protected AssetTrackingSagaHandler(ISagaRepository repository, IDebugLog debugLog, IEventStore eventStore, ISagaEventHandler eventHandler)
+            : base(repository, debugLog, eventStore, eventHandler)
         {
         }
         

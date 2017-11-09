@@ -8,5 +8,6 @@ namespace Chronos.Infrastructure.Sagas
     
     public interface ISagaHandler<T> : ISagaHandler where T : ISaga
     {
+
     }
 }

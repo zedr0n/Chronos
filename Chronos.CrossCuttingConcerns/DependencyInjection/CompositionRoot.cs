@@ -32,6 +32,7 @@ using Chronos.Infrastructure.Sagas;
 using Chronos.Persistence;
 using Chronos.Persistence.Serialization;
 using Chronos.Net;
+using Chronos.Persistence.Contexts;
 using NodaTime;
 using SimpleInjector;
 using OrderStatus = Chronos.Core.Nicehash.Projections.OrderStatus;
@@ -202,12 +203,14 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.RegisterDecorator(typeof(ICommandHandler<>),typeof(CommandRecorder<>),Lifestyle.Singleton, context =>
                 !context.AppliedDecorators.Any(d => d.IsClosedTypeOf(typeof(CommandRecorder<>)))); 
             
+            container.Register<ISagaEventHandler,SagaEventHandler>(Lifestyle.Singleton);
+            
             container.Register(typeof(ISagaHandler<>), new[]
             {
                 typeof(SchedulerSagaHandler),
                 typeof(TransactionSagaHandler),
                 typeof(TransferSagaHandler)
-            });
+            },Lifestyle.Singleton);
             container.Register<ISagaHandler<OrderTrackingSaga>,OrderTrackingSagaHandler>(Lifestyle.Singleton);
             container.Register<ISagaHandler<CoinTrackingSaga>,CoinTrackingSagaHandler>(Lifestyle.Singleton);
             

@@ -8,7 +8,7 @@ namespace Chronos.Core.Sagas
 {
     public class CoinTrackingSagaHandler : AssetTrackingSagaHandler, ISagaHandler<CoinTrackingSaga>
     {
-        public CoinTrackingSagaHandler(ISagaRepository repository, IDebugLog debugLog, IEventStore eventStore) : base(repository, debugLog, eventStore)
+        public CoinTrackingSagaHandler(ISagaRepository repository, IDebugLog debugLog, IEventStore eventStore, ISagaEventHandler eventHandler) : base(repository, debugLog, eventStore, eventHandler)
         {
             Register<CoinTrackingRequested,CoinTrackingSaga>(e => e.AssetId);
             RegisterAlert<CoinInfoParsed,CoinTrackingSaga>(e => e.Id);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using Chronos.Core.Net.Tracking.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Interfaces;
@@ -10,8 +11,9 @@ namespace Chronos.Core.Net.Tracking
     public class Tracker : AggregateBase
     {
         public static readonly Guid TrackerId = Guid.Parse("00000000-0000-0000-0000-000000000001");
-        private readonly ConcurrentDictionary<Guid,IEvent> _trackedEntities = new ConcurrentDictionary<Guid, IEvent>();
-
+        //private readonly ConcurrentDictionary<Guid,IEvent> _trackedEntities = new ConcurrentDictionary<Guid, IEvent>();    
+        private readonly HashSet<Guid> _tracked = new HashSet<Guid>();
+        
         public Tracker()
         {
             Id = TrackerId;
@@ -22,26 +24,18 @@ namespace Chronos.Core.Net.Tracking
             When((dynamic) e);
         }
         
-        /*private void When(Guid id, IEvent e)
-        {
-            if (!_trackedEntities.TryAdd(id,e))
-                return;
-            
-            When(e);     
-        }*/
-
         public void StartTracking(Guid? assetId)
         {
             if (assetId != null)
             {
-                if (_trackedEntities.ContainsKey(assetId.Value))
+                if (_tracked.Contains(assetId.Value))
                 {
                     When(new StartRequested(assetId.Value));
                     return;
                 }
             }
 
-            foreach (var id in _trackedEntities.Keys)
+            foreach (var id in _tracked)
                 base.When(new StartRequested(id));
         }
 
@@ -57,13 +51,6 @@ namespace Chronos.Core.Net.Tracking
             
             When(@event);
         }
-
-        private void When(AssetTrackingRequested e)
-        {
-            if (!_trackedEntities.TryAdd(e.AssetId, e))
-                return;
-            base.When(e);
-        }
         
         public void TrackCoin(Guid id, string ticker, Duration updateInterval, string url)
         {
@@ -76,6 +63,14 @@ namespace Chronos.Core.Net.Tracking
             };
             
             When(@event);
+        }
+        
+        private void When(AssetTrackingRequested e)
+        {
+            if (!_tracked.Add(e.AssetId))
+                return;
+            
+            base.When(e);
         }
     }
 }

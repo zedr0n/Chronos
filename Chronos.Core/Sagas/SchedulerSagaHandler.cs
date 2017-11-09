@@ -22,8 +22,9 @@ namespace Chronos.Core.Sagas
             public Func<IMessage, bool> Replayable => m => m is RequestStopAtCommand;
         }
         
-        public SchedulerSagaHandler(ISagaRepository repository, IDebugLog debugLog, IEventStore eventStore) 
-            : base(repository, debugLog, eventStore)
+        public SchedulerSagaHandler(ISagaRepository repository, IDebugLog debugLog, IEventStore eventStore,
+            ISagaEventHandler eventHandler) 
+            : base(repository, debugLog, eventStore,eventHandler)
         {
             RegisterAlert<CommandSchedulingRequested>(e => e.ScheduleId,true);
             RegisterAlert<TimeoutRequested>(e => e.ScheduleId);

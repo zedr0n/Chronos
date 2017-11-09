@@ -25,7 +25,7 @@ namespace Chronos.Core.Sagas
 
         protected void OnTransition(StateMachine<TState, TTrigger>.Transition transition)
         {
-            DebugLog?.WriteLine("      " + transition.Source + " :: " + transition.Destination);
+            //DebugLog?.WriteLine("      " + transition.Source + " :: " + transition.Destination);
         }
 
         protected virtual void ConfigureStateMachine()

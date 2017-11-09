@@ -16,12 +16,15 @@ namespace Chronos.Infrastructure.Sagas
         private readonly IObservable<IEvent> _events;
         private readonly IObservable<IEvent> _alerts;
 
+        private readonly ISagaEventHandler _eventHandler;
+
         protected IReplayStrategy ReplayStrategy { private get; set; }
 
-        protected SagaHandlerBase(ISagaRepository repository, IDebugLog debugLog, IEventStore eventStore)
+        protected SagaHandlerBase(ISagaRepository repository, IDebugLog debugLog, IEventStore eventStore, ISagaEventHandler eventHandler)
         {
             _repository = repository;
             _debugLog = debugLog;
+            _eventHandler = eventHandler;
 
             _alerts = eventStore.Alerts;//.Publish();
             //_alerts.Connect();
@@ -48,9 +51,6 @@ namespace Chronos.Infrastructure.Sagas
             where TEvent : class,IEvent
         {
             Register<TEvent,TSaga>(sagaId,createNew);
-            //Register<TEvent>(e => 
-            //    Send(e,
-            //        Get(sagaId(e),createNew)));
         }
 
         private void RegisterAlert<TEvent>(Action<TEvent> action) where TEvent : IEvent
@@ -73,11 +73,6 @@ namespace Chronos.Infrastructure.Sagas
                     Get<T>(sagaId(e),createNew)));
         }
 
-        private TSaga Get(Guid sagaId, bool createNew = true)
-        {
-            return Get<TSaga>(sagaId, createNew);
-        }
-        
         private T Get<T>(Guid sagaId, bool createNew = true)
             where T : class, ISaga, new()
         {
@@ -91,18 +86,12 @@ namespace Chronos.Infrastructure.Sagas
             return saga;
         }
 
-        private void Send<TEvent,T>(TEvent e,T saga) where TEvent : class, IEvent
+        public virtual void Send<TEvent,T>(TEvent e,T saga) where TEvent : class, IEvent
             where T : class, ISaga, new()
         {
             if (saga == null)
                 return;
-            (saga as IHandle<TEvent>)?.When(e);
-            Save(saga);
-        }
-
-        private void Save<T>(T saga)
-            where T : class, ISaga, new()
-        {
+            _eventHandler.Handler(saga, e);
             _repository.Save(saga);
         }
     }

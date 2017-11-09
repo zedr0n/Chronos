@@ -2,7 +2,7 @@
 
 namespace Chronos.Infrastructure.Sagas
 {
-    public interface IHandle<TEvent>
+    public interface IHandle<in TEvent>
         where TEvent : IEvent
     {
         void When(TEvent e);

@@ -92,7 +92,6 @@ namespace Chronos.Tests
                 .StartWith(-1).TakeUntil(alerts.OfType<ParsingOrderStatusFailed>())
                 .Timeout(DateTimeOffset.UtcNow.AddSeconds(10));
 
-            obs.Subscribe(i => debugLog.WriteLine(i.ToString()), i => debugLog.WriteLine("Completed"));
             commandBus.Send(new StartTrackingCommand());
             
             obs.Wait();
