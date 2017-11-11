@@ -20,17 +20,8 @@ namespace Chronos.Infrastructure.Commands
 
         public void Handle(T command)
         {
-            try
-            {
-                //_debugLog.WriteLine("Entering handler " + command.GetType().Name);
-                _handler.Handle(command);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                _debugLog.WriteLine(e.Message);
-                throw;
-            }
+            _debugLog.WriteLine("Entering handler " + command.GetType().Name);
+            _handler.Handle(command);
 
             _connection.AppendCommand(command);
         }

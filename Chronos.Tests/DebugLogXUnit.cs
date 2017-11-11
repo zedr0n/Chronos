@@ -21,7 +21,7 @@ namespace Chronos.Tests
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(message);
             }
         }
     }
