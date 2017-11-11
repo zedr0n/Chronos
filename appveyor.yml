@@ -25,9 +25,10 @@ build:
   verbosity: minimal
 test_script:
 - cmd: dotnet test Chronos.Tests\Chronos.Tests.csproj
-# Cache node modules, and refresh if package.json changes
+  cmd: 7z a SqlTests.zip Chronos.Tests\bin\Debug\netcoreapp2.0\*.dll
+  # Cache node modules, and refresh if package.json changes
 cache:
   - node_modules -> package.json
 artifacts:
-  - path: Chronos.Tests\**\*.db
+  - path: SqlTests.zip
     name: SqlTests
