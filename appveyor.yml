@@ -23,12 +23,11 @@ before_build:
 build:
   project: Chronos.sln
   verbosity: minimal
-  
 test_script:
-- cmd: dotnet test Chronos.Tests\Chronos.Tests.csproj
-- cmd: 7z a SqlTests.zip Chronos.Tests\bin\Debug\netcoreapp2.0\*.dll
+  - cmd: dotnet test Chronos.Tests\Chronos.Tests.csproj
+after_test:
+  - cmd: 7z a SqlTests.zip Chronos.Tests\bin\Debug\netcoreapp2.0\*.dll
   # Cache node modules, and refresh if package.json changes
-
 cache:
   - node_modules -> package.json
 artifacts:
