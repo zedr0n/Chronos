@@ -22,7 +22,7 @@ namespace Chronos.Infrastructure.Commands
         {
             try
             {
-                _debugLog.WriteLine("Entering handler " + command.GetType().Name);
+                //_debugLog.WriteLine("Entering handler " + command.GetType().Name);
                 _handler.Handle(command);
             }
             catch (Exception e)
