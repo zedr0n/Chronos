@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Chronos.Core.Common.Commands;
 using Chronos.Core.Common.Events;
 using Chronos.Core.Net.Parsing.Events;
@@ -26,8 +27,9 @@ namespace Chronos.Core.Net.Parsing.Commands
             var status = orders?.SingleOrDefault(x => x.Id == command.OrderNumber );
 
             if (status == null)
-                _eventBus.Alert(
-                    new ParsingOrderStatusFailed(command.AssetId));
+                //_eventBus.Alert(
+                throw new InvalidOperationException("Order not found");    
+                //new ParsingOrderStatusFailed(command.AssetId));
             else
                 _eventBus.Alert(
                     new OrderStatusParsed(command.AssetId,status.Accepted_Speed, status.Btc_paid)); 
