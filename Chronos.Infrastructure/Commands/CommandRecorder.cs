@@ -1,4 +1,6 @@
-﻿using Chronos.Infrastructure.Interfaces;
+﻿using System;
+using Chronos.Infrastructure.Interfaces;
+using Chronos.Infrastructure.Logging;
 
 namespace Chronos.Infrastructure.Commands
 {
@@ -6,16 +8,29 @@ namespace Chronos.Infrastructure.Commands
     {
         private readonly ICommandHandler<T> _handler;
         private readonly IEventStoreConnection _connection;
+        private readonly IDebugLog _debugLog;
+       
         
-        public CommandRecorder(ICommandHandler<T> handler, IEventStoreConnection connection)
+        public CommandRecorder(ICommandHandler<T> handler, IEventStoreConnection connection, IDebugLog debugLog)
         {
             _handler = handler;
             _connection = connection;
+            _debugLog = debugLog;
         }
 
         public void Handle(T command)
         {
-            _handler.Handle(command);
+            try
+            {
+                _handler.Handle(command);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                _debugLog.WriteLine(e.Message);
+                throw;
+            }
+
             _connection.AppendCommand(command);
         }
     }
