@@ -6,6 +6,7 @@ using Chronos.Core.Assets.Queries;
 using Chronos.Core.Common.Events;
 using Chronos.Core.Net.Tracking.Commands;
 using Chronos.Core.Scheduling.Events;
+using Chronos.CrossCuttingConcerns.DependencyInjection;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Logging;
@@ -22,6 +23,12 @@ namespace Chronos.Tests
         {
         }
 
+        protected override ICompositionRoot CreateRoot(string dbName)
+        {
+            return new CompositionRoot()
+                .WriteWith().Database(dbName); 
+        }
+        
         [Fact]
         public void CanTrackBitcoin()
         {

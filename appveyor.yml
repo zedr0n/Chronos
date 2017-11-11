@@ -28,3 +28,6 @@ test_script:
 # Cache node modules, and refresh if package.json changes
 cache:
   - node_modules -> package.json
+artifacts:
+  - path: Chronos.Tests\**\*.db
+    name: SqlTests

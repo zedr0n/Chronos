@@ -22,10 +22,8 @@ namespace Chronos.Infrastructure.Sagas
             catch (Exception exception)
             {
                 _debugLog.WriteLine(exception.Message);
-                //Console.WriteLine(exception);
                 throw;
             }
-
         }
     }
 }
