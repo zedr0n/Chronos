@@ -8,6 +8,7 @@ using Chronos.Core.Net.Tracking.Commands;
 using Chronos.Core.Nicehash.Commands;
 using Chronos.Core.Nicehash.Projections;
 using Chronos.Core.Nicehash.Queries;
+using Chronos.CrossCuttingConcerns.DependencyInjection;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Logging;
@@ -24,6 +25,12 @@ namespace Chronos.Tests
         {
         }
 
+        protected override ICompositionRoot CreateRoot(string dbName)
+        {
+            return new CompositionRoot()
+                .WriteWith().Database(dbName); 
+        }
+        
         [Fact]
         public void CanCreateOrder()
         {
