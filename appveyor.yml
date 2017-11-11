@@ -25,8 +25,9 @@ build:
   verbosity: minimal
 test_script:
   - cmd: dotnet test Chronos.Tests\Chronos.Tests.csproj
-after_test:
+on_failure:
   - cmd: 7z a SqlTests.zip Chronos.Tests\bin\Debug\netcoreapp2.0\*.dll
+  - cmd: appveyor PushArtifact SqlTests.zip
   # Cache node modules, and refresh if package.json changes
 cache:
   - node_modules -> package.json
