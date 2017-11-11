@@ -1,4 +1,5 @@
-﻿using Chronos.Infrastructure;
+﻿using System;
+using Chronos.Infrastructure;
 using Chronos.Infrastructure.Logging;
 using Xunit.Abstractions;
 
@@ -14,7 +15,14 @@ namespace Chronos.Tests
 
         public void WriteLine(string message)
         {
-            Output?.WriteLine(message);
+            try
+            {
+                Output?.WriteLine(message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
     }
 }
