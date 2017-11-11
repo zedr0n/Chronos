@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Interfaces;
+using Chronos.Infrastructure.Logging;
 using Chronos.Infrastructure.Projections.New;
 
 namespace Chronos.Persistence
@@ -14,6 +15,8 @@ namespace Chronos.Persistence
         private readonly Subject<IEvent> _alerts = new Subject<IEvent>();
 
         public ITimeline Timeline { get; }
+
+        private readonly IDebugLog _debugLog;
 
         public IEventStoreConnection Connection { get; }
         public IObservable<IEvent> Events => _events.Where(e => !e.SagaEvent).Select(e => e.Event);
@@ -54,10 +57,11 @@ namespace Chronos.Persistence
             return events.GroupBy(x => x.Stream, x => x.Event);
         }
 
-        public EventStore(IEventStoreConnection connection, ITimeline timeline)
+        public EventStore(IEventStoreConnection connection, ITimeline timeline, IDebugLog debugLog)
         {
             Connection = connection;
             Timeline = timeline;
+            _debugLog = debugLog;
             _events = Connection.Events;
             
             //LiveStreams = Connection.GetLiveStreams().ToObservable()
@@ -75,6 +79,7 @@ namespace Chronos.Persistence
 
         public void Alert(IEvent e)
         {
+            _debugLog.WriteLine("Alert -> " + e.GetType().Name);
             _alerts.OnNext(e);
         }
 
