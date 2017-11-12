@@ -60,15 +60,20 @@ namespace Chronos.Tests
                 CoinId = coinId
             };
 
-            var completed = alerts.OfType<AssetPriceUpdated>().Take(1)
+            var parsedAlert = alerts.OfType<CoinInfoParsed>().Take(1)
+                .Timeout(DateTimeOffset.UtcNow.AddSeconds(5));
+            var timeoutAlert = alerts.OfType<TimeoutCompleted>().Take(1)
                 .Timeout(DateTimeOffset.UtcNow.AddSeconds(5));
 
             commandBus.SendAsync(new StartTrackingCommand());
-            completed.Wait();
+            parsedAlert.Wait();
             
             var coinInfo = queryProcessor.Process<CoinInfoQuery, CoinInfo>(query);
             Assert.NotNull(coinInfo);
             Assert.True(coinInfo.Price > 0);
+
+            timeoutAlert.Wait();
+
         }
     }
 }

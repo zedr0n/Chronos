@@ -80,7 +80,7 @@ namespace Chronos.Infrastructure.Sagas
                        (createNew ? new T().LoadFrom<T>(sagaId, new List<IEvent> () ) : null);
             if (saga == null)
             {
-                _debugLog.WriteLine("Saga of type " + typeof(T).Name + " ( " + sagaId + " ) not found");
+                //_debugLog.WriteLine("Saga of type " + typeof(T).Name + " ( " + sagaId + " ) not found");
                 return null;
             }
             saga.DebugLog = _debugLog;
@@ -89,7 +89,7 @@ namespace Chronos.Infrastructure.Sagas
             return saga;
         }
 
-        public virtual void Send<TEvent,T>(TEvent e,T saga) where TEvent : class, IEvent
+        private void Send<TEvent,T>(TEvent e,T saga) where TEvent : class, IEvent
             where T : class, ISaga, new()
         {
             if (saga == null)
