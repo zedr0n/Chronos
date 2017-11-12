@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
@@ -79,7 +80,7 @@ namespace Chronos.Persistence
 
         public void Alert(IEvent e)
         {
-            _debugLog.WriteLine("Alert -> " + e.GetType().Name);
+            _debugLog.WriteLine("Alert -> " + e.GetType().Name + " on thread " + Thread.CurrentThread.ManagedThreadId);
             _alerts.OnNext(e);
         }
 
