@@ -62,8 +62,6 @@ namespace Chronos.Tests
 
             var parsedAlert = alerts.OfType<CoinInfoParsed>().Take(1)
                 .Timeout(DateTimeOffset.UtcNow.AddSeconds(5));
-            var timeoutAlert = alerts.OfType<TimeoutCompleted>().Take(1)
-                .Timeout(DateTimeOffset.UtcNow.AddSeconds(5));
 
             commandBus.SendAsync(new StartTrackingCommand());
             parsedAlert.Wait();
@@ -71,9 +69,6 @@ namespace Chronos.Tests
             var coinInfo = queryProcessor.Process<CoinInfoQuery, CoinInfo>(query);
             Assert.NotNull(coinInfo);
             Assert.True(coinInfo.Price > 0);
-
-            timeoutAlert.Wait();
-
         }
     }
 }
