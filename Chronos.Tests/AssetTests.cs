@@ -58,14 +58,15 @@ namespace Chronos.Tests
                 CoinId = coinId
             };
 
-            alerts.OfType<CoinInfoParsed>().Subscribe(e =>
+            var parsed = alerts.OfType<CoinInfoParsed>();
+            parsed.Subscribe(e =>
                 debugLog.WriteLine("Coin info parsed"));
             
             var obs = Observable.Interval(TimeSpan.FromSeconds(1))
                 .StartWith(0)
-                .TakeUntil(alerts.OfType<CoinInfoParsed>())
+                .TakeUntil(parsed)
                 .Timeout(DateTimeOffset.UtcNow.AddSeconds(10));
-            
+
             commandBus.Send(
                 new StartTrackingCommand());
             
@@ -75,9 +76,12 @@ namespace Chronos.Tests
             Assert.NotNull(coinInfo);
             Assert.True(coinInfo.Price > 0);
 
+            var timeoutAlerts = alerts.OfType<TimeoutCompleted>();
+            timeoutAlerts.Subscribe(e => debugLog.WriteLine("Timeout completed"));
+            
             var timeoutObs = Observable.Interval(TimeSpan.FromSeconds(1))
                 .StartWith(0)
-                .TakeUntil(alerts.OfType<TimeoutCompleted>());
+                .TakeUntil(timeoutAlerts);
 
             timeoutObs.Wait();
         }
