@@ -95,7 +95,7 @@ namespace Chronos.Tests
             Assert.NotNull(orderStatus);
             Assert.Equal(orderId,orderStatus.OrderId);
 
-            var failAlerts = alerts.OfType<ParsingOrderStatusFailed>();
+            var failAlerts = alerts.OfType<ParsingOrderStatusFailed>().Publish();
             
             failAlerts.Subscribe(e =>
                 debugLog.WriteLine("Order parsing failed"));
@@ -104,6 +104,8 @@ namespace Chronos.Tests
                 .StartWith(-1).TakeUntil(failAlerts)
                 .Timeout(DateTimeOffset.UtcNow.AddSeconds(10));
 
+            failAlerts.Connect();
+            
             commandBus.Send(new StartTrackingCommand());
             
             obs.Wait();
