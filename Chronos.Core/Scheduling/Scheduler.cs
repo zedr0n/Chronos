@@ -6,6 +6,7 @@ using Chronos.Core.Common.Events;
 using Chronos.Core.Scheduling.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Logging;
 using NodaTime;
 
 namespace Chronos.Core.Scheduling
@@ -13,15 +14,19 @@ namespace Chronos.Core.Scheduling
     public class Scheduler : IScheduler
     {
         private readonly ITimeline _timeline;
+        private readonly IDebugLog _debugLog;
+        
         private readonly ConcurrentDictionary<Guid,Lazy<IDisposable>> _subscriptions = new ConcurrentDictionary<Guid, Lazy<IDisposable>>();
 
-        public Scheduler(ITimeline timeline)
+        public Scheduler(ITimeline timeline, IDebugLog debugLog)
         {
             _timeline = timeline;
+            _debugLog = debugLog;
         }
 
         private IDisposable CreateSubscription<T>(IObservable<T> observable,Guid scheduleId, Action<T> action)
         {
+            _debugLog.WriteLine("Requesting timeout " + scheduleId);
             return observable.Finally(() => _subscriptions.TryRemove(scheduleId, out var _))
                 .Subscribe(action);
         }
