@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Chronos.Core.Assets.Commands;
+using Chronos.Core.Assets.Events;
 using Chronos.Core.Assets.Projections;
 using Chronos.Core.Assets.Queries;
 using Chronos.Core.Common.Events;
@@ -58,32 +60,15 @@ namespace Chronos.Tests
                 CoinId = coinId
             };
 
-            var parsed = alerts.OfType<CoinInfoParsed>();
-            parsed.Subscribe(e =>
-                debugLog.WriteLine("Coin info parsed"));
-            
-            var obs = Observable.Interval(TimeSpan.FromSeconds(1))
-                .StartWith(0)
-                .TakeUntil(parsed)
-                .Timeout(DateTimeOffset.UtcNow.AddSeconds(10));
+            var completed = alerts.OfType<AssetPriceUpdated>().Take(1)
+                .Timeout(DateTimeOffset.UtcNow.AddSeconds(5));
 
-            var timeoutAlerts = alerts.OfType<TimeoutCompleted>();
-            timeoutAlerts.Subscribe(e => debugLog.WriteLine("Timeout completed"));
-            
-            commandBus.Send(
-                new StartTrackingCommand());
-            
-            obs.Wait();
+            commandBus.SendAsync(new StartTrackingCommand());
+            completed.Wait();
             
             var coinInfo = queryProcessor.Process<CoinInfoQuery, CoinInfo>(query);
             Assert.NotNull(coinInfo);
             Assert.True(coinInfo.Price > 0);
-            
-            var timeoutObs = Observable.Interval(TimeSpan.FromSeconds(1))
-                .StartWith(0)
-                .TakeUntil(timeoutAlerts);
-
-            timeoutObs.Wait();
         }
     }
 }

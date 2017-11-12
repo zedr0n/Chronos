@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using Chronos.Core.Common.Commands;
-using Chronos.Core.Common.Events;
+using System.Threading.Tasks;
 using Chronos.Core.Net.Parsing.Events;
 using Chronos.Core.Net.Tracking.Commands;
 using Chronos.Core.Nicehash.Commands;
@@ -83,8 +81,7 @@ namespace Chronos.Tests
                 OrderNumber = orderNumber
             };
 
-            var alerts = eventStore.Alerts;//.Publish();
-            //alerts.Connect();
+            var alerts = eventStore.Alerts;
             
             commandBus.Send(trackCommand);
             
@@ -95,26 +92,14 @@ namespace Chronos.Tests
             Assert.NotNull(orderStatus);
             Assert.Equal(orderId,orderStatus.OrderId);
 
-            var failAlerts = alerts.OfType<ParsingOrderStatusFailed>().Publish();
-            var completed = false;
-            
-            failAlerts.Subscribe(e =>
-            {
-                completed = true;
-                debugLog.WriteLine("Order parsing failed");
-            });
-            
-            //var obs = Observable.Interval(TimeSpan.FromSeconds(1))
-            //    .StartWith(-1).TakeUntil(failAlerts)
-            //    .Timeout(DateTimeOffset.UtcNow.AddSeconds(10));
+            var failAlerts = alerts.OfType<ParsingOrderStatusFailed>()
+                .Take(1).Timeout(
+                DateTimeOffset.UtcNow.AddSeconds(5));
 
-            var obs = Observable.Return(1).CompleteOn(completed);
+            commandBus.SendAsync(new StartTrackingCommand());
             
-            failAlerts.Connect();
+            failAlerts.Wait();
             
-            commandBus.Send(new StartTrackingCommand());
-            
-            obs.Wait();
         }
     }
 }
