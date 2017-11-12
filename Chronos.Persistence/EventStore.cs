@@ -80,7 +80,8 @@ namespace Chronos.Persistence
 
         public void Alert(IEvent e)
         {
-            _debugLog.WriteLine("Alert -> " + e.GetType().Name + " on thread " + Thread.CurrentThread.ManagedThreadId);
+            _debugLog.WriteLine("Alert -> " + e.GetType().Name + " on thread " + Thread.CurrentThread.ManagedThreadId
+                                + " with event store " + GetHashCode());
             _alerts.OnNext(e);
         }
 
