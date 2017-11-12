@@ -52,7 +52,8 @@ namespace Chronos.Core.Scheduling
                 .Select(x => new TimeoutCompleted
                 {
                     Timestamp = _timeline.Now()
-                });
+                })
+                .Do(e => _debugLog.WriteLine("Timeout completed"));
             return observable;
         }
 
