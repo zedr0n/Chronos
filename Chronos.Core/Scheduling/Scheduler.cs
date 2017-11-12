@@ -32,6 +32,7 @@ namespace Chronos.Core.Scheduling
                     _debugLog.WriteLine("Subscription completed " + scheduleId);
                     _subscriptions.TryRemove(scheduleId, out var _);
                 })
+                //.ObserveOn(System.Reactive.Concurrency.Scheduler.Default)
                 .Subscribe(action);
         }
 
@@ -46,7 +47,7 @@ namespace Chronos.Core.Scheduling
 
         public void Cancel(Guid scheduleId)
         {
-            if (_subscriptions.TryGetValue(scheduleId, out var subscription))
+            if (_subscriptions.TryRemove(scheduleId, out var subscription))
                 subscription.Value.Dispose();
         }
         

@@ -50,6 +50,12 @@ namespace Chronos.Web.Pages
             await _commandBus.SendAsync(new StartTrackingCommand());
             return RedirectToPage("/Index");
         }
+
+        public async Task<IActionResult> OnGetStopTrackingAsync()
+        {
+            await _commandBus.SendAsync(new StopTrackingCommand());
+            return RedirectToPage("/Index");
+        }
         
         public void OnGet()
         {

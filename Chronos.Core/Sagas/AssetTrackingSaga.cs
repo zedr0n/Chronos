@@ -15,7 +15,8 @@ namespace Chronos.Core.Sagas
         IHandle<JsonReceived>,
         IHandle<AssetJsonParsed>,
         IHandle<TimeoutCompleted>,
-        IHandle<StartRequested>
+        IHandle<StartRequested>,
+        IHandle<StopTrackingRequested>
     {
         public enum State
         {
@@ -29,6 +30,7 @@ namespace Chronos.Core.Sagas
             TrackingRequested,
             JsonReceived,
             Pause,
+            Stop,
             Parsed
         }
         
@@ -55,22 +57,26 @@ namespace Chronos.Core.Sagas
             _jsonReceivedTrigger = StateMachine.SetTriggerParameters<string>(Trigger.JsonReceived);
 
             StateMachine.Configure(State.Open)
-                .Permit(Trigger.TrackingRequested, State.Paused);
+                .Permit(Trigger.TrackingRequested, State.Paused)
+                .OnEntryFrom(Trigger.Stop,OnCancel);
 
             StateMachine.Configure(State.Paused)
                 .Permit(Trigger.JsonReceived, State.Received)
                 .OnEntryFrom(_trackingTrigger, OnTracking)
+                .Permit(Trigger.Stop,State.Open)
                 .Ignore(Trigger.Pause);
 
             StateMachine.Configure(State.Active)
                 .Permit(Trigger.Pause, State.Paused)
                 .Permit(Trigger.JsonReceived, State.Received)
+                .Permit(Trigger.Stop, State.Open)
                 .OnEntry(RequestTimeout);
 
             StateMachine.Configure(State.Received)
                 .OnEntryFrom(_jsonReceivedTrigger, OnReceived)
                 .PermitReentry(Trigger.JsonReceived)
                 .Permit(Trigger.Parsed, State.Active)
+                .Permit(Trigger.Stop, State.Open)
                 .OnExit(OnParsed);
 
             base.ConfigureStateMachine();
@@ -86,6 +92,17 @@ namespace Chronos.Core.Sagas
         {
             _url = e.Url;
             _updateInterval = e.UpdateInterval;
+        }
+
+        private void OnCancel()
+        {
+            SendMessage(new CancelTimeoutCommand(SagaId));
+        }
+        
+        public void When(StopTrackingRequested e)
+        {
+            StateMachine.Fire(Trigger.Stop);
+            base.When(e);
         }
         
         public void When(StartRequested e)
@@ -126,5 +143,7 @@ namespace Chronos.Core.Sagas
         }
 
         protected virtual void OnParsed() {}
+        
+
     }
 }

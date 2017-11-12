@@ -20,6 +20,8 @@ namespace Chronos.Web.Pages
         
         [BindProperty]
         public string Name { get; set; }
+        [BindProperty]
+        public int NumberOfSeconds { get; set; }
         
         public TrackCoinModel(ICommandBus commandBus, IQueryProcessor queryProcessor)
         {
@@ -43,7 +45,8 @@ namespace Chronos.Web.Pages
                 Name = Name
             }).Key;
             
-            var command = new TrackCoinCommand(coinId,Duration.FromMinutes(30))
+            var command = //new TrackCoinCommand(coinId,Duration.FromMinutes(30))
+                new TrackCoinCommand(coinId,Duration.FromSeconds(NumberOfSeconds))
             {
                 Ticker = Name
             };

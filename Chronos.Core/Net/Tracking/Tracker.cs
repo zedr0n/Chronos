@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
 using Chronos.Core.Net.Tracking.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Interfaces;
@@ -68,6 +69,32 @@ namespace Chronos.Core.Net.Tracking
             };
             
             When(@event);
+        }
+
+        public void StopTracking(Guid? id)
+        {
+            var @event = new StopTrackingRequested
+            {
+                AssetId = id
+            };
+            
+            When(@event);
+        }
+
+        private void When(StopTrackingRequested e)
+        {
+            if (e.AssetId == null)
+            {
+                foreach (var id in _tracked)
+                    base.When(new StopTrackingRequested { AssetId = id });
+                _tracked.Clear();
+                return;
+            }
+            
+            if (_tracked.Contains(e.AssetId.Value))
+                _tracked.Remove(e.AssetId.Value);
+
+            base.When(e);
         }
         
         private void When(AssetTrackingRequested e)

@@ -174,6 +174,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
 
             container.Register(typeof(ICommandHandler<>),new[] {
                 typeof(RequestTimeoutHandler),
+                typeof(CancelTimeoutHandler),
                 typeof(CreateAccountHandler),
                 typeof(ChangeAccountHandler),
                 typeof(DepositCashHandler),
@@ -192,7 +193,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(RequestStopAtHandler),
                 typeof(TrackCoinHandler),
                 typeof(ParseCoinHandler),
-                typeof(StartTrackingHandler)
+                typeof(StartTrackingHandler),
+                typeof(StopTrackingHandler)
             } ,Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(NullCommandHandler<>),Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(HistoricalCommandHandler<>),Lifestyle.Singleton);

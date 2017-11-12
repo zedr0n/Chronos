@@ -5,6 +5,11 @@ namespace Chronos.Core.Scheduling.Commands
 {
     public class CancelTimeoutCommand : CommandBase
     {
-        public Guid ScheduleId { get; set; }    
+        public CancelTimeoutCommand(Guid scheduleId)
+        {
+            ScheduleId = scheduleId;
+        }
+
+        public Guid ScheduleId { get; }    
     }
 }
