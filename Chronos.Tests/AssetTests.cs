@@ -58,6 +58,9 @@ namespace Chronos.Tests
                 CoinId = coinId
             };
 
+            alerts.OfType<CoinInfoParsed>().Subscribe(e =>
+                debugLog.WriteLine("Coin info parsed"));
+            
             var obs = Observable.Interval(TimeSpan.FromSeconds(1))
                 .StartWith(0)
                 .TakeUntil(alerts.OfType<CoinInfoParsed>())
