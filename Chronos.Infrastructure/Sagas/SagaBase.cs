@@ -30,7 +30,17 @@ namespace Chronos.Infrastructure.Sagas
             SagaId = id;
             Version = 0;
             foreach (var e in pastEvents)
-                When(e);
+            {
+                try
+                {
+                    When(e);
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception);
+                    throw;
+                }
+            }
 
             ClearUncommittedEvents();
             return this as T;

@@ -69,6 +69,7 @@ namespace Chronos.Core.Sagas
 
             StateMachine.Configure(State.Received)
                 .OnEntryFrom(_jsonReceivedTrigger, OnReceived)
+                .PermitReentry(Trigger.JsonReceived)
                 .Permit(Trigger.Parsed, State.Active)
                 .OnExit(OnParsed);
 

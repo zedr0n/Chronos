@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
 namespace Chronos.Infrastructure.Logging
 {
@@ -6,12 +7,14 @@ namespace Chronos.Infrastructure.Logging
     {
         public void Write(string message)
         {
-            Debug.Write(message);
+            //Debug.Write(message);
+            Console.WriteLine(message);
         }
 
         public void WriteLine(string message)
         {
-            Debug.WriteLine(message);
+            //Debug.WriteLine(message);
+            Console.WriteLine(message);
         }
     }
 }

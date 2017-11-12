@@ -23,6 +23,11 @@ namespace Chronos.Core.Net.Tracking
         {
             When((dynamic) e);
         }
+
+        private void When(StartRequested e)
+        {
+            base.When(e);
+        }
         
         public void StartTracking(Guid? assetId)
         {
@@ -36,7 +41,7 @@ namespace Chronos.Core.Net.Tracking
             }
 
             foreach (var id in _tracked)
-                base.When(new StartRequested(id));
+                When(new StartRequested(id));
         }
 
         public void TrackOrder(Guid id, int orderNumber, Duration updateInterval, string url)
