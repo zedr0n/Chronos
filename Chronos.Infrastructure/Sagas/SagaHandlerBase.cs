@@ -80,7 +80,7 @@ namespace Chronos.Infrastructure.Sagas
                        (createNew ? new T().LoadFrom<T>(sagaId, new List<IEvent> () ) : null);
             if (saga == null)
             {
-                _debugLog.WriteLine("Saga " + sagaId + " not found");
+                _debugLog.WriteLine("Saga of type " + typeof(T).Name + " ( " + sagaId + " ) not found");
                 return null;
             }
             saga.DebugLog = _debugLog;
