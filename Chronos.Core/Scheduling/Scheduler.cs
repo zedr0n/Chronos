@@ -27,7 +27,11 @@ namespace Chronos.Core.Scheduling
         private IDisposable CreateSubscription<T>(IObservable<T> observable,Guid scheduleId, Action<T> action)
         {
             _debugLog.WriteLine("Requesting timeout " + scheduleId);
-            return observable.Finally(() => _subscriptions.TryRemove(scheduleId, out var _))
+            return observable.Finally(() =>
+                {
+                    _debugLog.WriteLine("Subscription completed " + scheduleId);
+                    _subscriptions.TryRemove(scheduleId, out var _);
+                })
                 .Subscribe(action);
         }
 
