@@ -79,7 +79,10 @@ namespace Chronos.Infrastructure.Sagas
             var saga = _repository.Find<T>(sagaId,ReplayStrategy) ??
                        (createNew ? new T().LoadFrom<T>(sagaId, new List<IEvent> () ) : null);
             if (saga == null)
+            {
+                _debugLog.WriteLine("Saga " + sagaId + " not found");
                 return null;
+            }
             saga.DebugLog = _debugLog;
 
             //_debugLog.WriteLine("   -> " + saga.GetType().SerializableName());
