@@ -67,6 +67,9 @@ namespace Chronos.Tests
                 .TakeUntil(parsed)
                 .Timeout(DateTimeOffset.UtcNow.AddSeconds(10));
 
+            var timeoutAlerts = alerts.OfType<TimeoutCompleted>();
+            timeoutAlerts.Subscribe(e => debugLog.WriteLine("Timeout completed"));
+            
             commandBus.Send(
                 new StartTrackingCommand());
             
@@ -75,9 +78,6 @@ namespace Chronos.Tests
             var coinInfo = queryProcessor.Process<CoinInfoQuery, CoinInfo>(query);
             Assert.NotNull(coinInfo);
             Assert.True(coinInfo.Price > 0);
-
-            var timeoutAlerts = alerts.OfType<TimeoutCompleted>();
-            timeoutAlerts.Subscribe(e => debugLog.WriteLine("Timeout completed"));
             
             var timeoutObs = Observable.Interval(TimeSpan.FromSeconds(1))
                 .StartWith(0)
