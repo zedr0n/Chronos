@@ -96,14 +96,20 @@ namespace Chronos.Tests
             Assert.Equal(orderId,orderStatus.OrderId);
 
             var failAlerts = alerts.OfType<ParsingOrderStatusFailed>().Publish();
+            var completed = false;
             
             failAlerts.Subscribe(e =>
-                debugLog.WriteLine("Order parsing failed"));
+            {
+                completed = true;
+                debugLog.WriteLine("Order parsing failed");
+            });
             
-            var obs = Observable.Interval(TimeSpan.FromSeconds(1))
-                .StartWith(-1).TakeUntil(failAlerts)
-                .Timeout(DateTimeOffset.UtcNow.AddSeconds(10));
+            //var obs = Observable.Interval(TimeSpan.FromSeconds(1))
+            //    .StartWith(-1).TakeUntil(failAlerts)
+            //    .Timeout(DateTimeOffset.UtcNow.AddSeconds(10));
 
+            var obs = Observable.Return(1).CompleteOn(completed);
+            
             failAlerts.Connect();
             
             commandBus.Send(new StartTrackingCommand());
