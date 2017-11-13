@@ -5,6 +5,7 @@ namespace Chronos.Infrastructure
 {
     public interface IJsonConnector
     {
-        IObservable<string> Request(string url);
+        void SubmitRequest(string url);
+        IObservable<Lazy<IObservable<string>>> GetRequest(string url);
     }
 }

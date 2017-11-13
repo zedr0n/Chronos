@@ -13,6 +13,27 @@ namespace Chronos.Infrastructure
                observer.OnCompleted(); 
         }
         
+        public static IObservable<T> DelayBetweenValues<T>(this IObservable<T> observable, TimeSpan interval)
+        {
+            var offset =  TimeSpan.Zero;
+            return observable
+                .TimeInterval()
+                .Delay(ti =>
+                {
+                    offset = ti.Interval < interval ? offset.Add(interval) : TimeSpan.Zero;
+                    return Observable.Timer(offset);
+                })
+                .Select(ti => ti.Value);
+        }
+        
+        public static IObservable<T> DelayBetweenSubscriptions<T>(this IObservable<T> observable, TimeSpan interval)
+        {
+            return observable
+                .TimeInterval()
+                .Delay(Observable.Interval(interval),x => Observable.Return((long) 0))
+                .Select(ti => ti.Value);
+        }
+        
         public static IObservable<TSource> CompleteOn<TSource>(this IObservable<TSource> o, bool completed)
         {
             return Observable.Create((IObserver<TSource> observer) =>
