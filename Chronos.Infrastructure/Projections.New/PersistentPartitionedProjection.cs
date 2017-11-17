@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Reactive.Linq;
+using System.Reflection;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 using NodaTime;

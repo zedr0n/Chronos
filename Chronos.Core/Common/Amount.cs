@@ -23,7 +23,7 @@ namespace Chronos.Core.Common
             return new Amount(EntityId,Quantity + quantity);
         }
 
-        public Amount Remove(double quantity)
+        public Amount Substract(double quantity)
         {
             return new Amount(EntityId, Quantity - quantity);
         }

@@ -342,7 +342,7 @@ namespace Chronos.Tests
             Assert.True(spec.Has<Account>(AccountId));
         }
 
-        //[Fact]
+        [Fact]
         public void CanScheduleCommandInHistoricalMode()
         {
             var spec = GetInstance<Specification>();
@@ -365,8 +365,9 @@ namespace Chronos.Tests
                 .Advance(Duration.FromHours(6));
             
             Assert.False(spec.Has<Account>(AccountId));
-            spec.Advance(Duration.FromDays(1))
-                .Then(History.AccountCreated);
+            spec.Advance(Duration.FromDays(1));
+            Thread.Sleep(1000);
+            spec.Then(History.AccountCreated);
 
         }
     }

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Reactive.Linq;
+using System.Reflection;
 using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure.Projections.New
@@ -19,6 +21,14 @@ namespace Chronos.Infrastructure.Projections.New
             _readRepository = readRepository;
         }
 
+        public override void Start(bool reset = false)
+        {
+            if (typeof(T).GetTypeInfo().GetCustomAttributes<ResetAttribute>().Any())
+                reset = true;
+            
+            base.Start(reset);
+        }
+        
         protected override void When(StreamDetails stream, IEvent e)
         {
             _writer.Write<TKey,T>(KeyFunc(stream),x =>

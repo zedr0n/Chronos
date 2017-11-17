@@ -45,7 +45,7 @@ namespace Chronos.Infrastructure.Projections.New
 
         protected virtual void Reset(ref IObservable<GroupedObservable<StreamDetails,IEvent>> events) {}
         
-        public void Start(bool reset = false)
+        public virtual void Start(bool reset = false)
         {
             Unsubscribe();
 
