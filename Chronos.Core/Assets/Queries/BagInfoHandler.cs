@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Chronos.Core.Assets.Projections;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Projections.New;
@@ -24,7 +25,12 @@ namespace Chronos.Core.Assets.Queries
     
         public BagInfo Handle(BagInfoQuery query)
         {
-            return _repository.Find<Guid,BagInfo>(query.BagId);
+            var bagInfo = _repository.Find<Guid,BagInfo>(query.BagId);
+            
+            foreach(var coinInfo in bagInfo.Assets.Select(x => _repository.Find<Guid,CoinInfo>(x)).Where(x => x != null))
+                bagInfo.UpdatePrice(coinInfo.Key,coinInfo.Price);
+            
+            return bagInfo;
         }
     }
 }

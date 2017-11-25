@@ -16,6 +16,7 @@ namespace Chronos.Core.Assets.Projections
 
         public double Value { get; set; }
         public int NumberOfAssets => _assets.Count;
+        public IList<Guid> Assets => new List<Guid>(_assets.Keys);
         
         private void When(AssetAddedToBag e)
         {
@@ -36,6 +37,12 @@ namespace Chronos.Core.Assets.Projections
             _prices[e.AssetId] = e.Price;
         }
 
+        public void UpdatePrice(Guid assetId, double price)
+        {
+            _prices[assetId] = price;
+            Update();
+        }
+
         private void When(StateReset e)
         {
             _assets.Clear();
@@ -45,7 +52,12 @@ namespace Chronos.Core.Assets.Projections
         public override void When(IEvent e)
         {
             base.When(e);
-            Value = _assets.Sum(asset => _prices[asset.Key] * asset.Value); 
+            Update();
+        }
+
+        private void Update()
+        {
+            Value = _assets.Sum(asset => _prices[asset.Key] * asset.Value);  
         }
     }
 }

@@ -168,7 +168,23 @@ namespace Chronos.Tests
             Assert.Equal(1,bagInfo.NumberOfAssets);
             Assert.Equal(History.PriceUpdated.Price, bagInfo.Value);
         }
+        
+        [Fact]
+        public void CanAddCoinToBagWithPrice()
+        {
+            var spec = GetInstance<Specification>()
+                .Given<Coin>(CoinId, History.CoinCreated, History.PriceUpdated)
+                .Given<Bag>(BagId, History.BagCreated)
+                .When(new AddAssetToBagCommand(CoinId, History.AssetAddedToBag.Quantity) { TargetId = BagId });
+            
+            var bagInfo = spec.Query<BagInfoQuery,BagInfo>(new BagInfoQuery(BagId));
+            
+            Assert.NotNull(bagInfo);
+            Assert.Equal(1,bagInfo.NumberOfAssets);
+            Assert.Equal(History.PriceUpdated.Price, bagInfo.Value);
+        }
 
+        [Fact]
         public void CanRemoveCoinFromBag()
         {
             var spec = GetInstance<Specification>()
