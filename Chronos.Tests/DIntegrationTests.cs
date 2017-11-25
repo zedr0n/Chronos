@@ -407,19 +407,7 @@ namespace Chronos.Tests
             });
             
             Assert.Null(accountInfo);
-            
-            var waitHandle = new ManualResetEvent(false);
-            var retries = 0;
-            var timer = new Timer(obj =>
-            {
-                retries++;
-                if (spec.Has<Account>(AccountId) || retries > 20)
-                    waitHandle.Set();
-            } , null, 100,100);
-
-            waitHandle.WaitOne();
-            timer.Dispose();
-            
+            spec.WaitFor<AccountCreated>(1000); 
             Assert.True(spec.Has<Account>(AccountId));
         }
 
@@ -447,9 +435,7 @@ namespace Chronos.Tests
             
             Assert.False(spec.Has<Account>(AccountId));
             spec.Advance(Duration.FromDays(1));
-            Thread.Sleep(1000);
-            spec.Then(History.AccountCreated);
-
+            spec.WaitFor<AccountCreated>(1000);
         }
     }
 }

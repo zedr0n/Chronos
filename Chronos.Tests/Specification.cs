@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
@@ -14,6 +15,7 @@ namespace Chronos.Tests
 {
     public class Specification
     {
+        private readonly IEventStore _eventStore;
         private readonly IDomainRepository _repository;
         private readonly ICommandBus _commandBus;
         private readonly IQueryProcessor _queryProcessor;
@@ -40,7 +42,8 @@ namespace Chronos.Tests
             _commandBus = commandBus;
             _queryProcessor = queryProcessor;
             _timeNavigator = timeNavigator;
-            eventStore.Events.Subscribe(AddEvent);
+            _eventStore = eventStore;
+            _eventStore.Events.Subscribe(AddEvent);
         }
         
         
@@ -57,6 +60,14 @@ namespace Chronos.Tests
             _recording = false;
             _repository.Save<T>(id,events);
             _recording = true;
+            return this;
+        }
+
+        public Specification WaitFor<TEvent>(double timeoutMs)
+            where TEvent : IEvent
+        {
+            _eventStore.Events.OfType<TEvent>().Take(1)
+                .Timeout(DateTimeOffset.UtcNow.AddMilliseconds(timeoutMs)).Wait();
             return this;
         }
 
