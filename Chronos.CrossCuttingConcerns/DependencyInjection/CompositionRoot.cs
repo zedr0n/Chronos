@@ -198,6 +198,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(StopTrackingHandler),
                 typeof(CreateBagHandler),
                 typeof(AddAssetToBagHandler),
+                typeof(RemoveAssetFromBagHandler)
             } ,Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(NullCommandHandler<>),Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(HistoricalCommandHandler<>),Lifestyle.Singleton);
