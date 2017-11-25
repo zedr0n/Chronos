@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reflection;
@@ -10,7 +13,36 @@ namespace Chronos.Infrastructure.Projections.New
         where T : class, IReadModel, new()
         where TKey : IEquatable<TKey>
     {
-        protected Func<StreamDetails, TKey> KeyFunc { get; set; }
+        protected class KeySelector
+        {
+            private readonly Func<StreamDetails, TKey> _keyFunc;
+            private readonly ConcurrentDictionary<TKey, byte> _keys = new ConcurrentDictionary<TKey, byte>();
+            private readonly Func<string, bool> _typePredicate;
+            
+            public KeySelector(Func<StreamDetails, TKey> keyFunc, Func<string, bool> typePredicate = null)
+            {
+                _keyFunc = keyFunc;
+                _typePredicate = typePredicate ?? (x => true);
+            }
+
+            public IEnumerable<TKey> Get(StreamDetails stream)
+            {
+                // return all possible keys for events from auxilary streams
+                if (!_typePredicate(stream.SourceType))
+                    return new List<TKey>(_keys.Keys);
+                
+                var key = _keyFunc(stream);
+                _keys.TryAdd(key,0);
+                return new List<TKey> { key };
+            }
+
+            public bool Has(StreamDetails stream)
+            {
+                return _typePredicate(stream.SourceType);
+            }
+        }
+        
+        protected KeySelector Key { private get; set; }
         private readonly IStateWriter _writer;
         private readonly IReadRepository _readRepository;
 
@@ -31,17 +63,24 @@ namespace Chronos.Infrastructure.Projections.New
         
         protected override void When(StreamDetails stream, IEvent e)
         {
-            _writer.Write<TKey,T>(KeyFunc(stream),x =>
+            foreach (var key in Key.Get(stream))
             {
-                x.Timeline = Timeline;
-                x.When(e);
-            });
+                _writer.Write<TKey,T>(key,x =>
+                {
+                    x.Timeline = Timeline;
+                    x.When(e);
+                }); 
+            }
+
             base.When(stream, e);
         }
 
         protected override int GetVersion(StreamDetails stream)
         {
-            var readModel = _readRepository.Find<TKey,T>(KeyFunc(stream));
+            if (!Key.Has(stream))
+                return -1;
+            
+            var readModel = _readRepository.Find<TKey,T>(Key.Get(stream).SingleOrDefault());
             if (readModel == null)
                 return -1;
             return readModel.Version;

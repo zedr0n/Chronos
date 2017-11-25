@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Chronos.Infrastructure;
+using Chronos.Infrastructure.Exceptions;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
 using Chronos.Persistence.Serialization;
@@ -238,7 +239,7 @@ namespace Chronos.Persistence
                 var stream = OpenStreamForWriting(context, streamDetails);
 
                 if (stream.Version < expectedVersion)
-                    throw new InvalidOperationException("Stream version is not consistent with events : "
+                    throw new ConcurrencyException("Stream version is not consistent with events : "
                                                          + "version : " + stream.Version + " < " + "expected :" + expectedVersion);
                 if (stream.Version > expectedVersion)
                 {

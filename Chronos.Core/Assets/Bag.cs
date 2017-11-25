@@ -11,9 +11,17 @@ namespace Chronos.Core.Assets
     {
         private readonly List<Amount> _assets = new List<Amount>();
 
+        public Bag() {}
+        
         public Bag(Guid bagId)
         {
-            Id = bagId;
+            When(new BagCreated(bagId));
+        }
+
+        private void When(BagCreated e)
+        {
+            Id = e.BagId;
+            base.When(e);
         }
         
         public void Add(Guid assetId, double quantity)

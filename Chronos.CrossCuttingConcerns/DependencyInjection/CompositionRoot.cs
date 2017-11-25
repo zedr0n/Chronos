@@ -128,7 +128,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(Coin),
                 typeof(Purchase),
                 typeof(Order),
-                typeof(Tracker)
+                typeof(Tracker),
+                typeof(Bag)
             }) );
             
             // register infrastructure
@@ -194,7 +195,9 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(TrackCoinHandler),
                 typeof(ParseCoinHandler),
                 typeof(StartTrackingHandler),
-                typeof(StopTrackingHandler)
+                typeof(StopTrackingHandler),
+                typeof(CreateBagHandler),
+                typeof(AddAssetToBagHandler),
             } ,Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(NullCommandHandler<>),Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(HistoricalCommandHandler<>),Lifestyle.Singleton);
@@ -221,6 +224,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.RegisterQuery<OrderInfoQuery,OrderInfo>(typeof(OrderInfoHandler),Lifestyle.Singleton);
             container.RegisterQuery<OrderStatusQuery,OrderStatus>(typeof(OrderStatusHandler),Lifestyle.Singleton);
             container.RegisterQuery<TotalMovementQuery,TotalMovement>(typeof(TotalMovementHandler),Lifestyle.Singleton);
+            container.RegisterQuery<BagInfoQuery, BagInfo>(typeof(BagInfoHandler),Lifestyle.Singleton);
             
             container.RegisterQuery<StatsQuery,Stats>(typeof(StatsHandler),Lifestyle.Singleton);
             container.Register(typeof(IHistoricalQueryHandler<AccountInfoQuery,AccountInfo>),

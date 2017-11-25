@@ -15,13 +15,16 @@ namespace Chronos.Core.Assets.Projections
         private readonly Dictionary<Guid, double> _prices = new Dictionary<Guid, double>();
 
         public double Value { get; set; }
-
+        public int NumberOfAssets => _assets.Count;
+        public List<Guid> Assets => new List<Guid>(_assets.Keys);
+        
         private void When(AssetAddedToBag e)
         {
             if(!_assets.ContainsKey(e.AssetId))
                 _assets.Add(e.AssetId,0.0);
 
             _assets[e.AssetId] += e.Quantity;
+            _prices[e.AssetId] = 0.0;
         }
 
         private void When(AssetRemovedFromBag e)
@@ -43,7 +46,7 @@ namespace Chronos.Core.Assets.Projections
         public override void When(IEvent e)
         {
             base.When(e);
-            Value =_assets.Sum(asset => _prices[asset.Key] * asset.Value); 
+            Value = _assets.Sum(asset => _prices[asset.Key] * asset.Value); 
         }
     }
 }

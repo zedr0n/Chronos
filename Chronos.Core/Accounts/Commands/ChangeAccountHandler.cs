@@ -21,12 +21,8 @@ namespace Chronos.Core.Accounts.Commands
         /// </summary>
         public void Handle(ChangeAccountCommand command)
         {
-            var account = _domainRepository.Find<Account>(command.TargetId);
-            if(account == null)
-                throw new InvalidOperationException("Account does not exist");
-           
+            var account = _domainRepository.Get<Account>(command.TargetId);
             account.ChangeDetails(command.Name, command.Currency);
-
             _domainRepository.Save(account);
         }
     }

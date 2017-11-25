@@ -12,6 +12,8 @@ using Chronos.Core.Accounts.Queries;
 using Chronos.Core.Assets;
 using Chronos.Core.Assets.Commands;
 using Chronos.Core.Assets.Events;
+using Chronos.Core.Assets.Projections;
+using Chronos.Core.Assets.Queries;
 using Chronos.Core.Common.Commands;
 using Chronos.Core.Scheduling.Commands;
 using Chronos.Core.Transactions;
@@ -39,6 +41,7 @@ namespace Chronos.Tests
         private static readonly Guid PurchaseId = Guid.NewGuid();
         private static readonly Guid ScheduleId = Guid.NewGuid();
         private static readonly Guid CoinId = Guid.NewGuid();
+        private static readonly Guid BagId = Guid.NewGuid();
         
         private static class History
         {
@@ -55,6 +58,10 @@ namespace Chronos.Tests
                 Name = "Bitcoin",
                 Ticker = "BTC"
             };
+
+            public static readonly BagCreated BagCreated = new BagCreated(BagId);
+            
+            public static readonly AssetAddedToBag AssetAddedToBag = new AssetAddedToBag(BagId, CoinId, 1.0);
 
             public static readonly AssetPriceUpdated PriceUpdated = new AssetPriceUpdated
             {
@@ -115,6 +122,64 @@ namespace Chronos.Tests
                     Name = "Bitcoin",
                     Ticker = "BTC"
                 }).Then(History.CoinCreated);
+        }
+
+        [Fact]
+        public void CanCreateBag()
+        {
+            GetInstance<Specification>().When(
+                new CreateBagCommand
+                {
+                    TargetId = BagId
+                }).Then(History.BagCreated);
+        }
+
+        [Fact]
+        public void CanAddCoinToBag()
+        {
+            var spec = GetInstance<Specification>()
+                .Given<Coin>(CoinId, History.CoinCreated)
+                .Given<Bag>(BagId, History.BagCreated)
+                .When(new AddAssetToBagCommand(CoinId, 1.0) { TargetId = BagId})
+                .Then(History.AssetAddedToBag);
+                
+            var bagInfo = spec.Query<BagInfoQuery,BagInfo>(new BagInfoQuery(BagId));
+            
+            Assert.NotNull(bagInfo);
+            Assert.Equal(1,bagInfo.NumberOfAssets);
+            Assert.Equal(0, bagInfo.Value);
+        }
+        
+        [Fact]
+        public void CanComputeBagWorth()
+        {
+            var spec = GetInstance<Specification>()
+                .Given<Coin>(CoinId, History.CoinCreated)
+                .Given<Bag>(BagId, History.BagCreated, History.AssetAddedToBag)
+                .When(new UpdateAssetPriceCommand
+                {
+                    TargetId = CoinId,
+                    Price = History.PriceUpdated.Price
+                });
+                
+            var bagInfo = spec.Query<BagInfoQuery,BagInfo>(new BagInfoQuery(BagId));
+            
+            Assert.NotNull(bagInfo);
+            Assert.Equal(1,bagInfo.NumberOfAssets);
+            Assert.Equal(History.PriceUpdated.Price, bagInfo.Value);
+        }
+
+        public void CanRemoveCoinFromBag()
+        {
+            var spec = GetInstance<Specification>()
+                .Given<Coin>(CoinId, History.CoinCreated)
+                .Given<Bag>(BagId, History.BagCreated)
+                .When(new AddAssetToBagCommand(CoinId, 1.0) {TargetId = BagId})
+                .When(new RemoveAssetFromBagCommand(CoinId, 0.5) {TargetId = BagId});
+
+            var bagInfo = spec.Query<BagInfoQuery, BagInfo>(new BagInfoQuery(BagId));
+            Assert.NotNull(bagInfo);
+            Assert.Equal(1, bagInfo.NumberOfAssets);
         }
         
         [Fact]

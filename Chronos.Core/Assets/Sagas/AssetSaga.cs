@@ -1,6 +1,6 @@
 ﻿namespace Chronos.Core.Assets.Sagas
 {
-    public class AssetSaga 
+    public class BagSaga 
     {
         
     }

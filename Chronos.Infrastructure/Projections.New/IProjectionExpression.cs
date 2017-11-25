@@ -38,6 +38,13 @@ namespace Chronos.Infrastructure.Projections.New
         /// <returns>Partitioned projection expression</returns>
         IProjectionExpression<T> ForEachStream();
 
+        /// <summary>
+        /// Include events from specified aggregate
+        /// </summary>
+        /// <typeparam name="TAggregate"></typeparam>
+        /// <returns></returns>
+        IProjectionExpression<T> Include<TAggregate>() where TAggregate : IAggregate;
+        
         ITransientProjectionExpression<T> Transient();
         /// <summary>
         /// Configure the historical projection
@@ -46,6 +53,7 @@ namespace Chronos.Infrastructure.Projections.New
         /// <returns>Transient projection expression</returns>
         ITransientProjectionExpression<T> AsOf(Instant date);
 
+        //IPersistentProjectionExpression<T> OutputState<TAggregate>() where TAggregate : IAggregate;
         IPersistentProjectionExpression<T> OutputState();
 
         IPersistentProjectionExpression<T> OutputState<TKey>(TKey key)

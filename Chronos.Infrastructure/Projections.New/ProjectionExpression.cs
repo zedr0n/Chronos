@@ -13,6 +13,8 @@ namespace Chronos.Infrastructure.Projections.New
         private readonly IStateWriter _writer;
         private readonly IReadRepository _readRepository;
 
+        private string _keyAggregateType;
+
         private Projection _projection;
         private Projection Projection
         {
@@ -85,10 +87,9 @@ namespace Chronos.Infrastructure.Projections.New
         public IProjectionExpression<T> From<TAggregate>()
             where TAggregate : IAggregate
         {
-            //var criteria = _streamSelector;
-            _streamSelector = _streamSelector.Where(x => x.SourceType == typeof(TAggregate).SerializableName());
-            //_streamSelector = s => criteria(s).Where(x => x.SourceType == typeof(TAggregate).Name);
-            //_streams = _streams.Where(s => s.SourceType == typeof(TAggregate).Name);
+            _keyAggregateType = typeof(TAggregate).SerializableName();
+            _streamSelector = _streamSelector.Where(x => x.SourceType == _keyAggregateType);
+            
             return this;
         }
 
@@ -96,7 +97,12 @@ namespace Chronos.Infrastructure.Projections.New
         {
             From<TAggregate>();
             _streamSelector = _streamSelector.Where(x => x.Key == id);
-            //_streams = _streams.Where(s => s.Key == id);
+            return this;
+        }
+
+        public IProjectionExpression<T> Include<TAggregate>() where TAggregate : IAggregate
+        {
+            _streamSelector = _streamSelector.Or(x => x.SourceType == typeof(TAggregate).SerializableName());
             return this;
         }
 
@@ -130,10 +136,11 @@ namespace Chronos.Infrastructure.Projections.New
         {
             if(!_forEachStream)
                 throw new InvalidOperationException("No key defined for projection state persistence");
-            
-            Projection = new PersistentPartitionedProjection<T>(_eventStore,_writer,_readRepository)
+           
+            Projection = new PersistentKeyedProjection<T>(_eventStore, _writer, _readRepository)
             {
-                Selector = _streamSelector
+                Selector = _streamSelector,
+                KeyAggregateType = _keyAggregateType
             };
 
             return this;

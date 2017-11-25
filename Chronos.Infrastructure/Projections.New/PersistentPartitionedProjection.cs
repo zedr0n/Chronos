@@ -8,13 +8,13 @@ using NodaTime;
 
 namespace Chronos.Infrastructure.Projections.New
 {
-    public class PersistentPartitionedProjection<T> : PersistentProjection<Guid,T>
+    public abstract class PersistentPartitionedProjection<T> : PersistentProjection<Guid,T>
         where T : class, IReadModel, new()
     {
         public PersistentPartitionedProjection(IEventStore eventStore, IStateWriter writer, IReadRepository readRepository) 
             : base(eventStore, writer, readRepository)
         {
-            KeyFunc = s => s.Key;
+            Key = new KeySelector(s => s.Key);
         }
 
         protected override void Reset(ref IObservable<GroupedObservable<StreamDetails, IEvent>> events)

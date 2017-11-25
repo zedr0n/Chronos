@@ -7,22 +7,45 @@ namespace Chronos.Infrastructure.Projections.New
 {
     public class Selector<T>
     {
-        private readonly LinkedList<Func<T, bool>> _predicates = new LinkedList<Func<T, bool>>();
+        private class Predicate
+        {
+            public Predicate(Func<T, bool> selector)
+            {
+                Selector = selector;
+            }
+
+            public enum PredicateType
+            {
+                And,
+                Or
+            }
+            
+            public Func<T,bool> Selector { get; }
+            public PredicateType Type { get; set; } = PredicateType.And;
+
+        }
+        
+        private readonly LinkedList<Predicate> _predicates = new LinkedList<Predicate>();
         
         public Selector<T> Where(Func<T, bool> selector)
         {
-            _predicates.AddLast(selector);
+            _predicates.AddLast(new Predicate(selector));
+            return this;
+        }
+
+        public Selector<T> Or(Func<T, bool> selector)
+        {
+            _predicates.AddLast(new Predicate(selector)
+            {
+                Type = Predicate.PredicateType.Or
+            });
             return this;
         }
 
         public IObservable<T> Apply(IObservable<T> observable)
         {
-            return _predicates.Aggregate(observable, (current, p) => current.Where(p));
-        }
-
-        public bool Predicate(T key)
-        {
-            return _predicates.Aggregate(true, (current, p) => current & p(key));
+            return _predicates.Aggregate(observable, (current, p) => p.Type == Predicate.PredicateType.And ? 
+                current.Where(p.Selector) : current.Merge(observable.Where(p.Selector)));
         }
     }
 }
