@@ -24,12 +24,7 @@ namespace Chronos.Core.Assets.Queries
     
         public BagInfo Handle(BagInfoQuery query)
         {
-            var bagInfo = _repository.Find<Guid,BagInfo>(query.BagId);
-            var assets = bagInfo.Assets;
-            
-            
-            
-            return bagInfo;
+            return _repository.Find<Guid,BagInfo>(query.BagId);
         }
     }
 }

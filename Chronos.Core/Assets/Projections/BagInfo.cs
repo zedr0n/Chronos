@@ -16,7 +16,6 @@ namespace Chronos.Core.Assets.Projections
 
         public double Value { get; set; }
         public int NumberOfAssets => _assets.Count;
-        public List<Guid> Assets => new List<Guid>(_assets.Keys);
         
         private void When(AssetAddedToBag e)
         {
