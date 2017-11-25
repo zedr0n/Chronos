@@ -386,7 +386,7 @@ namespace Chronos.Tests
         public void CanScheduleCommand()
         {
             var spec = GetInstance<Specification>();
-            var scheduledOn = Clock.GetCurrentInstant().Plus(Duration.FromSeconds(0.5));
+            var scheduledOn = Clock.GetCurrentInstant().Plus(Duration.FromSeconds(0.1));
 
             spec.When(new ScheduleCommand
             {
