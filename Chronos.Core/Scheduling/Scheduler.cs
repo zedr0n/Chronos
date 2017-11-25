@@ -74,7 +74,7 @@ namespace Chronos.Core.Scheduling
         
         public IObservable<TimeoutCompleted> StopAt(Instant date)
         {
-            var observable = Observable.Interval(TimeSpan.FromMilliseconds(500))
+            var observable = Observable.Interval(TimeSpan.FromMilliseconds(100))
                 .SkipWhile(x => _timeline.Now() < date)
                 .Take(1)
                 .Select(x => new TimeoutCompleted
