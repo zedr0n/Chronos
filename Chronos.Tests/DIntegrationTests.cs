@@ -188,14 +188,15 @@ namespace Chronos.Tests
         public void CanRemoveCoinFromBag()
         {
             var spec = GetInstance<Specification>()
-                .Given<Coin>(CoinId, History.CoinCreated)
+                .Given<Coin>(CoinId, History.CoinCreated, History.PriceUpdated)
                 .Given<Bag>(BagId, History.BagCreated)
                 .When(new AddAssetToBagCommand(CoinId, 1.0) {TargetId = BagId})
                 .When(new RemoveAssetFromBagCommand(CoinId, 0.5) {TargetId = BagId});
 
             var bagInfo = spec.Query<BagInfoQuery, BagInfo>(new BagInfoQuery(BagId));
             Assert.NotNull(bagInfo);
-            Assert.Equal(1, bagInfo.NumberOfAssets);
+            Assert.Equal(0.5,bagInfo.Quantity(CoinId));
+            Assert.Equal(0.5*100,bagInfo.Value);
         }
         
         [Fact]
