@@ -1,4 +1,5 @@
 ﻿using Chronos.Core.Accounts.Projections;
+using Chronos.Core.Assets;
 using Chronos.Core.Assets.Projections;
 using Chronos.Core.Nicehash.Projections;
 using Chronos.Core.Projections;
@@ -19,6 +20,7 @@ namespace Chronos.Persistence.Contexts
         public DbSet<CoinInfo> Coins { get; set; }
         public DbSet<OrderInfo> Orders { get; set; }
         public DbSet<OrderStatus> OrderStatuses { get; set; }
+        public DbSet<BagInfo> Bags { get; set; }
         
         public virtual void Clear()
         {

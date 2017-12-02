@@ -14,7 +14,7 @@ namespace Chronos.Core.Assets.Commands
 
         public void Handle(CreateBagCommand command)
         {
-		    var bag = new Bag(command.TargetId);   
+		    var bag = new Bag(command.TargetId,command.Name);   
             _domainRepository.Save(bag);
         }
     }

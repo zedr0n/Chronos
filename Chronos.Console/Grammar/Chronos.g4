@@ -4,14 +4,33 @@ grammar Chronos;
   Parser rules
 */
 
-command : createCoin | trackCoin;
-createCoin : CREATE COIN name ticker guid;
-trackCoin : TRACK COIN name duration;
+command : create | trackAsset | add;  
+query : bags; 
+
+create : CREATE ( createCoin | createBag );
+createCoin : COIN name ticker guidOptional;
+createBag : BAG name guidOptional;
+
+trackAsset : TRACK asset? name duration;
+
+add : ADD addAssetToBag;
+addAssetToBag : quantity assetDescriptor TO? bagDescriptor;
+
+bags : BAGS;
+
+asset : COIN;
 duration : NUMBER;
 name : WORD;
 ticker : WORD;
-guid : newGuid | WORD;
+quantity : NUMBER;
+guid : WORD;
+guidOptional : newGuid | WORD;
 newGuid : NEWLINE;
+
+bagId : guid;
+assetId : guid;
+bagDescriptor : guid | WORD;
+assetDescriptor : guid | WORD;
 
 /*
   Lexer Rules
@@ -21,6 +40,7 @@ fragment C          : ('C'|'c') ;
 fragment R          : ('R'|'r') ;
 fragment E          : ('E'|'e') ;
 fragment A          : ('A'|'a') ;
+fragment B        : ('B'|'b') ;
 fragment T          : ('T'|'t') ;
 fragment O          : ('O'|'o') ;
 fragment I          : ('I'|'i') ;
@@ -30,6 +50,7 @@ fragment W          : ('W'|'w') ;
 fragment G          : ('G'|'g') ;
 fragment U          : ('U'|'u') ;
 fragment D          : ('D'|'d') ;
+fragment S          : ('S'|'s') ;
 
 fragment LOWERCASE  : [a-z] ;
 fragment UPPERCASE  : [A-Z] ;
@@ -39,6 +60,10 @@ CREATE : C R E A T E;
 COIN : C O I N;
 TRACK : T R A C K;
 GUID : G U I D;
+BAG : B A G;
+ADD : A D D;
+BAGS : B A G S;
+TO : T O;
 
 WORD                : (LOWERCASE | UPPERCASE)+ ;
 WHITESPACE          : (' '|'\t')+ -> skip ;

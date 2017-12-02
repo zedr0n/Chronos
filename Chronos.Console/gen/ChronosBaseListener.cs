@@ -47,6 +47,30 @@ public partial class ChronosBaseListener : IChronosListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitCommand([NotNull] ChronosParser.CommandContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.query"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterQuery([NotNull] ChronosParser.QueryContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.query"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitQuery([NotNull] ChronosParser.QueryContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.create"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterCreate([NotNull] ChronosParser.CreateContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.create"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitCreate([NotNull] ChronosParser.CreateContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ChronosParser.createCoin"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -59,17 +83,77 @@ public partial class ChronosBaseListener : IChronosListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitCreateCoin([NotNull] ChronosParser.CreateCoinContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="ChronosParser.trackCoin"/>.
+	/// Enter a parse tree produced by <see cref="ChronosParser.createBag"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterTrackCoin([NotNull] ChronosParser.TrackCoinContext context) { }
+	public virtual void EnterCreateBag([NotNull] ChronosParser.CreateBagContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="ChronosParser.trackCoin"/>.
+	/// Exit a parse tree produced by <see cref="ChronosParser.createBag"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitTrackCoin([NotNull] ChronosParser.TrackCoinContext context) { }
+	public virtual void ExitCreateBag([NotNull] ChronosParser.CreateBagContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.trackAsset"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterTrackAsset([NotNull] ChronosParser.TrackAssetContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.trackAsset"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitTrackAsset([NotNull] ChronosParser.TrackAssetContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.add"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAdd([NotNull] ChronosParser.AddContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.add"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAdd([NotNull] ChronosParser.AddContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.addAssetToBag"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAddAssetToBag([NotNull] ChronosParser.AddAssetToBagContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.addAssetToBag"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAddAssetToBag([NotNull] ChronosParser.AddAssetToBagContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.bags"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterBags([NotNull] ChronosParser.BagsContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.bags"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitBags([NotNull] ChronosParser.BagsContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.asset"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAsset([NotNull] ChronosParser.AssetContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.asset"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAsset([NotNull] ChronosParser.AssetContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ChronosParser.duration"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -107,6 +191,18 @@ public partial class ChronosBaseListener : IChronosListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitTicker([NotNull] ChronosParser.TickerContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.quantity"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterQuantity([NotNull] ChronosParser.QuantityContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.quantity"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitQuantity([NotNull] ChronosParser.QuantityContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ChronosParser.guid"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -119,6 +215,18 @@ public partial class ChronosBaseListener : IChronosListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitGuid([NotNull] ChronosParser.GuidContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.guidOptional"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterGuidOptional([NotNull] ChronosParser.GuidOptionalContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.guidOptional"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitGuidOptional([NotNull] ChronosParser.GuidOptionalContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ChronosParser.newGuid"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -130,6 +238,54 @@ public partial class ChronosBaseListener : IChronosListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitNewGuid([NotNull] ChronosParser.NewGuidContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.bagId"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterBagId([NotNull] ChronosParser.BagIdContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.bagId"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitBagId([NotNull] ChronosParser.BagIdContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.assetId"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAssetId([NotNull] ChronosParser.AssetIdContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.assetId"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAssetId([NotNull] ChronosParser.AssetIdContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.bagDescriptor"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterBagDescriptor([NotNull] ChronosParser.BagDescriptorContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.bagDescriptor"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitBagDescriptor([NotNull] ChronosParser.BagDescriptorContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.assetDescriptor"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAssetDescriptor([NotNull] ChronosParser.AssetDescriptorContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.assetDescriptor"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAssetDescriptor([NotNull] ChronosParser.AssetDescriptorContext context) { }
 
 	/// <inheritdoc/>
 	/// <remarks>The default implementation does nothing.</remarks>

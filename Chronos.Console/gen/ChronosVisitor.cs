@@ -38,17 +38,59 @@ public interface IChronosVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitCommand([NotNull] ChronosParser.CommandContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.query"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitQuery([NotNull] ChronosParser.QueryContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.create"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitCreate([NotNull] ChronosParser.CreateContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="ChronosParser.createCoin"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitCreateCoin([NotNull] ChronosParser.CreateCoinContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="ChronosParser.trackCoin"/>.
+	/// Visit a parse tree produced by <see cref="ChronosParser.createBag"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitTrackCoin([NotNull] ChronosParser.TrackCoinContext context);
+	Result VisitCreateBag([NotNull] ChronosParser.CreateBagContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.trackAsset"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitTrackAsset([NotNull] ChronosParser.TrackAssetContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.add"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAdd([NotNull] ChronosParser.AddContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.addAssetToBag"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAddAssetToBag([NotNull] ChronosParser.AddAssetToBagContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.bags"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBags([NotNull] ChronosParser.BagsContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.asset"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAsset([NotNull] ChronosParser.AssetContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="ChronosParser.duration"/>.
 	/// </summary>
@@ -68,15 +110,51 @@ public interface IChronosVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitTicker([NotNull] ChronosParser.TickerContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.quantity"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitQuantity([NotNull] ChronosParser.QuantityContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="ChronosParser.guid"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitGuid([NotNull] ChronosParser.GuidContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.guidOptional"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitGuidOptional([NotNull] ChronosParser.GuidOptionalContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="ChronosParser.newGuid"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitNewGuid([NotNull] ChronosParser.NewGuidContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.bagId"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBagId([NotNull] ChronosParser.BagIdContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.assetId"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAssetId([NotNull] ChronosParser.AssetIdContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.bagDescriptor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBagDescriptor([NotNull] ChronosParser.BagDescriptorContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.assetDescriptor"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAssetDescriptor([NotNull] ChronosParser.AssetDescriptorContext context);
 }

@@ -11,9 +11,10 @@ using System;
 namespace Chronos.Persistence.Migrations.Read
 {
     [DbContext(typeof(ReadContext))]
-    partial class ReadContextModelSnapshot : ModelSnapshot
+    [Migration("20171202041853_BagInfo")]
+    partial class BagInfo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -61,8 +62,6 @@ namespace Chronos.Persistence.Migrations.Read
                 {
                     b.Property<Guid>("Key")
                         .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Name");
 
                     b.Property<Guid>("Timeline");
 

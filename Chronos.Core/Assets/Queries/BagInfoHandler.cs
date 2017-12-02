@@ -25,7 +25,13 @@ namespace Chronos.Core.Assets.Queries
     
         public BagInfo Handle(BagInfoQuery query)
         {
-            var bagInfo = _repository.Find<Guid,BagInfo>(query.BagId);
+            BagInfo bagInfo;
+
+            if (query.BagId == Guid.Empty)
+                bagInfo = _repository.Find<BagInfo>(x => 
+                    string.Equals(x.Name,query.Name,StringComparison.OrdinalIgnoreCase));
+            else
+                bagInfo = _repository.Find<Guid,BagInfo>(query.BagId);
             
             foreach(var coinInfo in bagInfo.Assets.Select(x => _repository.Find<Guid,CoinInfo>(x)).Where(x => x != null))
                 bagInfo.UpdatePrice(coinInfo.Key,coinInfo.Price);

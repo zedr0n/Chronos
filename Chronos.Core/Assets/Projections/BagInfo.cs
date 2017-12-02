@@ -11,6 +11,8 @@ namespace Chronos.Core.Assets.Projections
     [Reset]
     public class BagInfo : ReadModelBase<Guid>
     {
+        public string Name { get; set; }
+        
         private readonly Dictionary<Guid, double> _assets = new Dictionary<Guid, double>();
         private readonly Dictionary<Guid, double> _prices = new Dictionary<Guid, double>();
 
@@ -21,6 +23,11 @@ namespace Chronos.Core.Assets.Projections
         public double Quantity(Guid assetId)
         {
             return _assets.ContainsKey(assetId) ? _assets[assetId] : 0.0;
+        }
+
+        private void When(BagCreated e)
+        {
+            Name = e.Name;
         }
         
         private void When(AssetAddedToBag e)

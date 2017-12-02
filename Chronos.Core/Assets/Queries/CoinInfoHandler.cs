@@ -28,7 +28,8 @@ namespace Chronos.Core.Assets.Queries
                 CoinInfo coinInfo;
 
                 if (query.CoinId == Guid.Empty)
-                    coinInfo = _repository.Find<CoinInfo>(c => c.Name == query.Name);
+                    coinInfo = _repository.Find<CoinInfo>(c => string.Equals(c.Name,query.Name,
+                        StringComparison.OrdinalIgnoreCase));
                 else
                     coinInfo = _repository.Find<Guid,CoinInfo>(query.CoinId);
                 

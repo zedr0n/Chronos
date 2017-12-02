@@ -59,7 +59,7 @@ namespace Chronos.Tests
                 Ticker = "BTC"
             };
 
-            public static readonly BagCreated BagCreated = new BagCreated(BagId);
+            public static readonly BagCreated BagCreated = new BagCreated(BagId, "Bag");
             
             public static readonly AssetAddedToBag AssetAddedToBag = new AssetAddedToBag(BagId, CoinId, 1.0);
 
@@ -128,7 +128,7 @@ namespace Chronos.Tests
         public void CanCreateBag()
         {
             GetInstance<Specification>().When(
-                new CreateBagCommand
+                new CreateBagCommand("Bag")
                 {
                     TargetId = BagId
                 }).Then(History.BagCreated);

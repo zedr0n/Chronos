@@ -18,7 +18,7 @@ namespace Chronos.Console
             _commandBus = commandBus;
         }
 
-        public override void EnterTrackCoin(ChronosParser.TrackCoinContext context)
+        public override void EnterTrackAsset(ChronosParser.TrackAssetContext context)
         {
             var name = context.name().GetText();
             var coinInfo = _handler.Handle(new CoinInfoQuery
@@ -34,10 +34,10 @@ namespace Chronos.Console
                         Ticker = name
                     };
                 _commandBus.Send(command);
-                _commandBus.Send(new StartTrackingCommand());
+                _commandBus.Send(new StartTrackingCommand { AssetId = coinInfo.Key});
             }
             
-            base.EnterTrackCoin(context);
+            base.EnterTrackAsset(context);
         }
     }
 }

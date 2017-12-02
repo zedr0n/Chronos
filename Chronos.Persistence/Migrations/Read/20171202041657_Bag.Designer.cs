@@ -11,9 +11,10 @@ using System;
 namespace Chronos.Persistence.Migrations.Read
 {
     [DbContext(typeof(ReadContext))]
-    partial class ReadContextModelSnapshot : ModelSnapshot
+    [Migration("20171202041657_Bag")]
+    partial class Bag
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,24 +56,6 @@ namespace Chronos.Persistence.Migrations.Read
                     b.HasKey("Key");
 
                     b.ToTable("Movements");
-                });
-
-            modelBuilder.Entity("Chronos.Core.Assets.Projections.BagInfo", b =>
-                {
-                    b.Property<Guid>("Key")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Name");
-
-                    b.Property<Guid>("Timeline");
-
-                    b.Property<double>("Value");
-
-                    b.Property<int>("Version");
-
-                    b.HasKey("Key");
-
-                    b.ToTable("Bags");
                 });
 
             modelBuilder.Entity("Chronos.Core.Assets.Projections.CoinInfo", b =>

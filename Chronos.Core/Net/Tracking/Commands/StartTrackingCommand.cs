@@ -9,8 +9,8 @@ namespace Chronos.Core.Net.Tracking.Commands
         {
             get => Tracker.TrackerId;
             set { }
-        } 
-        
-        public Guid? AssetId { get; }
+        }
+
+        public Guid? AssetId { get; set; }
     }
 }

@@ -10,12 +10,13 @@ namespace Chronos.Core.Assets
     public class Bag : AggregateBase
     {
         private readonly List<Amount> _assets = new List<Amount>();
+        private readonly string _name;
 
         public Bag() {}
         
-        public Bag(Guid bagId)
+        public Bag(Guid bagId,string name)
         {
-            When(new BagCreated(bagId));
+            When(new BagCreated(bagId,name));
         }
 
         private void When(BagCreated e)

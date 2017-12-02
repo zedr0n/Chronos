@@ -17,7 +17,7 @@ namespace Chronos.Console
         {
             var name = context.name().GetText();
             var ticker = context.ticker().GetText();
-            var id = Guid.Parse(context.guid().GetText());
+            var id = Guid.Parse(context.guidOptional().GetText());
             
             var command = new CreateCoinCommand
             {
