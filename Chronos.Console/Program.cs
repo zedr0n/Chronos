@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using Antlr4.Runtime;
+using Antlr4.Runtime.Tree;
 using Chronos.CrossCuttingConcerns.DependencyInjection;
 using Chronos.Infrastructure.Logging;
 using SimpleInjector;
@@ -26,10 +27,17 @@ namespace Chronos.Console
             root.ComposeApplication(_container);
             _container.Register<IDebugLog,DebugLog>(Lifestyle.Singleton);
             _container.Register<ChronosVisitor>();
+            _container.RegisterCollection(typeof(IChronosListener),
+                new[]
+                {
+                    typeof(GuidListener),
+                    typeof(CreateCoinListener),
+                    typeof(TrackCoinListener)
+                });
             _container.Verify();
         }
 
-        public void Run(string text)
+        public void RunVisitor(string text)
         {
             var inputStream = new AntlrInputStream(text);
             var lexer = new ChronosLexer(inputStream);
@@ -41,6 +49,19 @@ namespace Chronos.Console
                 return;
             var visitor = _container.GetInstance<ChronosVisitor>();        
             visitor.Visit(context); 
+        }
+        
+        public void RunListeners(string text)
+        {
+            var inputStream = new AntlrInputStream(text);
+            var lexer = new ChronosLexer(inputStream);
+            var commonTokenStream = new CommonTokenStream(lexer);
+            var parser = new ChronosParser(commonTokenStream);
+
+            var context = parser.command();
+            
+            foreach(var listener in _container.GetAllInstances<IChronosListener>())
+                ParseTreeWalker.Default.Walk(listener, context);    
         }
     }
     
@@ -54,10 +75,12 @@ namespace Chronos.Console
             // to type the EOF character and end the input: use CTRL+D, then press <enter>
             while ((input = ReadLine()) != "EOF")
             {
+                if(input == "")
+                   continue;
                 var text = new StringBuilder();
                 text.AppendLine(input);
                     
-                scripter.Run(text.ToString());
+                scripter.RunListeners(text.ToString());
             }    
         }
         

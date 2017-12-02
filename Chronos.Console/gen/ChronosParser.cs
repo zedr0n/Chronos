@@ -36,17 +36,20 @@ public partial class ChronosParser : Parser {
 	protected static DFA[] decisionToDFA;
 	protected static PredictionContextCache sharedContextCache = new PredictionContextCache();
 	public const int
-		CREATE=1, COIN=2, WORD=3, WHITESPACE=4, NEWLINE=5;
+		CREATE=1, COIN=2, TRACK=3, GUID=4, WORD=5, WHITESPACE=6, NEWLINE=7, NUMBER=8;
 	public const int
-		RULE_createCoin = 0, RULE_name = 1;
+		RULE_command = 0, RULE_createCoin = 1, RULE_trackCoin = 2, RULE_duration = 3, 
+		RULE_name = 4, RULE_ticker = 5, RULE_guid = 6, RULE_newGuid = 7;
 	public static readonly string[] ruleNames = {
-		"createCoin", "name"
+		"command", "createCoin", "trackCoin", "duration", "name", "ticker", "guid", 
+		"newGuid"
 	};
 
 	private static readonly string[] _LiteralNames = {
 	};
 	private static readonly string[] _SymbolicNames = {
-		null, "CREATE", "COIN", "WORD", "WHITESPACE", "NEWLINE"
+		null, "CREATE", "COIN", "TRACK", "GUID", "WORD", "WHITESPACE", "NEWLINE", 
+		"NUMBER"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 
@@ -79,17 +82,93 @@ public partial class ChronosParser : Parser {
 	{
 		Interpreter = new ParserATNSimulator(this, _ATN, decisionToDFA, sharedContextCache);
 	}
+	public partial class CommandContext : ParserRuleContext {
+		public CreateCoinContext createCoin() {
+			return GetRuleContext<CreateCoinContext>(0);
+		}
+		public TrackCoinContext trackCoin() {
+			return GetRuleContext<TrackCoinContext>(0);
+		}
+		public CommandContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_command; } }
+		public override void EnterRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.EnterCommand(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.ExitCommand(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IChronosVisitor<TResult> typedVisitor = visitor as IChronosVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitCommand(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public CommandContext command() {
+		CommandContext _localctx = new CommandContext(Context, State);
+		EnterRule(_localctx, 0, RULE_command);
+		try {
+			State = 18;
+			ErrorHandler.Sync(this);
+			switch (TokenStream.LA(1)) {
+			case CREATE:
+				EnterOuterAlt(_localctx, 1);
+				{
+				State = 16; createCoin();
+				}
+				break;
+			case TRACK:
+				EnterOuterAlt(_localctx, 2);
+				{
+				State = 17; trackCoin();
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
 	public partial class CreateCoinContext : ParserRuleContext {
 		public ITerminalNode CREATE() { return GetToken(ChronosParser.CREATE, 0); }
 		public ITerminalNode COIN() { return GetToken(ChronosParser.COIN, 0); }
 		public NameContext name() {
 			return GetRuleContext<NameContext>(0);
 		}
+		public TickerContext ticker() {
+			return GetRuleContext<TickerContext>(0);
+		}
+		public GuidContext guid() {
+			return GetRuleContext<GuidContext>(0);
+		}
 		public CreateCoinContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
 		public override int RuleIndex { get { return RULE_createCoin; } }
+		public override void EnterRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.EnterCreateCoin(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.ExitCreateCoin(this);
+		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IChronosVisitor<TResult> typedVisitor = visitor as IChronosVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitCreateCoin(this);
@@ -100,13 +179,111 @@ public partial class ChronosParser : Parser {
 	[RuleVersion(0)]
 	public CreateCoinContext createCoin() {
 		CreateCoinContext _localctx = new CreateCoinContext(Context, State);
-		EnterRule(_localctx, 0, RULE_createCoin);
+		EnterRule(_localctx, 2, RULE_createCoin);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 4; Match(CREATE);
-			State = 5; Match(COIN);
-			State = 6; name();
+			State = 20; Match(CREATE);
+			State = 21; Match(COIN);
+			State = 22; name();
+			State = 23; ticker();
+			State = 24; guid();
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class TrackCoinContext : ParserRuleContext {
+		public ITerminalNode TRACK() { return GetToken(ChronosParser.TRACK, 0); }
+		public ITerminalNode COIN() { return GetToken(ChronosParser.COIN, 0); }
+		public NameContext name() {
+			return GetRuleContext<NameContext>(0);
+		}
+		public DurationContext duration() {
+			return GetRuleContext<DurationContext>(0);
+		}
+		public TrackCoinContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_trackCoin; } }
+		public override void EnterRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.EnterTrackCoin(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.ExitTrackCoin(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IChronosVisitor<TResult> typedVisitor = visitor as IChronosVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitTrackCoin(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public TrackCoinContext trackCoin() {
+		TrackCoinContext _localctx = new TrackCoinContext(Context, State);
+		EnterRule(_localctx, 4, RULE_trackCoin);
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 26; Match(TRACK);
+			State = 27; Match(COIN);
+			State = 28; name();
+			State = 29; duration();
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class DurationContext : ParserRuleContext {
+		public ITerminalNode NUMBER() { return GetToken(ChronosParser.NUMBER, 0); }
+		public DurationContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_duration; } }
+		public override void EnterRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.EnterDuration(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.ExitDuration(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IChronosVisitor<TResult> typedVisitor = visitor as IChronosVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitDuration(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public DurationContext duration() {
+		DurationContext _localctx = new DurationContext(Context, State);
+		EnterRule(_localctx, 6, RULE_duration);
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 31; Match(NUMBER);
 			}
 		}
 		catch (RecognitionException re) {
@@ -127,6 +304,14 @@ public partial class ChronosParser : Parser {
 		{
 		}
 		public override int RuleIndex { get { return RULE_name; } }
+		public override void EnterRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.EnterName(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.ExitName(this);
+		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IChronosVisitor<TResult> typedVisitor = visitor as IChronosVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitName(this);
@@ -137,11 +322,157 @@ public partial class ChronosParser : Parser {
 	[RuleVersion(0)]
 	public NameContext name() {
 		NameContext _localctx = new NameContext(Context, State);
-		EnterRule(_localctx, 2, RULE_name);
+		EnterRule(_localctx, 8, RULE_name);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 8; Match(WORD);
+			State = 33; Match(WORD);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class TickerContext : ParserRuleContext {
+		public ITerminalNode WORD() { return GetToken(ChronosParser.WORD, 0); }
+		public TickerContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_ticker; } }
+		public override void EnterRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.EnterTicker(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.ExitTicker(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IChronosVisitor<TResult> typedVisitor = visitor as IChronosVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitTicker(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public TickerContext ticker() {
+		TickerContext _localctx = new TickerContext(Context, State);
+		EnterRule(_localctx, 10, RULE_ticker);
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 35; Match(WORD);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class GuidContext : ParserRuleContext {
+		public NewGuidContext newGuid() {
+			return GetRuleContext<NewGuidContext>(0);
+		}
+		public ITerminalNode WORD() { return GetToken(ChronosParser.WORD, 0); }
+		public GuidContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_guid; } }
+		public override void EnterRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.EnterGuid(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.ExitGuid(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IChronosVisitor<TResult> typedVisitor = visitor as IChronosVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitGuid(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public GuidContext guid() {
+		GuidContext _localctx = new GuidContext(Context, State);
+		EnterRule(_localctx, 12, RULE_guid);
+		try {
+			State = 39;
+			ErrorHandler.Sync(this);
+			switch (TokenStream.LA(1)) {
+			case NEWLINE:
+				EnterOuterAlt(_localctx, 1);
+				{
+				State = 37; newGuid();
+				}
+				break;
+			case WORD:
+				EnterOuterAlt(_localctx, 2);
+				{
+				State = 38; Match(WORD);
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class NewGuidContext : ParserRuleContext {
+		public ITerminalNode NEWLINE() { return GetToken(ChronosParser.NEWLINE, 0); }
+		public NewGuidContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_newGuid; } }
+		public override void EnterRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.EnterNewGuid(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.ExitNewGuid(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IChronosVisitor<TResult> typedVisitor = visitor as IChronosVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitNewGuid(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public NewGuidContext newGuid() {
+		NewGuidContext _localctx = new NewGuidContext(Context, State);
+		EnterRule(_localctx, 14, RULE_newGuid);
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 41; Match(NEWLINE);
 			}
 		}
 		catch (RecognitionException re) {
@@ -157,14 +488,38 @@ public partial class ChronosParser : Parser {
 
 	private static char[] _serializedATN = {
 		'\x3', '\x608B', '\xA72A', '\x8133', '\xB9ED', '\x417C', '\x3BE7', '\x7786', 
-		'\x5964', '\x3', '\a', '\r', '\x4', '\x2', '\t', '\x2', '\x4', '\x3', 
-		'\t', '\x3', '\x3', '\x2', '\x3', '\x2', '\x3', '\x2', '\x3', '\x2', '\x3', 
-		'\x3', '\x3', '\x3', '\x3', '\x3', '\x2', '\x2', '\x4', '\x2', '\x4', 
-		'\x2', '\x2', '\x2', '\n', '\x2', '\x6', '\x3', '\x2', '\x2', '\x2', '\x4', 
-		'\n', '\x3', '\x2', '\x2', '\x2', '\x6', '\a', '\a', '\x3', '\x2', '\x2', 
-		'\a', '\b', '\a', '\x4', '\x2', '\x2', '\b', '\t', '\x5', '\x4', '\x3', 
-		'\x2', '\t', '\x3', '\x3', '\x2', '\x2', '\x2', '\n', '\v', '\a', '\x5', 
-		'\x2', '\x2', '\v', '\x5', '\x3', '\x2', '\x2', '\x2', '\x2',
+		'\x5964', '\x3', '\n', '.', '\x4', '\x2', '\t', '\x2', '\x4', '\x3', '\t', 
+		'\x3', '\x4', '\x4', '\t', '\x4', '\x4', '\x5', '\t', '\x5', '\x4', '\x6', 
+		'\t', '\x6', '\x4', '\a', '\t', '\a', '\x4', '\b', '\t', '\b', '\x4', 
+		'\t', '\t', '\t', '\x3', '\x2', '\x3', '\x2', '\x5', '\x2', '\x15', '\n', 
+		'\x2', '\x3', '\x3', '\x3', '\x3', '\x3', '\x3', '\x3', '\x3', '\x3', 
+		'\x3', '\x3', '\x3', '\x3', '\x4', '\x3', '\x4', '\x3', '\x4', '\x3', 
+		'\x4', '\x3', '\x4', '\x3', '\x5', '\x3', '\x5', '\x3', '\x6', '\x3', 
+		'\x6', '\x3', '\a', '\x3', '\a', '\x3', '\b', '\x3', '\b', '\x5', '\b', 
+		'*', '\n', '\b', '\x3', '\t', '\x3', '\t', '\x3', '\t', '\x2', '\x2', 
+		'\n', '\x2', '\x4', '\x6', '\b', '\n', '\f', '\xE', '\x10', '\x2', '\x2', 
+		'\x2', '\'', '\x2', '\x14', '\x3', '\x2', '\x2', '\x2', '\x4', '\x16', 
+		'\x3', '\x2', '\x2', '\x2', '\x6', '\x1C', '\x3', '\x2', '\x2', '\x2', 
+		'\b', '!', '\x3', '\x2', '\x2', '\x2', '\n', '#', '\x3', '\x2', '\x2', 
+		'\x2', '\f', '%', '\x3', '\x2', '\x2', '\x2', '\xE', ')', '\x3', '\x2', 
+		'\x2', '\x2', '\x10', '+', '\x3', '\x2', '\x2', '\x2', '\x12', '\x15', 
+		'\x5', '\x4', '\x3', '\x2', '\x13', '\x15', '\x5', '\x6', '\x4', '\x2', 
+		'\x14', '\x12', '\x3', '\x2', '\x2', '\x2', '\x14', '\x13', '\x3', '\x2', 
+		'\x2', '\x2', '\x15', '\x3', '\x3', '\x2', '\x2', '\x2', '\x16', '\x17', 
+		'\a', '\x3', '\x2', '\x2', '\x17', '\x18', '\a', '\x4', '\x2', '\x2', 
+		'\x18', '\x19', '\x5', '\n', '\x6', '\x2', '\x19', '\x1A', '\x5', '\f', 
+		'\a', '\x2', '\x1A', '\x1B', '\x5', '\xE', '\b', '\x2', '\x1B', '\x5', 
+		'\x3', '\x2', '\x2', '\x2', '\x1C', '\x1D', '\a', '\x5', '\x2', '\x2', 
+		'\x1D', '\x1E', '\a', '\x4', '\x2', '\x2', '\x1E', '\x1F', '\x5', '\n', 
+		'\x6', '\x2', '\x1F', ' ', '\x5', '\b', '\x5', '\x2', ' ', '\a', '\x3', 
+		'\x2', '\x2', '\x2', '!', '\"', '\a', '\n', '\x2', '\x2', '\"', '\t', 
+		'\x3', '\x2', '\x2', '\x2', '#', '$', '\a', '\a', '\x2', '\x2', '$', '\v', 
+		'\x3', '\x2', '\x2', '\x2', '%', '&', '\a', '\a', '\x2', '\x2', '&', '\r', 
+		'\x3', '\x2', '\x2', '\x2', '\'', '*', '\x5', '\x10', '\t', '\x2', '(', 
+		'*', '\a', '\a', '\x2', '\x2', ')', '\'', '\x3', '\x2', '\x2', '\x2', 
+		')', '(', '\x3', '\x2', '\x2', '\x2', '*', '\xF', '\x3', '\x2', '\x2', 
+		'\x2', '+', ',', '\a', '\t', '\x2', '\x2', ',', '\x11', '\x3', '\x2', 
+		'\x2', '\x2', '\x4', '\x14', ')',
 	};
 
 	public static readonly ATN _ATN =

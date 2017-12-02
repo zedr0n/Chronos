@@ -32,15 +32,51 @@ using IToken = Antlr4.Runtime.IToken;
 [System.CLSCompliant(false)]
 public interface IChronosVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.command"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitCommand([NotNull] ChronosParser.CommandContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="ChronosParser.createCoin"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitCreateCoin([NotNull] ChronosParser.CreateCoinContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.trackCoin"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitTrackCoin([NotNull] ChronosParser.TrackCoinContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.duration"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDuration([NotNull] ChronosParser.DurationContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="ChronosParser.name"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitName([NotNull] ChronosParser.NameContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.ticker"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitTicker([NotNull] ChronosParser.TickerContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.guid"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitGuid([NotNull] ChronosParser.GuidContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.newGuid"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitNewGuid([NotNull] ChronosParser.NewGuidContext context);
 }
