@@ -58,6 +58,7 @@ namespace Chronos.Core.Sagas
 
             StateMachine.Configure(State.Open)
                 .Permit(Trigger.TrackingRequested, State.Paused)
+                .Ignore(Trigger.Stop)
                 .OnEntryFrom(Trigger.Stop,OnCancel);
 
             StateMachine.Configure(State.Paused)

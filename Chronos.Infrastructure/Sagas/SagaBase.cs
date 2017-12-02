@@ -13,6 +13,7 @@ namespace Chronos.Infrastructure.Sagas
         public IDebugLog DebugLog { get; set; }
         public Guid SagaId { get; private set; }
         public int Version { get; private set; }
+        public bool Loading { get; set; }
 
         private readonly List<IEvent> _uncommitedEvents = new List<IEvent>();
         private readonly List<IMessage> _undispatchedMessages = new List<IMessage>();
@@ -29,6 +30,7 @@ namespace Chronos.Infrastructure.Sagas
         {
             SagaId = id;
             Version = 0;
+            Loading = true;
             foreach (var e in pastEvents)
             {
                 try
@@ -41,6 +43,7 @@ namespace Chronos.Infrastructure.Sagas
                     throw;
                 }
             }
+            Loading = false;
 
             ClearUncommittedEvents();
             return this as T;

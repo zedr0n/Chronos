@@ -43,20 +43,24 @@ namespace Chronos.Web.Pages
             var coinId = _queryProcessor.Process<CoinInfoQuery,CoinInfo>(new CoinInfoQuery
             {
                 Name = Name
-            }).Key;
-            
-            var command = //new TrackCoinCommand(coinId,Duration.FromMinutes(30))
-                new TrackCoinCommand(coinId,Duration.FromSeconds(NumberOfSeconds))
+            })?.Key;
+
+            if (coinId != null)
             {
-                Ticker = Name
-            };
+                var command = //new TrackCoinCommand(coinId,Duration.FromMinutes(30))
+                    new TrackCoinCommand(coinId.Value,Duration.FromSeconds(NumberOfSeconds))
+                    {
+                        Ticker = Name
+                    }; 
+                await _commandBus.SendAsync(command);
+            }
             
             //Command.TargetId = Guid.NewGuid();
             //var pattern = LocalDatePattern.CreateWithInvariantCulture("MM/dd/yyyy");
             //var localDate = pattern.Parse(Date);
             //Command.At = new ZonedDateTime(localDate.Value.ToDateTimeUnspecified().ToLocalDateTime()
             //    ,DateTimeZone.Utc,Offset.Zero).ToInstant();
-            await _commandBus.SendAsync(command);
+
             return RedirectToPage("/Index");
         }
         
