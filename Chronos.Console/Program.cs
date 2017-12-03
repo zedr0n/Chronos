@@ -37,7 +37,8 @@ namespace Chronos.Console
                     typeof(CreateBagListener),
                     typeof(AddAssetToBagListener),
                     typeof(StopTrackingListener),
-                    typeof(StartTrackingListener)
+                    typeof(StartTrackingListener),
+                    typeof(RemoveAssetFromBagListener)
                 });
             _container.Verify();
         }

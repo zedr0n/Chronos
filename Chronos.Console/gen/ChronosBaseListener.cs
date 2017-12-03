@@ -155,6 +155,30 @@ public partial class ChronosBaseListener : IChronosListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitAssetToBag([NotNull] ChronosParser.AssetToBagContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.remove"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterRemove([NotNull] ChronosParser.RemoveContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.remove"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitRemove([NotNull] ChronosParser.RemoveContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.removeAssetFromBag"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterRemoveAssetFromBag([NotNull] ChronosParser.RemoveAssetFromBagContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.removeAssetFromBag"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitRemoveAssetFromBag([NotNull] ChronosParser.RemoveAssetFromBagContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ChronosParser.to"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

@@ -4,7 +4,7 @@ grammar Chronos;
   Parser rules
 */
 
-command : create | trackAsset | add | stop | start;  
+command : create | trackAsset | add | stop | start | remove;  
 query : bags; 
 
 start : START TRACK;
@@ -18,6 +18,9 @@ trackAsset : TRACK asset? name duration;
 
 add : ADD assetToBag;
 assetToBag : quantity assetDescriptor to? bag? bagDescriptor;
+
+remove : REMOVE removeAssetFromBag;
+removeAssetFromBag : quantity assetDescriptor bagDescriptor;
 
 to : TO;
 bag : BAG;
@@ -55,6 +58,8 @@ fragment U          : ('U'|'u') ;
 fragment D          : ('D'|'d') ;
 fragment S          : ('S'|'s') ;
 fragment P          : ('P'|'p') ;
+fragment M          : ('M'|'m') ;
+fragment V          : ('V'|'v') ;
 
 fragment LOWERCASE  : [a-z] ;
 fragment UPPERCASE  : [A-Z] ;
@@ -69,6 +74,7 @@ ADD : A D D;
 BAGS : B A G S;
 STOP : S T O P;
 START : S T A R T;
+REMOVE : R E M O V E;
 TO : T O;
 
 WORD                : (LOWERCASE | UPPERCASE | '-')+ ;

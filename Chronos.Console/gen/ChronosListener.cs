@@ -131,6 +131,26 @@ public interface IChronosListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitAssetToBag([NotNull] ChronosParser.AssetToBagContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.remove"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterRemove([NotNull] ChronosParser.RemoveContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.remove"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitRemove([NotNull] ChronosParser.RemoveContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.removeAssetFromBag"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterRemoveAssetFromBag([NotNull] ChronosParser.RemoveAssetFromBagContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.removeAssetFromBag"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitRemoveAssetFromBag([NotNull] ChronosParser.RemoveAssetFromBagContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ChronosParser.to"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

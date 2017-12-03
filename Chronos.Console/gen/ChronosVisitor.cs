@@ -92,6 +92,18 @@ public interface IChronosVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitAssetToBag([NotNull] ChronosParser.AssetToBagContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.remove"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitRemove([NotNull] ChronosParser.RemoveContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.removeAssetFromBag"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitRemoveAssetFromBag([NotNull] ChronosParser.RemoveAssetFromBagContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="ChronosParser.to"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
