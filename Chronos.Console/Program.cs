@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using Antlr4.Runtime;
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using Chronos.CrossCuttingConcerns.DependencyInjection;
 using Chronos.Infrastructure.Logging;
@@ -58,7 +59,10 @@ namespace Chronos.Console
             var inputStream = new AntlrInputStream(text);
             var lexer = new ChronosLexer(inputStream);
             var commonTokenStream = new CommonTokenStream(lexer);
-            var parser = new ChronosParser(commonTokenStream);
+            var parser = new ChronosParser(commonTokenStream)
+            {
+                ErrorHandler = new BailErrorStrategy()
+            };
 
             var context = parser.command();
             
@@ -97,7 +101,8 @@ namespace Chronos.Console
                 }
                 catch (Exception ex)
                 {
-                    WriteLine("Error: " + ex);                
+                    if(!(ex is ParseCanceledException))
+                        WriteLine("Error: " + ex);                
                 } 
             }
         }
