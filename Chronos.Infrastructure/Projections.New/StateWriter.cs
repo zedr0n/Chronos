@@ -17,34 +17,20 @@ namespace Chronos.Infrastructure.Projections.New
         {
             return _repository.Find<TKey, T>(key);
         }
+        
+        public void SetState<TKey, T>(TKey key, T state)
+            where TKey : IEquatable<TKey>
+            where T : class,IReadModel,new()
+        {
+            _repository.Set(key,state);
+        } 
 
         public virtual void Write<TKey, T>(TKey key, Action<T> action)
             where TKey : IEquatable<TKey>
             where T : class,IReadModel,new()
         {
-            var state = _repository.Find<TKey, T>(key);
-            if (state == null)
-            {
-                state = new T();
-                ((IReadModel<TKey>)state).Key = key;
-                _repository.Add(state);
-            }
-
+            var state = _repository.GetOrAdd<TKey, T>(key);
             action(state);
-            //return state;
-        }
-
-        public void Write<T>(Func<T, bool> predicate, Action<T> action) where T : class, IReadModel, new()
-        {
-            var state = _repository.Find(predicate);
-            if (state == null)
-            {
-                state = new T();
-                action(state);
-                _repository.Add(state);
-            }
-            else
-                action(state);
         }
     }
 }

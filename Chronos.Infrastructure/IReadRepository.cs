@@ -8,8 +8,14 @@ namespace Chronos.Infrastructure
             where TKey : IEquatable<TKey>;
 
         T Find<T>(Func<T, bool> predicate) where T : class, IReadModel;
-        void Add<T>(T readModel) where T : IReadModel;
     }
     
-    public interface IMemoryReadRepository : IReadRepository {}
+    public interface IMemoryReadRepository : IReadRepository {
+        void Set<TKey, T>(TKey key, T readModel) where T : class, IReadModel
+            where TKey : IEquatable<TKey>;
+
+        T GetOrAdd<TKey, T>(TKey key)
+            where T : class, IReadModel, new()
+            where TKey : IEquatable<TKey>;
+    }
 }

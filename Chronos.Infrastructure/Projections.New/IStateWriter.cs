@@ -13,5 +13,9 @@ namespace Chronos.Infrastructure.Projections.New
         T GetState<TKey, T>(TKey key)
             where TKey : IEquatable<TKey>
             where T : class,IReadModel,new();
+
+        void SetState<TKey, T>(TKey key, T state)
+            where TKey : IEquatable<TKey>
+            where T : class,IReadModel,new();
     }
 }

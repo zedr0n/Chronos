@@ -28,10 +28,5 @@ namespace Chronos.Persistence
                 return context.Set<T>().Where(predicate).SingleOrDefault();
             }
         }
-
-        public void Add<T>(T readModel) where T : IReadModel
-        {
-            throw new NotImplementedException();
-        }
     }
 }

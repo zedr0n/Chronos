@@ -27,16 +27,18 @@ namespace Chronos.Persistence
             using (var context = _db.GetContext())
             {
                 T state;
+                
                 if (UseMemoryProxy<T>())
                 {
                     state = _stateWriter.GetState<TKey, T>(key);
-                    
+
                     if (state != null)
                         context.Set<T>().Attach(state);
-                    else // state exists in db even when memory instance was not created yet
+                    else // state might exists in db even when memory instance was not created yet
+                    {
                         state = context.Set<T>().Find(key);
-                    
-                    _stateWriter.Write(key, action);
+                        _stateWriter.SetState(key, state);
+                    }
                 }
                 else
                     state = context.Set<T>().Find(key);
