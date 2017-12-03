@@ -2,13 +2,20 @@ using System;
 
 namespace Chronos.Infrastructure.Projections.New
 {
-    public class StateWriter : IStateWriter
+    public class StateWriter : IMemoryStateWriter
     {
-        private readonly IReadRepository _repository;
+        private readonly IMemoryReadRepository _repository;
 
-        public StateWriter(IReadRepository repository)
+        public StateWriter(IMemoryReadRepository repository)
         {
             _repository = repository;
+        }
+
+        public T GetState<TKey, T>(TKey key)
+            where TKey : IEquatable<TKey>
+            where T : class,IReadModel,new()
+        {
+            return _repository.Find<TKey, T>(key);
         }
 
         public virtual void Write<TKey, T>(TKey key, Action<T> action)
@@ -24,6 +31,7 @@ namespace Chronos.Infrastructure.Projections.New
             }
 
             action(state);
+            //return state;
         }
 
         public void Write<T>(Func<T, bool> predicate, Action<T> action) where T : class, IReadModel, new()

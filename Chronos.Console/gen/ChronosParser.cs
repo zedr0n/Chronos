@@ -40,14 +40,14 @@ public partial class ChronosParser : Parser {
 		WHITESPACE=10, NEWLINE=11, NUMBER=12;
 	public const int
 		RULE_command = 0, RULE_query = 1, RULE_create = 2, RULE_createCoin = 3, 
-		RULE_createBag = 4, RULE_trackAsset = 5, RULE_add = 6, RULE_addAssetToBag = 7, 
-		RULE_bags = 8, RULE_asset = 9, RULE_duration = 10, RULE_name = 11, RULE_ticker = 12, 
-		RULE_quantity = 13, RULE_guid = 14, RULE_guidOptional = 15, RULE_newGuid = 16, 
-		RULE_bagId = 17, RULE_assetId = 18, RULE_bagDescriptor = 19, RULE_assetDescriptor = 20;
+		RULE_createBag = 4, RULE_trackAsset = 5, RULE_add = 6, RULE_assetToBag = 7, 
+		RULE_to = 8, RULE_bag = 9, RULE_bags = 10, RULE_asset = 11, RULE_duration = 12, 
+		RULE_name = 13, RULE_ticker = 14, RULE_quantity = 15, RULE_guid = 16, 
+		RULE_guidOptional = 17, RULE_newGuid = 18, RULE_bagDescriptor = 19, RULE_assetDescriptor = 20;
 	public static readonly string[] ruleNames = {
 		"command", "query", "create", "createCoin", "createBag", "trackAsset", 
-		"add", "addAssetToBag", "bags", "asset", "duration", "name", "ticker", 
-		"quantity", "guid", "guidOptional", "newGuid", "bagId", "assetId", "bagDescriptor", 
+		"add", "assetToBag", "to", "bag", "bags", "asset", "duration", "name", 
+		"ticker", "quantity", "guid", "guidOptional", "newGuid", "bagDescriptor", 
 		"assetDescriptor"
 	};
 
@@ -441,8 +441,8 @@ public partial class ChronosParser : Parser {
 
 	public partial class AddContext : ParserRuleContext {
 		public ITerminalNode ADD() { return GetToken(ChronosParser.ADD, 0); }
-		public AddAssetToBagContext addAssetToBag() {
-			return GetRuleContext<AddAssetToBagContext>(0);
+		public AssetToBagContext assetToBag() {
+			return GetRuleContext<AssetToBagContext>(0);
 		}
 		public AddContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -472,7 +472,7 @@ public partial class ChronosParser : Parser {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 70; Match(ADD);
-			State = 71; addAssetToBag();
+			State = 71; assetToBag();
 			}
 		}
 		catch (RecognitionException re) {
@@ -486,7 +486,7 @@ public partial class ChronosParser : Parser {
 		return _localctx;
 	}
 
-	public partial class AddAssetToBagContext : ParserRuleContext {
+	public partial class AssetToBagContext : ParserRuleContext {
 		public QuantityContext quantity() {
 			return GetRuleContext<QuantityContext>(0);
 		}
@@ -496,31 +496,36 @@ public partial class ChronosParser : Parser {
 		public BagDescriptorContext bagDescriptor() {
 			return GetRuleContext<BagDescriptorContext>(0);
 		}
-		public ITerminalNode TO() { return GetToken(ChronosParser.TO, 0); }
-		public AddAssetToBagContext(ParserRuleContext parent, int invokingState)
+		public ToContext to() {
+			return GetRuleContext<ToContext>(0);
+		}
+		public BagContext bag() {
+			return GetRuleContext<BagContext>(0);
+		}
+		public AssetToBagContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
-		public override int RuleIndex { get { return RULE_addAssetToBag; } }
+		public override int RuleIndex { get { return RULE_assetToBag; } }
 		public override void EnterRule(IParseTreeListener listener) {
 			IChronosListener typedListener = listener as IChronosListener;
-			if (typedListener != null) typedListener.EnterAddAssetToBag(this);
+			if (typedListener != null) typedListener.EnterAssetToBag(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			IChronosListener typedListener = listener as IChronosListener;
-			if (typedListener != null) typedListener.ExitAddAssetToBag(this);
+			if (typedListener != null) typedListener.ExitAssetToBag(this);
 		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IChronosVisitor<TResult> typedVisitor = visitor as IChronosVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitAddAssetToBag(this);
+			if (typedVisitor != null) return typedVisitor.VisitAssetToBag(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
 
 	[RuleVersion(0)]
-	public AddAssetToBagContext addAssetToBag() {
-		AddAssetToBagContext _localctx = new AddAssetToBagContext(Context, State);
-		EnterRule(_localctx, 14, RULE_addAssetToBag);
+	public AssetToBagContext assetToBag() {
+		AssetToBagContext _localctx = new AssetToBagContext(Context, State);
+		EnterRule(_localctx, 14, RULE_assetToBag);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
@@ -532,11 +537,106 @@ public partial class ChronosParser : Parser {
 			_la = TokenStream.LA(1);
 			if (_la==TO) {
 				{
-				State = 75; Match(TO);
+				State = 75; to();
 				}
 			}
 
-			State = 78; bagDescriptor();
+			State = 79;
+			ErrorHandler.Sync(this);
+			_la = TokenStream.LA(1);
+			if (_la==BAG) {
+				{
+				State = 78; bag();
+				}
+			}
+
+			State = 81; bagDescriptor();
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class ToContext : ParserRuleContext {
+		public ITerminalNode TO() { return GetToken(ChronosParser.TO, 0); }
+		public ToContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_to; } }
+		public override void EnterRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.EnterTo(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.ExitTo(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IChronosVisitor<TResult> typedVisitor = visitor as IChronosVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitTo(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public ToContext to() {
+		ToContext _localctx = new ToContext(Context, State);
+		EnterRule(_localctx, 16, RULE_to);
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 83; Match(TO);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class BagContext : ParserRuleContext {
+		public ITerminalNode BAG() { return GetToken(ChronosParser.BAG, 0); }
+		public BagContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_bag; } }
+		public override void EnterRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.EnterBag(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IChronosListener typedListener = listener as IChronosListener;
+			if (typedListener != null) typedListener.ExitBag(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IChronosVisitor<TResult> typedVisitor = visitor as IChronosVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitBag(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public BagContext bag() {
+		BagContext _localctx = new BagContext(Context, State);
+		EnterRule(_localctx, 18, RULE_bag);
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 85; Match(BAG);
 			}
 		}
 		catch (RecognitionException re) {
@@ -575,11 +675,11 @@ public partial class ChronosParser : Parser {
 	[RuleVersion(0)]
 	public BagsContext bags() {
 		BagsContext _localctx = new BagsContext(Context, State);
-		EnterRule(_localctx, 16, RULE_bags);
+		EnterRule(_localctx, 20, RULE_bags);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 80; Match(BAGS);
+			State = 87; Match(BAGS);
 			}
 		}
 		catch (RecognitionException re) {
@@ -618,11 +718,11 @@ public partial class ChronosParser : Parser {
 	[RuleVersion(0)]
 	public AssetContext asset() {
 		AssetContext _localctx = new AssetContext(Context, State);
-		EnterRule(_localctx, 18, RULE_asset);
+		EnterRule(_localctx, 22, RULE_asset);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 82; Match(COIN);
+			State = 89; Match(COIN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -661,11 +761,11 @@ public partial class ChronosParser : Parser {
 	[RuleVersion(0)]
 	public DurationContext duration() {
 		DurationContext _localctx = new DurationContext(Context, State);
-		EnterRule(_localctx, 20, RULE_duration);
+		EnterRule(_localctx, 24, RULE_duration);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 84; Match(NUMBER);
+			State = 91; Match(NUMBER);
 			}
 		}
 		catch (RecognitionException re) {
@@ -704,11 +804,11 @@ public partial class ChronosParser : Parser {
 	[RuleVersion(0)]
 	public NameContext name() {
 		NameContext _localctx = new NameContext(Context, State);
-		EnterRule(_localctx, 22, RULE_name);
+		EnterRule(_localctx, 26, RULE_name);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 86; Match(WORD);
+			State = 93; Match(WORD);
 			}
 		}
 		catch (RecognitionException re) {
@@ -747,11 +847,11 @@ public partial class ChronosParser : Parser {
 	[RuleVersion(0)]
 	public TickerContext ticker() {
 		TickerContext _localctx = new TickerContext(Context, State);
-		EnterRule(_localctx, 24, RULE_ticker);
+		EnterRule(_localctx, 28, RULE_ticker);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 88; Match(WORD);
+			State = 95; Match(WORD);
 			}
 		}
 		catch (RecognitionException re) {
@@ -790,11 +890,11 @@ public partial class ChronosParser : Parser {
 	[RuleVersion(0)]
 	public QuantityContext quantity() {
 		QuantityContext _localctx = new QuantityContext(Context, State);
-		EnterRule(_localctx, 26, RULE_quantity);
+		EnterRule(_localctx, 30, RULE_quantity);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 90; Match(NUMBER);
+			State = 97; Match(NUMBER);
 			}
 		}
 		catch (RecognitionException re) {
@@ -833,11 +933,11 @@ public partial class ChronosParser : Parser {
 	[RuleVersion(0)]
 	public GuidContext guid() {
 		GuidContext _localctx = new GuidContext(Context, State);
-		EnterRule(_localctx, 28, RULE_guid);
+		EnterRule(_localctx, 32, RULE_guid);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 92; Match(WORD);
+			State = 99; Match(WORD);
 			}
 		}
 		catch (RecognitionException re) {
@@ -879,21 +979,21 @@ public partial class ChronosParser : Parser {
 	[RuleVersion(0)]
 	public GuidOptionalContext guidOptional() {
 		GuidOptionalContext _localctx = new GuidOptionalContext(Context, State);
-		EnterRule(_localctx, 30, RULE_guidOptional);
+		EnterRule(_localctx, 34, RULE_guidOptional);
 		try {
-			State = 96;
+			State = 103;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case NEWLINE:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 94; newGuid();
+				State = 101; newGuid();
 				}
 				break;
 			case WORD:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 95; Match(WORD);
+				State = 102; Match(WORD);
 				}
 				break;
 			default:
@@ -936,101 +1036,11 @@ public partial class ChronosParser : Parser {
 	[RuleVersion(0)]
 	public NewGuidContext newGuid() {
 		NewGuidContext _localctx = new NewGuidContext(Context, State);
-		EnterRule(_localctx, 32, RULE_newGuid);
+		EnterRule(_localctx, 36, RULE_newGuid);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 98; Match(NEWLINE);
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			ErrorHandler.ReportError(this, re);
-			ErrorHandler.Recover(this, re);
-		}
-		finally {
-			ExitRule();
-		}
-		return _localctx;
-	}
-
-	public partial class BagIdContext : ParserRuleContext {
-		public GuidContext guid() {
-			return GetRuleContext<GuidContext>(0);
-		}
-		public BagIdContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_bagId; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IChronosListener typedListener = listener as IChronosListener;
-			if (typedListener != null) typedListener.EnterBagId(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IChronosListener typedListener = listener as IChronosListener;
-			if (typedListener != null) typedListener.ExitBagId(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IChronosVisitor<TResult> typedVisitor = visitor as IChronosVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitBagId(this);
-			else return visitor.VisitChildren(this);
-		}
-	}
-
-	[RuleVersion(0)]
-	public BagIdContext bagId() {
-		BagIdContext _localctx = new BagIdContext(Context, State);
-		EnterRule(_localctx, 34, RULE_bagId);
-		try {
-			EnterOuterAlt(_localctx, 1);
-			{
-			State = 100; guid();
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			ErrorHandler.ReportError(this, re);
-			ErrorHandler.Recover(this, re);
-		}
-		finally {
-			ExitRule();
-		}
-		return _localctx;
-	}
-
-	public partial class AssetIdContext : ParserRuleContext {
-		public GuidContext guid() {
-			return GetRuleContext<GuidContext>(0);
-		}
-		public AssetIdContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_assetId; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IChronosListener typedListener = listener as IChronosListener;
-			if (typedListener != null) typedListener.EnterAssetId(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IChronosListener typedListener = listener as IChronosListener;
-			if (typedListener != null) typedListener.ExitAssetId(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IChronosVisitor<TResult> typedVisitor = visitor as IChronosVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitAssetId(this);
-			else return visitor.VisitChildren(this);
-		}
-	}
-
-	[RuleVersion(0)]
-	public AssetIdContext assetId() {
-		AssetIdContext _localctx = new AssetIdContext(Context, State);
-		EnterRule(_localctx, 36, RULE_assetId);
-		try {
-			EnterOuterAlt(_localctx, 1);
-			{
-			State = 102; guid();
+			State = 105; Match(NEWLINE);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1074,19 +1084,19 @@ public partial class ChronosParser : Parser {
 		BagDescriptorContext _localctx = new BagDescriptorContext(Context, State);
 		EnterRule(_localctx, 38, RULE_bagDescriptor);
 		try {
-			State = 106;
+			State = 109;
 			ErrorHandler.Sync(this);
-			switch ( Interpreter.AdaptivePredict(TokenStream,5,Context) ) {
+			switch ( Interpreter.AdaptivePredict(TokenStream,6,Context) ) {
 			case 1:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 104; guid();
+				State = 107; guid();
 				}
 				break;
 			case 2:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 105; Match(WORD);
+				State = 108; Match(WORD);
 				}
 				break;
 			}
@@ -1132,19 +1142,19 @@ public partial class ChronosParser : Parser {
 		AssetDescriptorContext _localctx = new AssetDescriptorContext(Context, State);
 		EnterRule(_localctx, 40, RULE_assetDescriptor);
 		try {
-			State = 110;
+			State = 113;
 			ErrorHandler.Sync(this);
-			switch ( Interpreter.AdaptivePredict(TokenStream,6,Context) ) {
+			switch ( Interpreter.AdaptivePredict(TokenStream,7,Context) ) {
 			case 1:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 108; guid();
+				State = 111; guid();
 				}
 				break;
 			case 2:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 109; Match(WORD);
+				State = 112; Match(WORD);
 				}
 				break;
 			}
@@ -1162,7 +1172,7 @@ public partial class ChronosParser : Parser {
 
 	private static char[] _serializedATN = {
 		'\x3', '\x608B', '\xA72A', '\x8133', '\xB9ED', '\x417C', '\x3BE7', '\x7786', 
-		'\x5964', '\x3', '\xE', 's', '\x4', '\x2', '\t', '\x2', '\x4', '\x3', 
+		'\x5964', '\x3', '\xE', 'v', '\x4', '\x2', '\t', '\x2', '\x4', '\x3', 
 		'\t', '\x3', '\x4', '\x4', '\t', '\x4', '\x4', '\x5', '\t', '\x5', '\x4', 
 		'\x6', '\t', '\x6', '\x4', '\a', '\t', '\a', '\x4', '\b', '\t', '\b', 
 		'\x4', '\t', '\t', '\t', '\x4', '\n', '\t', '\n', '\x4', '\v', '\t', '\v', 
@@ -1177,72 +1187,74 @@ public partial class ChronosParser : Parser {
 		'\x6', '\x3', '\x6', '\x3', '\x6', '\x3', '\x6', '\x3', '\a', '\x3', '\a', 
 		'\x5', '\a', '\x44', '\n', '\a', '\x3', '\a', '\x3', '\a', '\x3', '\a', 
 		'\x3', '\b', '\x3', '\b', '\x3', '\b', '\x3', '\t', '\x3', '\t', '\x3', 
-		'\t', '\x5', '\t', 'O', '\n', '\t', '\x3', '\t', '\x3', '\t', '\x3', '\n', 
-		'\x3', '\n', '\x3', '\v', '\x3', '\v', '\x3', '\f', '\x3', '\f', '\x3', 
-		'\r', '\x3', '\r', '\x3', '\xE', '\x3', '\xE', '\x3', '\xF', '\x3', '\xF', 
-		'\x3', '\x10', '\x3', '\x10', '\x3', '\x11', '\x3', '\x11', '\x5', '\x11', 
-		'\x63', '\n', '\x11', '\x3', '\x12', '\x3', '\x12', '\x3', '\x13', '\x3', 
-		'\x13', '\x3', '\x14', '\x3', '\x14', '\x3', '\x15', '\x3', '\x15', '\x5', 
-		'\x15', 'm', '\n', '\x15', '\x3', '\x16', '\x3', '\x16', '\x5', '\x16', 
-		'q', '\n', '\x16', '\x3', '\x16', '\x2', '\x2', '\x17', '\x2', '\x4', 
-		'\x6', '\b', '\n', '\f', '\xE', '\x10', '\x12', '\x14', '\x16', '\x18', 
-		'\x1A', '\x1C', '\x1E', ' ', '\"', '$', '&', '(', '*', '\x2', '\x2', '\x2', 
-		'\x65', '\x2', '/', '\x3', '\x2', '\x2', '\x2', '\x4', '\x31', '\x3', 
-		'\x2', '\x2', '\x2', '\x6', '\x33', '\x3', '\x2', '\x2', '\x2', '\b', 
-		'\x38', '\x3', '\x2', '\x2', '\x2', '\n', '=', '\x3', '\x2', '\x2', '\x2', 
-		'\f', '\x41', '\x3', '\x2', '\x2', '\x2', '\xE', 'H', '\x3', '\x2', '\x2', 
-		'\x2', '\x10', 'K', '\x3', '\x2', '\x2', '\x2', '\x12', 'R', '\x3', '\x2', 
-		'\x2', '\x2', '\x14', 'T', '\x3', '\x2', '\x2', '\x2', '\x16', 'V', '\x3', 
-		'\x2', '\x2', '\x2', '\x18', 'X', '\x3', '\x2', '\x2', '\x2', '\x1A', 
-		'Z', '\x3', '\x2', '\x2', '\x2', '\x1C', '\\', '\x3', '\x2', '\x2', '\x2', 
-		'\x1E', '^', '\x3', '\x2', '\x2', '\x2', ' ', '\x62', '\x3', '\x2', '\x2', 
-		'\x2', '\"', '\x64', '\x3', '\x2', '\x2', '\x2', '$', '\x66', '\x3', '\x2', 
-		'\x2', '\x2', '&', 'h', '\x3', '\x2', '\x2', '\x2', '(', 'l', '\x3', '\x2', 
-		'\x2', '\x2', '*', 'p', '\x3', '\x2', '\x2', '\x2', ',', '\x30', '\x5', 
-		'\x6', '\x4', '\x2', '-', '\x30', '\x5', '\f', '\a', '\x2', '.', '\x30', 
-		'\x5', '\xE', '\b', '\x2', '/', ',', '\x3', '\x2', '\x2', '\x2', '/', 
-		'-', '\x3', '\x2', '\x2', '\x2', '/', '.', '\x3', '\x2', '\x2', '\x2', 
-		'\x30', '\x3', '\x3', '\x2', '\x2', '\x2', '\x31', '\x32', '\x5', '\x12', 
-		'\n', '\x2', '\x32', '\x5', '\x3', '\x2', '\x2', '\x2', '\x33', '\x36', 
-		'\a', '\x3', '\x2', '\x2', '\x34', '\x37', '\x5', '\b', '\x5', '\x2', 
-		'\x35', '\x37', '\x5', '\n', '\x6', '\x2', '\x36', '\x34', '\x3', '\x2', 
-		'\x2', '\x2', '\x36', '\x35', '\x3', '\x2', '\x2', '\x2', '\x37', '\a', 
-		'\x3', '\x2', '\x2', '\x2', '\x38', '\x39', '\a', '\x4', '\x2', '\x2', 
-		'\x39', ':', '\x5', '\x18', '\r', '\x2', ':', ';', '\x5', '\x1A', '\xE', 
-		'\x2', ';', '<', '\x5', ' ', '\x11', '\x2', '<', '\t', '\x3', '\x2', '\x2', 
-		'\x2', '=', '>', '\a', '\a', '\x2', '\x2', '>', '?', '\x5', '\x18', '\r', 
-		'\x2', '?', '@', '\x5', ' ', '\x11', '\x2', '@', '\v', '\x3', '\x2', '\x2', 
-		'\x2', '\x41', '\x43', '\a', '\x5', '\x2', '\x2', '\x42', '\x44', '\x5', 
-		'\x14', '\v', '\x2', '\x43', '\x42', '\x3', '\x2', '\x2', '\x2', '\x43', 
-		'\x44', '\x3', '\x2', '\x2', '\x2', '\x44', '\x45', '\x3', '\x2', '\x2', 
-		'\x2', '\x45', '\x46', '\x5', '\x18', '\r', '\x2', '\x46', 'G', '\x5', 
-		'\x16', '\f', '\x2', 'G', '\r', '\x3', '\x2', '\x2', '\x2', 'H', 'I', 
-		'\a', '\b', '\x2', '\x2', 'I', 'J', '\x5', '\x10', '\t', '\x2', 'J', '\xF', 
-		'\x3', '\x2', '\x2', '\x2', 'K', 'L', '\x5', '\x1C', '\xF', '\x2', 'L', 
-		'N', '\x5', '*', '\x16', '\x2', 'M', 'O', '\a', '\n', '\x2', '\x2', 'N', 
-		'M', '\x3', '\x2', '\x2', '\x2', 'N', 'O', '\x3', '\x2', '\x2', '\x2', 
-		'O', 'P', '\x3', '\x2', '\x2', '\x2', 'P', 'Q', '\x5', '(', '\x15', '\x2', 
-		'Q', '\x11', '\x3', '\x2', '\x2', '\x2', 'R', 'S', '\a', '\t', '\x2', 
-		'\x2', 'S', '\x13', '\x3', '\x2', '\x2', '\x2', 'T', 'U', '\a', '\x4', 
-		'\x2', '\x2', 'U', '\x15', '\x3', '\x2', '\x2', '\x2', 'V', 'W', '\a', 
-		'\xE', '\x2', '\x2', 'W', '\x17', '\x3', '\x2', '\x2', '\x2', 'X', 'Y', 
-		'\a', '\v', '\x2', '\x2', 'Y', '\x19', '\x3', '\x2', '\x2', '\x2', 'Z', 
-		'[', '\a', '\v', '\x2', '\x2', '[', '\x1B', '\x3', '\x2', '\x2', '\x2', 
-		'\\', ']', '\a', '\xE', '\x2', '\x2', ']', '\x1D', '\x3', '\x2', '\x2', 
-		'\x2', '^', '_', '\a', '\v', '\x2', '\x2', '_', '\x1F', '\x3', '\x2', 
-		'\x2', '\x2', '`', '\x63', '\x5', '\"', '\x12', '\x2', '\x61', '\x63', 
-		'\a', '\v', '\x2', '\x2', '\x62', '`', '\x3', '\x2', '\x2', '\x2', '\x62', 
-		'\x61', '\x3', '\x2', '\x2', '\x2', '\x63', '!', '\x3', '\x2', '\x2', 
-		'\x2', '\x64', '\x65', '\a', '\r', '\x2', '\x2', '\x65', '#', '\x3', '\x2', 
-		'\x2', '\x2', '\x66', 'g', '\x5', '\x1E', '\x10', '\x2', 'g', '%', '\x3', 
-		'\x2', '\x2', '\x2', 'h', 'i', '\x5', '\x1E', '\x10', '\x2', 'i', '\'', 
-		'\x3', '\x2', '\x2', '\x2', 'j', 'm', '\x5', '\x1E', '\x10', '\x2', 'k', 
-		'm', '\a', '\v', '\x2', '\x2', 'l', 'j', '\x3', '\x2', '\x2', '\x2', 'l', 
-		'k', '\x3', '\x2', '\x2', '\x2', 'm', ')', '\x3', '\x2', '\x2', '\x2', 
-		'n', 'q', '\x5', '\x1E', '\x10', '\x2', 'o', 'q', '\a', '\v', '\x2', '\x2', 
-		'p', 'n', '\x3', '\x2', '\x2', '\x2', 'p', 'o', '\x3', '\x2', '\x2', '\x2', 
-		'q', '+', '\x3', '\x2', '\x2', '\x2', '\t', '/', '\x36', '\x43', 'N', 
-		'\x62', 'l', 'p',
+		'\t', '\x5', '\t', 'O', '\n', '\t', '\x3', '\t', '\x5', '\t', 'R', '\n', 
+		'\t', '\x3', '\t', '\x3', '\t', '\x3', '\n', '\x3', '\n', '\x3', '\v', 
+		'\x3', '\v', '\x3', '\f', '\x3', '\f', '\x3', '\r', '\x3', '\r', '\x3', 
+		'\xE', '\x3', '\xE', '\x3', '\xF', '\x3', '\xF', '\x3', '\x10', '\x3', 
+		'\x10', '\x3', '\x11', '\x3', '\x11', '\x3', '\x12', '\x3', '\x12', '\x3', 
+		'\x13', '\x3', '\x13', '\x5', '\x13', 'j', '\n', '\x13', '\x3', '\x14', 
+		'\x3', '\x14', '\x3', '\x15', '\x3', '\x15', '\x5', '\x15', 'p', '\n', 
+		'\x15', '\x3', '\x16', '\x3', '\x16', '\x5', '\x16', 't', '\n', '\x16', 
+		'\x3', '\x16', '\x2', '\x2', '\x17', '\x2', '\x4', '\x6', '\b', '\n', 
+		'\f', '\xE', '\x10', '\x12', '\x14', '\x16', '\x18', '\x1A', '\x1C', '\x1E', 
+		' ', '\"', '$', '&', '(', '*', '\x2', '\x2', '\x2', 'i', '\x2', '/', '\x3', 
+		'\x2', '\x2', '\x2', '\x4', '\x31', '\x3', '\x2', '\x2', '\x2', '\x6', 
+		'\x33', '\x3', '\x2', '\x2', '\x2', '\b', '\x38', '\x3', '\x2', '\x2', 
+		'\x2', '\n', '=', '\x3', '\x2', '\x2', '\x2', '\f', '\x41', '\x3', '\x2', 
+		'\x2', '\x2', '\xE', 'H', '\x3', '\x2', '\x2', '\x2', '\x10', 'K', '\x3', 
+		'\x2', '\x2', '\x2', '\x12', 'U', '\x3', '\x2', '\x2', '\x2', '\x14', 
+		'W', '\x3', '\x2', '\x2', '\x2', '\x16', 'Y', '\x3', '\x2', '\x2', '\x2', 
+		'\x18', '[', '\x3', '\x2', '\x2', '\x2', '\x1A', ']', '\x3', '\x2', '\x2', 
+		'\x2', '\x1C', '_', '\x3', '\x2', '\x2', '\x2', '\x1E', '\x61', '\x3', 
+		'\x2', '\x2', '\x2', ' ', '\x63', '\x3', '\x2', '\x2', '\x2', '\"', '\x65', 
+		'\x3', '\x2', '\x2', '\x2', '$', 'i', '\x3', '\x2', '\x2', '\x2', '&', 
+		'k', '\x3', '\x2', '\x2', '\x2', '(', 'o', '\x3', '\x2', '\x2', '\x2', 
+		'*', 's', '\x3', '\x2', '\x2', '\x2', ',', '\x30', '\x5', '\x6', '\x4', 
+		'\x2', '-', '\x30', '\x5', '\f', '\a', '\x2', '.', '\x30', '\x5', '\xE', 
+		'\b', '\x2', '/', ',', '\x3', '\x2', '\x2', '\x2', '/', '-', '\x3', '\x2', 
+		'\x2', '\x2', '/', '.', '\x3', '\x2', '\x2', '\x2', '\x30', '\x3', '\x3', 
+		'\x2', '\x2', '\x2', '\x31', '\x32', '\x5', '\x16', '\f', '\x2', '\x32', 
+		'\x5', '\x3', '\x2', '\x2', '\x2', '\x33', '\x36', '\a', '\x3', '\x2', 
+		'\x2', '\x34', '\x37', '\x5', '\b', '\x5', '\x2', '\x35', '\x37', '\x5', 
+		'\n', '\x6', '\x2', '\x36', '\x34', '\x3', '\x2', '\x2', '\x2', '\x36', 
+		'\x35', '\x3', '\x2', '\x2', '\x2', '\x37', '\a', '\x3', '\x2', '\x2', 
+		'\x2', '\x38', '\x39', '\a', '\x4', '\x2', '\x2', '\x39', ':', '\x5', 
+		'\x1C', '\xF', '\x2', ':', ';', '\x5', '\x1E', '\x10', '\x2', ';', '<', 
+		'\x5', '$', '\x13', '\x2', '<', '\t', '\x3', '\x2', '\x2', '\x2', '=', 
+		'>', '\a', '\a', '\x2', '\x2', '>', '?', '\x5', '\x1C', '\xF', '\x2', 
+		'?', '@', '\x5', '$', '\x13', '\x2', '@', '\v', '\x3', '\x2', '\x2', '\x2', 
+		'\x41', '\x43', '\a', '\x5', '\x2', '\x2', '\x42', '\x44', '\x5', '\x18', 
+		'\r', '\x2', '\x43', '\x42', '\x3', '\x2', '\x2', '\x2', '\x43', '\x44', 
+		'\x3', '\x2', '\x2', '\x2', '\x44', '\x45', '\x3', '\x2', '\x2', '\x2', 
+		'\x45', '\x46', '\x5', '\x1C', '\xF', '\x2', '\x46', 'G', '\x5', '\x1A', 
+		'\xE', '\x2', 'G', '\r', '\x3', '\x2', '\x2', '\x2', 'H', 'I', '\a', '\b', 
+		'\x2', '\x2', 'I', 'J', '\x5', '\x10', '\t', '\x2', 'J', '\xF', '\x3', 
+		'\x2', '\x2', '\x2', 'K', 'L', '\x5', ' ', '\x11', '\x2', 'L', 'N', '\x5', 
+		'*', '\x16', '\x2', 'M', 'O', '\x5', '\x12', '\n', '\x2', 'N', 'M', '\x3', 
+		'\x2', '\x2', '\x2', 'N', 'O', '\x3', '\x2', '\x2', '\x2', 'O', 'Q', '\x3', 
+		'\x2', '\x2', '\x2', 'P', 'R', '\x5', '\x14', '\v', '\x2', 'Q', 'P', '\x3', 
+		'\x2', '\x2', '\x2', 'Q', 'R', '\x3', '\x2', '\x2', '\x2', 'R', 'S', '\x3', 
+		'\x2', '\x2', '\x2', 'S', 'T', '\x5', '(', '\x15', '\x2', 'T', '\x11', 
+		'\x3', '\x2', '\x2', '\x2', 'U', 'V', '\a', '\n', '\x2', '\x2', 'V', '\x13', 
+		'\x3', '\x2', '\x2', '\x2', 'W', 'X', '\a', '\a', '\x2', '\x2', 'X', '\x15', 
+		'\x3', '\x2', '\x2', '\x2', 'Y', 'Z', '\a', '\t', '\x2', '\x2', 'Z', '\x17', 
+		'\x3', '\x2', '\x2', '\x2', '[', '\\', '\a', '\x4', '\x2', '\x2', '\\', 
+		'\x19', '\x3', '\x2', '\x2', '\x2', ']', '^', '\a', '\xE', '\x2', '\x2', 
+		'^', '\x1B', '\x3', '\x2', '\x2', '\x2', '_', '`', '\a', '\v', '\x2', 
+		'\x2', '`', '\x1D', '\x3', '\x2', '\x2', '\x2', '\x61', '\x62', '\a', 
+		'\v', '\x2', '\x2', '\x62', '\x1F', '\x3', '\x2', '\x2', '\x2', '\x63', 
+		'\x64', '\a', '\xE', '\x2', '\x2', '\x64', '!', '\x3', '\x2', '\x2', '\x2', 
+		'\x65', '\x66', '\a', '\v', '\x2', '\x2', '\x66', '#', '\x3', '\x2', '\x2', 
+		'\x2', 'g', 'j', '\x5', '&', '\x14', '\x2', 'h', 'j', '\a', '\v', '\x2', 
+		'\x2', 'i', 'g', '\x3', '\x2', '\x2', '\x2', 'i', 'h', '\x3', '\x2', '\x2', 
+		'\x2', 'j', '%', '\x3', '\x2', '\x2', '\x2', 'k', 'l', '\a', '\r', '\x2', 
+		'\x2', 'l', '\'', '\x3', '\x2', '\x2', '\x2', 'm', 'p', '\x5', '\"', '\x12', 
+		'\x2', 'n', 'p', '\a', '\v', '\x2', '\x2', 'o', 'm', '\x3', '\x2', '\x2', 
+		'\x2', 'o', 'n', '\x3', '\x2', '\x2', '\x2', 'p', ')', '\x3', '\x2', '\x2', 
+		'\x2', 'q', 't', '\x5', '\"', '\x12', '\x2', 'r', 't', '\a', '\v', '\x2', 
+		'\x2', 's', 'q', '\x3', '\x2', '\x2', '\x2', 's', 'r', '\x3', '\x2', '\x2', 
+		'\x2', 't', '+', '\x3', '\x2', '\x2', '\x2', '\n', '/', '\x36', '\x43', 
+		'N', 'Q', 'i', 'o', 's',
 	};
 
 	public static readonly ATN _ATN =

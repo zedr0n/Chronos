@@ -74,11 +74,23 @@ public interface IChronosVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitAdd([NotNull] ChronosParser.AddContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="ChronosParser.addAssetToBag"/>.
+	/// Visit a parse tree produced by <see cref="ChronosParser.assetToBag"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitAddAssetToBag([NotNull] ChronosParser.AddAssetToBagContext context);
+	Result VisitAssetToBag([NotNull] ChronosParser.AssetToBagContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.to"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitTo([NotNull] ChronosParser.ToContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.bag"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBag([NotNull] ChronosParser.BagContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="ChronosParser.bags"/>.
 	/// </summary>
@@ -133,18 +145,6 @@ public interface IChronosVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitNewGuid([NotNull] ChronosParser.NewGuidContext context);
-	/// <summary>
-	/// Visit a parse tree produced by <see cref="ChronosParser.bagId"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitBagId([NotNull] ChronosParser.BagIdContext context);
-	/// <summary>
-	/// Visit a parse tree produced by <see cref="ChronosParser.assetId"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitAssetId([NotNull] ChronosParser.AssetIdContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="ChronosParser.bagDescriptor"/>.
 	/// </summary>

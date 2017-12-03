@@ -161,8 +161,10 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             else
             {
                 container.Register<IReadRepository, SqlReadRepository>(Lifestyle.Singleton); 
+                container.Register<IMemoryReadRepository, ReadRepository>(Lifestyle.Singleton);
                 container.Register<IReadDb,ReadDb>(Lifestyle.Singleton);
                 container.Register<IStateWriter, DbStateWriter>(Lifestyle.Singleton);
+                container.Register<IMemoryStateWriter, StateWriter>(Lifestyle.Singleton);
                 container.Register<ICommandHandler<ClearDatabaseCommand>,ClearDatabaseHandler>(Lifestyle.Singleton);
             }
             container.Register<IJsonParser,JsonParser>(Lifestyle.Singleton);

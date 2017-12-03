@@ -8,7 +8,7 @@ using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Core.Assets.Projections
 {
-    [Reset]
+    [Reset,MemoryProxy]
     public class BagInfo : ReadModelBase<Guid>
     {
         public string Name { get; set; }

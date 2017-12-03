@@ -20,7 +20,7 @@ namespace Chronos.Console
             _bagHandler = bagHandler;
         }
 
-        public override void EnterAddAssetToBag(ChronosParser.AddAssetToBagContext context)
+        public override void EnterAssetToBag(ChronosParser.AssetToBagContext context)
         {
             var bagDescriptor = context.bagDescriptor().GetText();
             if (!Guid.TryParse(bagDescriptor, out var id))
@@ -47,7 +47,7 @@ namespace Chronos.Console
                 TargetId = id
             };
             _commandBus.Send(command);
-            base.EnterAddAssetToBag(context);
+            base.EnterAssetToBag(context);
         }
     }
 }

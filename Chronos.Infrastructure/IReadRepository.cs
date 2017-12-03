@@ -10,4 +10,6 @@ namespace Chronos.Infrastructure
         T Find<T>(Func<T, bool> predicate) where T : class, IReadModel;
         void Add<T>(T readModel) where T : IReadModel;
     }
+    
+    public interface IMemoryReadRepository : IReadRepository {}
 }

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Chronos.Infrastructure
 {
-    public class ReadRepository : IReadRepository
+    public class ReadRepository : IMemoryReadRepository
     {
         private readonly Dictionary<Type, List<IReadModel>> _dictionary = new Dictionary<Type, List<IReadModel>>();
 

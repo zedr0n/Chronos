@@ -7,4 +7,10 @@ namespace Chronos.Infrastructure
     {
         
     }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class MemoryProxyAttribute : Attribute
+    {
+        
+    }
 }

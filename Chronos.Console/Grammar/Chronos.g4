@@ -13,9 +13,11 @@ createBag : BAG name guidOptional;
 
 trackAsset : TRACK asset? name duration;
 
-add : ADD addAssetToBag;
-addAssetToBag : quantity assetDescriptor TO? bagDescriptor;
+add : ADD assetToBag;
+assetToBag : quantity assetDescriptor to? bag? bagDescriptor;
 
+to : TO;
+bag : BAG;
 bags : BAGS;
 
 asset : COIN;
@@ -27,8 +29,6 @@ guid : WORD;
 guidOptional : newGuid | WORD;
 newGuid : NEWLINE;
 
-bagId : guid;
-assetId : guid;
 bagDescriptor : guid | WORD;
 assetDescriptor : guid | WORD;
 
