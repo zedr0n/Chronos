@@ -40,7 +40,7 @@ namespace Chronos.Console
                 assetId = coinInfo.Key;
             }
             
-            var quantity = int.Parse(context.quantity().GetText());
+            var quantity = double.Parse(context.quantity().GetText());
             
             var command = new AddAssetToBagCommand(assetId, quantity)
             {

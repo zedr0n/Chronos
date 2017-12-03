@@ -37,7 +37,7 @@ public partial class ChronosParser : Parser {
 	protected static PredictionContextCache sharedContextCache = new PredictionContextCache();
 	public const int
 		CREATE=1, COIN=2, TRACK=3, GUID=4, BAG=5, ADD=6, BAGS=7, TO=8, WORD=9, 
-		WHITESPACE=10, NEWLINE=11, NUMBER=12;
+		WHITESPACE=10, NEWLINE=11, NUMBER=12, DOUBLE=13;
 	public const int
 		RULE_command = 0, RULE_query = 1, RULE_create = 2, RULE_createCoin = 3, 
 		RULE_createBag = 4, RULE_trackAsset = 5, RULE_add = 6, RULE_assetToBag = 7, 
@@ -55,7 +55,7 @@ public partial class ChronosParser : Parser {
 	};
 	private static readonly string[] _SymbolicNames = {
 		null, "CREATE", "COIN", "TRACK", "GUID", "BAG", "ADD", "BAGS", "TO", "WORD", 
-		"WHITESPACE", "NEWLINE", "NUMBER"
+		"WHITESPACE", "NEWLINE", "NUMBER", "DOUBLE"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 
@@ -866,7 +866,7 @@ public partial class ChronosParser : Parser {
 	}
 
 	public partial class QuantityContext : ParserRuleContext {
-		public ITerminalNode NUMBER() { return GetToken(ChronosParser.NUMBER, 0); }
+		public ITerminalNode DOUBLE() { return GetToken(ChronosParser.DOUBLE, 0); }
 		public QuantityContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
@@ -894,7 +894,7 @@ public partial class ChronosParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 97; Match(NUMBER);
+			State = 97; Match(DOUBLE);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1172,7 +1172,7 @@ public partial class ChronosParser : Parser {
 
 	private static char[] _serializedATN = {
 		'\x3', '\x608B', '\xA72A', '\x8133', '\xB9ED', '\x417C', '\x3BE7', '\x7786', 
-		'\x5964', '\x3', '\xE', 'v', '\x4', '\x2', '\t', '\x2', '\x4', '\x3', 
+		'\x5964', '\x3', '\xF', 'v', '\x4', '\x2', '\t', '\x2', '\x4', '\x3', 
 		'\t', '\x3', '\x4', '\x4', '\t', '\x4', '\x4', '\x5', '\t', '\x5', '\x4', 
 		'\x6', '\t', '\x6', '\x4', '\a', '\t', '\a', '\x4', '\b', '\t', '\b', 
 		'\x4', '\t', '\t', '\t', '\x4', '\n', '\t', '\n', '\x4', '\v', '\t', '\v', 
@@ -1243,7 +1243,7 @@ public partial class ChronosParser : Parser {
 		'^', '\x1B', '\x3', '\x2', '\x2', '\x2', '_', '`', '\a', '\v', '\x2', 
 		'\x2', '`', '\x1D', '\x3', '\x2', '\x2', '\x2', '\x61', '\x62', '\a', 
 		'\v', '\x2', '\x2', '\x62', '\x1F', '\x3', '\x2', '\x2', '\x2', '\x63', 
-		'\x64', '\a', '\xE', '\x2', '\x2', '\x64', '!', '\x3', '\x2', '\x2', '\x2', 
+		'\x64', '\a', '\xF', '\x2', '\x2', '\x64', '!', '\x3', '\x2', '\x2', '\x2', 
 		'\x65', '\x66', '\a', '\v', '\x2', '\x2', '\x66', '#', '\x3', '\x2', '\x2', 
 		'\x2', 'g', 'j', '\x5', '&', '\x14', '\x2', 'h', 'j', '\a', '\v', '\x2', 
 		'\x2', 'i', 'g', '\x3', '\x2', '\x2', '\x2', 'i', 'h', '\x3', '\x2', '\x2', 

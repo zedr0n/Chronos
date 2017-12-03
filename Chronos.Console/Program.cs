@@ -88,6 +88,7 @@ namespace Chronos.Console
         
         static void Main(string[] args)
         {
+            WriteLine("Chronos.Console");
             while (true)
             {
                 try
@@ -96,7 +97,7 @@ namespace Chronos.Console
                 }
                 catch (Exception ex)
                 {
-                    //WriteLine("Error: " + ex);                
+                    WriteLine("Error: " + ex);                
                 } 
             }
         }
