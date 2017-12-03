@@ -3,8 +3,7 @@
 
 .DS_Store
 html
-Chronos.Read.db
-Chronos.ES.db
+*.db
 lib/
 
 # User-specific files
@@ -12,6 +11,7 @@ lib/
 *.user
 *.userosscache
 *.sln.docstates
+*.DotSettings
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
