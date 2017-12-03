@@ -153,6 +153,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.RegisterConditional<IUrlProvider,CoinUrlProvider>(Lifestyle.Singleton,
                 x => x.Consumer.ImplementationType == typeof(TrackCoinHandler));
                 
+            container.Register<IMemoryReadRepository, ReadRepository>(Lifestyle.Singleton);
+            container.Register<IMemoryStateWriter, StateWriter>(Lifestyle.Singleton);
             if (_readConfiguration == null)
             {
                 container.Register<IReadRepository, ReadRepository>(Lifestyle.Singleton); 
@@ -161,10 +163,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             else
             {
                 container.Register<IReadRepository, SqlReadRepository>(Lifestyle.Singleton); 
-                container.Register<IMemoryReadRepository, ReadRepository>(Lifestyle.Singleton);
                 container.Register<IReadDb,ReadDb>(Lifestyle.Singleton);
                 container.Register<IStateWriter, DbStateWriter>(Lifestyle.Singleton);
-                container.Register<IMemoryStateWriter, StateWriter>(Lifestyle.Singleton);
                 container.Register<ICommandHandler<ClearDatabaseCommand>,ClearDatabaseHandler>(Lifestyle.Singleton);
             }
             container.Register<IJsonParser,JsonParser>(Lifestyle.Singleton);
