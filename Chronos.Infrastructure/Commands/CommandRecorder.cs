@@ -36,7 +36,8 @@ namespace Chronos.Infrastructure.Commands
             }
 
 
-            _connection.AppendCommand(command);
+            if(command.TargetId != Guid.Empty)
+                _connection.AppendCommand(command);
         }
     }
 }
