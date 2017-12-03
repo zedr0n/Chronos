@@ -51,6 +51,16 @@ public interface IChronosListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitQuery([NotNull] ChronosParser.QueryContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.stop"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterStop([NotNull] ChronosParser.StopContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.stop"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitStop([NotNull] ChronosParser.StopContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ChronosParser.create"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

@@ -44,6 +44,12 @@ public interface IChronosVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitQuery([NotNull] ChronosParser.QueryContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.stop"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitStop([NotNull] ChronosParser.StopContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="ChronosParser.create"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

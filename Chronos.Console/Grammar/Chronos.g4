@@ -4,8 +4,10 @@ grammar Chronos;
   Parser rules
 */
 
-command : create | trackAsset | add;  
+command : create | trackAsset | add | stop;  
 query : bags; 
+
+stop : STOP TRACK;
 
 create : CREATE ( createCoin | createBag );
 createCoin : COIN name ticker guidOptional;
@@ -51,6 +53,7 @@ fragment G          : ('G'|'g') ;
 fragment U          : ('U'|'u') ;
 fragment D          : ('D'|'d') ;
 fragment S          : ('S'|'s') ;
+fragment P          : ('P'|'p') ;
 
 fragment LOWERCASE  : [a-z] ;
 fragment UPPERCASE  : [A-Z] ;
@@ -63,6 +66,7 @@ GUID : G U I D;
 BAG : B A G;
 ADD : A D D;
 BAGS : B A G S;
+STOP : S T O P;
 TO : T O;
 
 WORD                : (LOWERCASE | UPPERCASE | '-')+ ;

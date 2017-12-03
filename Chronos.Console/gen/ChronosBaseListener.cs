@@ -59,6 +59,18 @@ public partial class ChronosBaseListener : IChronosListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitQuery([NotNull] ChronosParser.QueryContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.stop"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterStop([NotNull] ChronosParser.StopContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.stop"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitStop([NotNull] ChronosParser.StopContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ChronosParser.create"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
