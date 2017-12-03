@@ -17,12 +17,14 @@ namespace Chronos.Infrastructure.Projections.New
             Key = new KeySelector(s => s.Key);
         }
 
+        protected virtual bool AddReset(StreamDetails stream) => true;
+        
         protected override void Reset(ref IObservable<GroupedObservable<StreamDetails, IEvent>> events)
         {
             events = events.Select(x => new GroupedObservable<StreamDetails, IEvent>
             {
                 Key = x.Key,
-                Observable = x.Observable.StartWith(ResetState())
+                Observable = AddReset(x.Key) ? x.Observable.StartWith(ResetState()) : x.Observable
             });
         }
     }

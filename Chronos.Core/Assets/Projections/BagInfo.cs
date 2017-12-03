@@ -18,7 +18,7 @@ namespace Chronos.Core.Assets.Projections
 
         public double Value { get; set; }
         public int NumberOfAssets => _assets.Count;
-        public IList<Guid> Assets => new List<Guid>(_assets.Keys);
+        public IEnumerable<Guid> Assets => new List<Guid>(_assets.Keys);
 
         public double Quantity(Guid assetId)
         {
