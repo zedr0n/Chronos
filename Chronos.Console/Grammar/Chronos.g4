@@ -4,9 +4,10 @@ grammar Chronos;
   Parser rules
 */
 
-command : create | trackAsset | add | stop;  
+command : create | trackAsset | add | stop | start;  
 query : bags; 
 
+start : START TRACK;
 stop : STOP TRACK;
 
 create : CREATE ( createCoin | createBag );
@@ -67,6 +68,7 @@ BAG : B A G;
 ADD : A D D;
 BAGS : B A G S;
 STOP : S T O P;
+START : S T A R T;
 TO : T O;
 
 WORD                : (LOWERCASE | UPPERCASE | '-')+ ;
