@@ -32,12 +32,13 @@ namespace Chronos.Core.Projections
             NumberOfAssets = 0;
         }
 
-        public override void When(IEvent e)
+        public override bool When(IEvent e)
         {
-            base.When(e);
+            var result = base.When(e);
             // as stats are aggregated from multiple streams
             // we will always read it from scratch on load/replay
             Version = -1;
+            return result;
         }
     }
 }

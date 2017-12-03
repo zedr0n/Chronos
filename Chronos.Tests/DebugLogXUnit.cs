@@ -1,6 +1,7 @@
 ﻿using System;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Logging;
+using NodaTime;
 using Xunit.Abstractions;
 
 namespace Chronos.Tests
@@ -24,5 +25,7 @@ namespace Chronos.Tests
                 Console.WriteLine(message);
             }
         }
+
+        public Instant Now() => default(Instant);
     }
 }

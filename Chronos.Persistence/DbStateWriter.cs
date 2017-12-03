@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using Chronos.Infrastructure;
+using Chronos.Infrastructure.Logging;
 using Chronos.Infrastructure.Projections.New;
 
 namespace Chronos.Persistence
@@ -10,11 +11,15 @@ namespace Chronos.Persistence
     {
         private readonly IReadDb _db;
         private readonly IMemoryStateWriter _stateWriter;
-
-        public DbStateWriter(IReadDb db, IMemoryStateWriter stateWriter)
+        private readonly IDebugLog _debugLog;
+        private double _writeTime = 0;
+        private int _numberOfWrites = 0;
+        
+        public DbStateWriter(IReadDb db, IMemoryStateWriter stateWriter, IDebugLog debugLog)
         {
             _db = db;
             _stateWriter = stateWriter;
+            _debugLog = debugLog;
         }
 
         private bool UseMemoryProxy<T>()
@@ -22,7 +27,7 @@ namespace Chronos.Persistence
             return typeof(T).GetTypeInfo().GetCustomAttributes<MemoryProxyAttribute>().Any();
         }
 
-        public void Write<TKey, T>(TKey key, Action<T> action) where TKey : IEquatable<TKey> where T : class, IReadModel, new()
+        public void Write<TKey, T>(TKey key, Func<T,bool> action) where TKey : IEquatable<TKey> where T : class, IReadModel, new()
         {
             using (var context = _db.GetContext())
             {
@@ -49,8 +54,15 @@ namespace Chronos.Persistence
                     ((IReadModel<TKey>)state).Key = key;
                     context.Set<T>().Add(state);
                 }
-                action(state);
+                if (!action(state))
+                    return;
+                //var before = _debugLog.Now();
                 context.SaveChanges();
+                //var after = _debugLog.Now();
+                //_numberOfWrites++;
+                //var duration = after - before;
+                //_writeTime += duration.TotalMilliseconds; 
+                //_debugLog.WriteLine("Elapsed :" + _writeTime + " for " + _numberOfWrites + " writes");
             }
         }
     }

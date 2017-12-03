@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
 using Chronos.Infrastructure.Interfaces;
 using NodaTime;
@@ -16,11 +18,12 @@ namespace Chronos.Infrastructure.Projections.New
             _date = date;
         }
 
-        protected override void When(StreamDetails stream, IEvent e)
+        protected override void When(StreamDetails stream, IList<IEvent> events)
         {
-            if (e.Timestamp > _date)
-                return;
-            base.When(stream, e);
+            //if (e.Timestamp > _date)
+            //    return;
+            
+            base.When(stream, events.Where(e => e.Timestamp <= _date).ToList());
         }
     }
 }

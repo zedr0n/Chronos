@@ -22,13 +22,14 @@ namespace Chronos.Infrastructure
             foreach (var m in GetType().GetTypeInfo().GetDeclaredMethods("When"))
                 _when.Add(m.GetParameters().First().ParameterType, e => m.Invoke(this, new object[] { e }));
         }
-        public virtual void When(IEvent e)
+        public virtual bool When(IEvent e)
         {
             if (!_when.ContainsKey(e.GetType()))
-                return;
+                return false;
             
             Version = e.Version;
             _when[e.GetType()](e);
+            return true;
         }
     }
 }

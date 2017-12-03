@@ -25,7 +25,7 @@ namespace Chronos.Infrastructure.Projections.New
             _repository.Set(key,state);
         } 
 
-        public virtual void Write<TKey, T>(TKey key, Action<T> action)
+        public virtual void Write<TKey, T>(TKey key, Func<T,bool> action)
             where TKey : IEquatable<TKey>
             where T : class,IReadModel,new()
         {

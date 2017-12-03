@@ -6,7 +6,7 @@ namespace Chronos.Infrastructure
     public interface IReadModel
     {
         int Version { get; set; }
-        void When(IEvent e);
+        bool When(IEvent e);
         Guid Timeline { get; set; }
     }
 

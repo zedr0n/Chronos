@@ -19,6 +19,9 @@ namespace Chronos.Infrastructure
         IEventStoreConnection Connection { get; }
         ITimeline Timeline { get; }
         IObservable<StreamDetails> GetLiveStreams();
+
+        IObservable<IGroupedObservable<StreamDetails, IList<IEvent>>> GetEventsBuffered(
+            IObservable<StreamRequest> requests);
     }
 
     public interface IEventStoreConnection

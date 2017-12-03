@@ -61,10 +61,11 @@ namespace Chronos.Core.Assets.Projections
             _prices.Clear();
         }
 
-        public override void When(IEvent e)
+        public override bool When(IEvent e)
         {
-            base.When(e);
+            var result = base.When(e);
             Update();
+            return result;
         }
 
         private void Update()

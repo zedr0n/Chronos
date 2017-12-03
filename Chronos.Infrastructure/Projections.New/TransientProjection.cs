@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reactive.Linq;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
@@ -14,18 +15,19 @@ namespace Chronos.Infrastructure.Projections.New
 
         public T State { get; } = new T();
 
-        protected override void When(StreamDetails stream, IEvent e)
+        protected override void When(StreamDetails stream, IList<IEvent> events)
         {
-            State.When(e);
-            base.When(stream, e);
+            foreach(var e in events)
+                State.When(e);
+            base.When(stream, events);
         }
 
-        protected override void Reset(ref IObservable<GroupedObservable<StreamDetails, IEvent>> events)
+        protected override void Reset(ref IObservable<GroupedObservable<StreamDetails, IList<IEvent>>> events)
         {
-            events = events.StartWith(new GroupedObservable<StreamDetails, IEvent>
+            events = events.StartWith(new GroupedObservable<StreamDetails, IList<IEvent>>
             {
                 Key = new StreamDetails("Dummy"),
-                Observable = Observable.Return(ResetState())
+                Observable = Observable.Return(new List<IEvent> { ResetState() })
             });
         }
 

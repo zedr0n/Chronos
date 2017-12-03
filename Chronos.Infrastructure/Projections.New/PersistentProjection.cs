@@ -61,18 +61,21 @@ namespace Chronos.Infrastructure.Projections.New
             base.Start(reset);
         }
         
-        protected override void When(StreamDetails stream, IEvent e)
+        protected override void When(StreamDetails stream, IList<IEvent> events)
         {
             foreach (var key in Key.Get(stream))
             {
                 _writer.Write<TKey,T>(key,x =>
                 {
                     x.Timeline = Timeline;
-                    x.When(e);
+                    var changed = false;
+                    foreach(var e in events)
+                        changed |= x.When(e);
+                    return changed;
                 }); 
             }
 
-            base.When(stream, e);
+            base.When(stream, events);
         }
 
         protected override int GetVersion(StreamDetails stream)

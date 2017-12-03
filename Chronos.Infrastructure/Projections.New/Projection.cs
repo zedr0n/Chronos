@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reactive.Linq;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
@@ -23,7 +24,7 @@ namespace Chronos.Infrastructure.Projections.New
             _eventStore.Alerts.OfType<ReplayCompleted>().Subscribe(e => Start(true));
         }
 
-        protected virtual void When(StreamDetails stream, IEvent e)
+        protected virtual void When(StreamDetails stream, IList<IEvent> e)
         {
         }
         
@@ -43,7 +44,7 @@ namespace Chronos.Infrastructure.Projections.New
             return -1;
         }
 
-        protected virtual void Reset(ref IObservable<GroupedObservable<StreamDetails,IEvent>> events) {}
+        protected virtual void Reset(ref IObservable<GroupedObservable<StreamDetails,IList<IEvent>>> events) {}
         
         public virtual void Start(bool reset = false)
         {
@@ -52,8 +53,8 @@ namespace Chronos.Infrastructure.Projections.New
             _streams = _eventStore.GetLiveStreams().Where(Selector);
             var requests = _streams.Select(s => new StreamRequest(s, reset ? 0 : GetVersion(s)+1));
             
-            var events = _eventStore.GetEvents(requests)
-                .Select(x => new GroupedObservable<StreamDetails,IEvent>
+            var events = _eventStore.GetEventsBuffered(requests)
+                .Select(x => new GroupedObservable<StreamDetails,IList<IEvent>>
             {
                 Key = x.Key,
                 Observable = x.AsObservable()

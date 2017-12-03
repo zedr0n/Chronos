@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reflection;
@@ -19,12 +20,12 @@ namespace Chronos.Infrastructure.Projections.New
 
         protected virtual bool AddReset(StreamDetails stream) => true;
         
-        protected override void Reset(ref IObservable<GroupedObservable<StreamDetails, IEvent>> events)
+        protected override void Reset(ref IObservable<GroupedObservable<StreamDetails, IList<IEvent>>> events)
         {
-            events = events.Select(x => new GroupedObservable<StreamDetails, IEvent>
+            events = events.Select(x => new GroupedObservable<StreamDetails, IList<IEvent>>
             {
                 Key = x.Key,
-                Observable = AddReset(x.Key) ? x.Observable.StartWith(ResetState()) : x.Observable
+                Observable = AddReset(x.Key) ? x.Observable.StartWith(new List<IEvent> { ResetState() }) : x.Observable
             });
         }
     }
