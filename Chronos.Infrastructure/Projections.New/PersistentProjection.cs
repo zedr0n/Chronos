@@ -30,10 +30,14 @@ namespace Chronos.Infrastructure.Projections.New
                 // return all possible keys for events from auxilary streams
                 if (!_typePredicate(stream.SourceType))
                     return new List<TKey>(_keys.Keys);
-                
+               
                 var key = _keyFunc(stream);
-                _keys.TryAdd(key,0);
                 return new List<TKey> { key };
+            }
+
+            public void Add(StreamDetails stream)
+            {
+                _keys.TryAdd(_keyFunc(stream), 0);
             }
 
             public bool Has(StreamDetails stream)
@@ -51,6 +55,12 @@ namespace Chronos.Infrastructure.Projections.New
         {
             _writer = writer;
             _readRepository = readRepository;
+        }
+
+        protected override void Register(IObservable<StreamDetails> streams)
+        {
+            streams.Subscribe(x => Key.Add(x));
+            base.Register(streams);
         }
 
         public override void Start(bool reset = false)

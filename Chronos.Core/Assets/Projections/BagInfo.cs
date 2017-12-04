@@ -36,7 +36,8 @@ namespace Chronos.Core.Assets.Projections
                 _assets.Add(e.AssetId,0.0);
 
             _assets[e.AssetId] += e.Quantity;
-            _prices[e.AssetId] = 0.0;
+            if(!_prices.ContainsKey(e.AssetId))
+                _prices[e.AssetId] = 0.0;
         }
 
         private void When(AssetRemovedFromBag e)

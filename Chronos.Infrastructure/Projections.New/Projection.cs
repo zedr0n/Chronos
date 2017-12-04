@@ -45,12 +45,15 @@ namespace Chronos.Infrastructure.Projections.New
         }
 
         protected virtual void Reset(ref IObservable<GroupedObservable<StreamDetails,IList<IEvent>>> events) {}
+
+        protected virtual void Register(IObservable<StreamDetails> streams) {}
         
         public virtual void Start(bool reset = false)
         {
             Unsubscribe();
 
             _streams = _eventStore.GetLiveStreams().Where(Selector);
+            Register(_streams);
             var requests = _streams.Select(s => new StreamRequest(s, reset ? 0 : GetVersion(s)+1));
             
             var events = _eventStore.GetEventsBuffered(requests)

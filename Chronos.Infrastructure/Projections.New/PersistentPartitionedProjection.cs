@@ -22,11 +22,12 @@ namespace Chronos.Infrastructure.Projections.New
         
         protected override void Reset(ref IObservable<GroupedObservable<StreamDetails, IList<IEvent>>> events)
         {
+            var completed = false;
             events = events.Select(x => new GroupedObservable<StreamDetails, IList<IEvent>>
             {
                 Key = x.Key,
-                Observable = AddReset(x.Key) ? x.Observable.StartWith(new List<IEvent> { ResetState() }) : x.Observable
-            });
+                Observable = !completed ? x.Observable.StartWith(new List<IEvent> { ResetState() }) : x.Observable
+            }).Do(x => completed = true);
         }
     }
 }
