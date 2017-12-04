@@ -44,16 +44,20 @@ namespace Chronos.Persistence
                 var pastEvents = Connection.ReadStreamEventsForward(r.Stream, r.Version, int.MaxValue)
                     .OrderBy(e => e.Version)
                     .ToList();
+
+                var lastEvent = pastEvents.LastOrDefault()?.Version ?? -1;
                 // if we are saving multiple events at the same time
                 // the events are going to be duplicated in stream past
                 // and current stream events
                 // we only need to handle the event once
                 // => Distinct()
                 return Observable.Return(new BufferEnvelope(pastEvents, r.Stream))
-                    .Concat(_events.Where(e => e.Stream.Name == r.Stream.Name && e.Stream.Timeline == r.Stream.Timeline)
-                    .Select(e => new BufferEnvelope(new List<IEvent> { e.Event },r.Stream)))
-                    .Distinct(x => x.Events.FirstOrDefault()?.EventNumber);
-                
+                    .Concat(_events.Where(e => e.Stream.Name == r.Stream.Name
+                                               && e.Stream.Timeline == r.Stream.Timeline
+                                               && e.Event.Version > lastEvent)
+                        .Select(e => new BufferEnvelope(new List<IEvent> {e.Event}, r.Stream)));
+                //.Distinct(x => x.Events.FirstOrDefault()?.EventNumber);
+
                 //return pastEvents.Select(e => new Envelope(e,r.Stream)).ToObservable()
                 //    .Concat(_events.Where(e => e.Stream.Name == r.Stream.Name && e.Stream.Timeline == r.Stream.Timeline))
                 //    .Distinct(e => e.Event.EventNumber);
