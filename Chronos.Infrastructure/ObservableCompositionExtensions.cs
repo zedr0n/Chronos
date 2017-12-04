@@ -17,14 +17,28 @@ namespace Chronos.Infrastructure
         {
             var offset =  TimeSpan.Zero;
             return observable
+                .Take(1)
                 .TimeInterval()
                 .Delay(ti =>
                 {
-                    offset = ti.Interval < interval ? offset.Add(interval) : TimeSpan.Zero;
+                    offset = ti.Interval < interval ? offset.Add(interval - ti.Interval) : TimeSpan.Zero;
                     return Observable.Timer(offset);
                 })
                 .Select(ti => ti.Value);
         }
+        
+        public static IObservable<T> DelayBetweenValuesOther<T>(this IObservable<T> observable, TimeSpan interval)
+        {
+            var span = interval;
+            return observable.Take(1).Select(x => Observable.Timer(span).Select(l => x))
+                .Do(x => span += interval)
+                .Concat();
+
+
+            //return observable.Scan(Observable.Empty<T>(), (obs, cur) =>
+            //    obs.Concat(Observable.Timer(interval).Select(l => cur))).SelectMany(x => x);
+            //return observable.SelectMany(x => Observable.Timer(interval).Select(l => x).Concat(Observable.Return(x)));
+        } 
         
         public static IObservable<T> DelayBetweenSubscriptions<T>(this IObservable<T> observable, TimeSpan interval)
         {

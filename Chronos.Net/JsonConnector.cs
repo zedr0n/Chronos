@@ -36,9 +36,9 @@ namespace Chronos.Net
         public JsonConnector()
         {
             Requests = _urls.AsObservable().Select(s =>
-                    new Envelope(s,new Lazy<IObservable<string>>(
-                        () => Observable.FromAsync(() => GetAsync(s)))))
-                .DelayBetweenValues(TimeSpan.FromSeconds(2));
+                new Envelope(s, new Lazy<IObservable<string>>(
+                    () => Observable.FromAsync(() => GetAsync(s)))))
+            .DelayBetweenValues(TimeSpan.FromSeconds(1));
         }
 
         public IObservable<Lazy<IObservable<string>>> GetRequest(string url)
