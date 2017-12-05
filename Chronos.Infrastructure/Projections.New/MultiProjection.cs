@@ -17,15 +17,6 @@ namespace Chronos.Infrastructure.Projections.New
             } 
         }
 
-        protected override void Reset(ref IObservable<GroupedObservable<StreamDetails, IList<IEvent>>> events)
-        {
-            events = events.StartWith(new GroupedObservable<StreamDetails, IList<IEvent>>
-            {
-                Key = new StreamDetails("Dummy"),
-                Observable = Observable.Return(new List<IEvent> { ResetState() })
-            });
-        }
-
         public MultiProjection(IEventStore eventStore, IStateWriter writer, IReadRepository readRepository) 
             : base(eventStore, writer, readRepository) {}
     }

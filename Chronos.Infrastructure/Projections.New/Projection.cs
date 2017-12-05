@@ -44,7 +44,14 @@ namespace Chronos.Infrastructure.Projections.New
             return -1;
         }
 
-        protected virtual void Reset(ref IObservable<GroupedObservable<StreamDetails,IList<IEvent>>> events) {}
+        protected virtual void Reset(ref IObservable<GroupedObservable<StreamDetails, IList<IEvent>>> events)
+        {
+            events = events.StartWith(new GroupedObservable<StreamDetails, IList<IEvent>>
+            {
+                Key = new StreamDetails("Dummy"),
+                Observable = Observable.Return(new List<IEvent> { ResetState() })
+            });
+        }
 
         protected virtual void Register(IObservable<StreamDetails> streams) {}
         

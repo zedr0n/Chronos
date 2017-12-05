@@ -22,15 +22,6 @@ namespace Chronos.Infrastructure.Projections.New
             base.When(stream, events);
         }
 
-        protected override void Reset(ref IObservable<GroupedObservable<StreamDetails, IList<IEvent>>> events)
-        {
-            events = events.StartWith(new GroupedObservable<StreamDetails, IList<IEvent>>
-            {
-                Key = new StreamDetails("Dummy"),
-                Observable = Observable.Return(new List<IEvent> { ResetState() })
-            });
-        }
-
         protected override int GetVersion(StreamDetails stream)
         {
             return State.Version;

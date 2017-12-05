@@ -17,17 +17,5 @@ namespace Chronos.Infrastructure.Projections.New
         {
             Key = new KeySelector(s => s.Key);
         }
-
-        protected virtual bool AddReset(StreamDetails stream) => true;
-        
-        protected override void Reset(ref IObservable<GroupedObservable<StreamDetails, IList<IEvent>>> events)
-        {
-            var completed = false;
-            events = events.Select(x => new GroupedObservable<StreamDetails, IList<IEvent>>
-            {
-                Key = x.Key,
-                Observable = !completed ? x.Observable.StartWith(new List<IEvent> { ResetState() }) : x.Observable
-            }).Do(x => completed = true);
-        }
     }
 }

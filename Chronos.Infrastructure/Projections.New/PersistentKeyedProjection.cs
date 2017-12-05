@@ -14,11 +14,6 @@
             }   
         }
 
-        protected override bool AddReset(StreamDetails stream)
-        {
-            return stream.SourceType == _keyAggregateType;
-        }
-
         public PersistentKeyedProjection(IEventStore eventStore, IStateWriter writer, IReadRepository readRepository) 
             : base(eventStore, writer, readRepository)
         {
