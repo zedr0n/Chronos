@@ -8,7 +8,7 @@ namespace Chronos.Core.Common
     public class Amount
     {
         public Guid EntityId { get; }
-        public double Quantity { get; }
+        public double Quantity { get; private set; }
 
         public Amount(Guid entityId, double quantity)
         {
@@ -18,14 +18,14 @@ namespace Chronos.Core.Common
 
         public static Amount Null() => new Amount(Guid.Empty,0);
         
-        public Amount Add(double quantity)
+        public void Add(double quantity)
         {
-            return new Amount(EntityId,Quantity + quantity);
+            Quantity += quantity;
         }
 
-        public Amount Substract(double quantity)
+        public void Substract(double quantity)
         {
-            return new Amount(EntityId, Quantity - quantity);
+            Quantity -= quantity;
         }
     }
 }

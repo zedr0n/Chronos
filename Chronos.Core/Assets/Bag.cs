@@ -4,6 +4,7 @@ using System.Linq;
 using Chronos.Core.Assets.Events;
 using Chronos.Core.Common;
 using Chronos.Infrastructure;
+using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Core.Assets
 {
@@ -17,6 +18,11 @@ namespace Chronos.Core.Assets
         public Bag(Guid bagId,string name)
         {
             When(new BagCreated(bagId,name));
+        }
+
+        protected override void When(IEvent e)
+        {
+            When((dynamic) e);
         }
 
         private void When(BagCreated e)
@@ -65,7 +71,6 @@ namespace Chronos.Core.Assets
             }
 
             _assets.RemoveAll(x => x.Quantity == 0);
-            
             base.When(e);
         }
     }

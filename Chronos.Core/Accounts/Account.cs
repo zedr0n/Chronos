@@ -110,7 +110,7 @@ namespace Chronos.Core.Accounts
             if (_assets.Add(e.AssetId))
                 _positions[e.AssetId] = new Amount(e.AssetId, e.Amount);
             else
-                _positions[e.AssetId] = _positions[e.AssetId].Add(e.Amount);
+                _positions[e.AssetId].Add(e.Amount);
             base.When(e);
         }
         private void When(CashWithdrawn e)
