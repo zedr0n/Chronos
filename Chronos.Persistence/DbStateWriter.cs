@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Logging;
-using Chronos.Infrastructure.Projections.New;
+using Chronos.Infrastructure.Projections;
 
 namespace Chronos.Persistence
 {
@@ -22,7 +22,7 @@ namespace Chronos.Persistence
             _debugLog = debugLog;
         }
 
-        private bool UseMemoryProxy<T>()
+        private static bool UseMemoryProxy<T>()
         {
             return typeof(T).GetTypeInfo().GetCustomAttributes<MemoryProxyAttribute>().Any();
         }

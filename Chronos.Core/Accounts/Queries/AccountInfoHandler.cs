@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Chronos.Core.Accounts.Projections;
 using Chronos.Infrastructure;
-using Chronos.Infrastructure.Projections.New;
+using Chronos.Infrastructure.Projections;
 using Chronos.Infrastructure.Queries;
 using NodaTime;
 

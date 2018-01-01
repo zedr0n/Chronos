@@ -1,4 +1,4 @@
-﻿using Chronos.Infrastructure.Projections.New;
+﻿using Chronos.Infrastructure.Projections;
 
 namespace Chronos.Infrastructure.Queries
 {

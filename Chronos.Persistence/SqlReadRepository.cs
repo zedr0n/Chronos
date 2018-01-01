@@ -28,5 +28,20 @@ namespace Chronos.Persistence
                 return context.Set<T>().Where(predicate).SingleOrDefault();
             }
         }
+
+        public T GetOrAdd<TKey, T>(TKey key) where TKey : IEquatable<TKey> where T : class, IReadModel, new()
+        {
+            var readModel = Find<TKey, T>(key);
+            if (readModel != null)
+                return readModel;
+
+            using (var context = _db.GetContext())
+            {
+                readModel = new T();
+                ((IReadModel<TKey>) readModel).Key = key;
+                context.Add(readModel);
+                return readModel;
+            }
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using Chronos.Infrastructure.Interfaces;
+using NodaTime;
 
 namespace Chronos.Infrastructure
 {
@@ -16,6 +17,7 @@ namespace Chronos.Infrastructure
         // originating stream version
         public int Version { get; set; }
         public Guid Timeline { get; set; }
+        public DateTime TimestampUtc { get; set; }
         
         protected ReadModelBase()
         {
@@ -28,6 +30,10 @@ namespace Chronos.Infrastructure
                 return false;
             
             Version = e.Version;
+            
+            if(e.Timestamp != Instant.MinValue)
+                TimestampUtc = e.Timestamp.ToDateTimeUtc();
+            
             _when[e.GetType()](e);
             return true;
         }

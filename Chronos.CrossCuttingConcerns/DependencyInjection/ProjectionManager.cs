@@ -1,7 +1,7 @@
 ﻿using Chronos.Core.Accounts;
 using Chronos.Core.Projections;
 using Chronos.Infrastructure;
-using Chronos.Infrastructure.Projections.New;
+using Chronos.Infrastructure.Projections;
 using SimpleInjector;
 
 namespace Chronos.CrossCuttingConcerns.DependencyInjection

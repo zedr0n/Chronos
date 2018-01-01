@@ -26,7 +26,7 @@ using Chronos.Core.Transactions;
 using Chronos.Core.Transactions.Commands;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
-using Chronos.Infrastructure.Projections.New;
+using Chronos.Infrastructure.Projections;
 using Chronos.Infrastructure.Queries;
 using Chronos.Infrastructure.Sagas;
 using Chronos.Persistence;

@@ -1,7 +1,7 @@
 ﻿using System;
 using Chronos.Core.Assets.Projections;
 using Chronos.Infrastructure;
-using Chronos.Infrastructure.Projections.New;
+using Chronos.Infrastructure.Projections;
 using Chronos.Infrastructure.Queries;
 
 namespace Chronos.Core.Assets.Queries

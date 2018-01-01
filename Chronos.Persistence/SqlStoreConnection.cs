@@ -164,16 +164,6 @@ namespace Chronos.Persistence
                 .Select(_eventSerializer.Serialize));
         }
 
-        private static void ForEach<T1, T2>(IEnumerable<T1> to, IEnumerable<T2> from, Action<T1,T2> action)
-        {
-            using (var e1 = to.GetEnumerator())
-            using (var e2 = from.GetEnumerator())
-            {
-                while (e1.MoveNext() && e2.MoveNext())
-                    action(e1.Current, e2.Current);
-            }
-        }
-
         private void WriteStream(Stream stream, IEnumerable<IEvent> events)
         {
             var eventsDto = events.Select(_eventSerializer.Serialize).ToList();
@@ -262,8 +252,8 @@ namespace Chronos.Persistence
                 context.SaveChanges();
 
                 // set the event numbers based on database generated id
-                ForEach(events,stream.Events,(e1,e2) => e1.EventNumber = e2.EventNumber);
-                ForEach(events, stream.Events, (e1,e2) => e1.Hash = e2.Payload.HashString());
+                EnumerableExtensions.ForEach(events,stream.Events,(e1,e2) => e1.EventNumber = e2.EventNumber);
+                EnumerableExtensions.ForEach(events, stream.Events, (e1,e2) => e1.Hash = e2.Payload.HashString());
                 
                 LogEvents(streamDetails,events);
                 
@@ -321,8 +311,8 @@ namespace Chronos.Persistence
                     .Select(_eventSerializer.Deserialize)
                     .OrderBy(e => e.Timestamp);
                 
-                ForEach(ievents, events, (e1,e2) => e1.EventNumber = e2.EventNumber );
-                ForEach(ievents, events, (e1,e2) => e1.Hash = e2.Payload.HashString());
+                EnumerableExtensions.ForEach(ievents, events, (e1,e2) => e1.EventNumber = e2.EventNumber );
+                EnumerableExtensions.ForEach(ievents, events, (e1,e2) => e1.Hash = e2.Payload.HashString());
                 return ievents;
             } 
         }

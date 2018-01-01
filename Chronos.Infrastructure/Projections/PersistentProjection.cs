@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Reflection;
 using Chronos.Infrastructure.Interfaces;
 
-namespace Chronos.Infrastructure.Projections.New
+namespace Chronos.Infrastructure.Projections
 {
     public class PersistentProjection<TKey,T> : Projection, IPersistentProjection<T>
         where T : class, IReadModel, new()
@@ -50,6 +48,14 @@ namespace Chronos.Infrastructure.Projections.New
         private readonly IStateWriter _writer;
         private readonly IReadRepository _readRepository;
 
+        private Action<IEnumerable<T>, IEnumerable<IEvent>> _action = (x, e) => { };
+
+        public override void Do<TS>(Action<IEnumerable<TS>,IEnumerable<IEvent>> action)
+        {
+            _action = (x,e) => action(x as IEnumerable<TS>, e);
+            base.Do(action);
+        }
+
         internal PersistentProjection(IEventStore eventStore,IStateWriter writer, IReadRepository readRepository)
             : base(eventStore)
         {
@@ -70,20 +76,34 @@ namespace Chronos.Infrastructure.Projections.New
             
             base.Start(reset);
         }
+
+        protected T Get(TKey key)
+        {
+            return _readRepository.Find<TKey,T>(key); 
+        }
+
+        protected virtual void Write(TKey key, IList<IEvent> events)
+        {
+            _writer.Write<TKey,T>(key,x =>
+            {
+                x.Timeline = Timeline;
+                var changed = false;
+                var models = new List<T>();
+                foreach (var e in events)
+                {
+                    changed |= x.When(e);
+                    models.Add(x);
+                }
+                _action(models, events);
+
+                return changed;
+            });    
+        }
         
         protected override void When(StreamDetails stream, IList<IEvent> events)
         {
             foreach (var key in Key.Get(stream))
-            {
-                _writer.Write<TKey,T>(key,x =>
-                {
-                    x.Timeline = Timeline;
-                    var changed = false;
-                    foreach(var e in events)
-                        changed |= x.When(e);
-                    return changed;
-                }); 
-            }
+                Write(key, events);
 
             base.When(stream, events);
         }
@@ -92,8 +112,8 @@ namespace Chronos.Infrastructure.Projections.New
         {
             if (!Key.Has(stream))
                 return -1;
-            
-            var readModel = _readRepository.Find<TKey,T>(Key.Get(stream).SingleOrDefault());
+
+            var readModel = Get(Key.Get(stream).SingleOrDefault());
             if (readModel == null)
                 return -1;
             return readModel.Version;

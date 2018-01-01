@@ -7,7 +7,7 @@ using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 using NodaTime;
 
-namespace Chronos.Infrastructure.Projections.New
+namespace Chronos.Infrastructure.Projections
 {
     public abstract class PersistentPartitionedProjection<T> : PersistentProjection<Guid,T>
         where T : class, IReadModel, new()

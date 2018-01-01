@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 
-namespace Chronos.Infrastructure.Projections.New
+namespace Chronos.Infrastructure.Projections
 {
     public class Selector<T>
     {

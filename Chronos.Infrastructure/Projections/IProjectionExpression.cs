@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Chronos.Infrastructure.Interfaces;
 using NodaTime;
 
-namespace Chronos.Infrastructure.Projections.New
+namespace Chronos.Infrastructure.Projections
 {
     public interface IBaseProjectionExpression<T> where T : class, IReadModel, new()
     {
@@ -60,6 +62,9 @@ namespace Chronos.Infrastructure.Projections.New
             where TKey : IEquatable<TKey>;
 
         void Invoke();
+        IProjectionExpression<T> Do(Action<T> action);
+        IProjectionExpression<T> Do(Action<T, IEvent> action);
+        IProjectionExpression<T> Do(Action<IEnumerable<T>, IEnumerable<IEvent>> action);
     }
 
     public interface ITransientProjectionExpression<T> : IProjectionExpression<T>

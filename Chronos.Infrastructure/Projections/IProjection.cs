@@ -1,9 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using Chronos.Infrastructure.Events;
-using NodaTime;
-
-namespace Chronos.Infrastructure.Projections.New
+﻿namespace Chronos.Infrastructure.Projections
 {
     public interface IProjection
     {

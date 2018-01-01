@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Runtime.CompilerServices;
 using Chronos.Infrastructure.Events;
+using Chronos.Infrastructure.Interfaces;
 using NodaTime;
 
-namespace Chronos.Infrastructure.Projections.New
+namespace Chronos.Infrastructure.Projections
 {
     public class ProjectionExpression<T> : IBaseProjectionExpression<T>, ITransientProjectionExpression<T>, IPersistentProjectionExpression<T>
         where T : class, IReadModel,new()
@@ -14,6 +17,7 @@ namespace Chronos.Infrastructure.Projections.New
         private readonly IReadRepository _readRepository;
 
         private string _keyAggregateType;
+        private Action<IEnumerable<T>, IEnumerable<IEvent>> _actions = (x, e) => { };
 
         private Projection _projection;
         private Projection Projection
@@ -106,6 +110,24 @@ namespace Chronos.Infrastructure.Projections.New
             return this;
         }
 
+        public IProjectionExpression<T> Do(Action<T> action)
+        {
+            _actions = (x, e) => EnumerableExtensions.ForEach(x, e, (x1, e1) => action(x1));
+            return this;
+        }
+
+        public IProjectionExpression<T> Do(Action<T, IEvent> action)
+        {
+            _actions = (x, e) => EnumerableExtensions.ForEach(x, e, action);
+            return this;
+        }
+
+        public IProjectionExpression<T> Do(Action<IEnumerable<T>, IEnumerable<IEvent>> action)
+        {
+            _actions = action;
+            return this;
+        }
+
         public ITransientProjectionExpression<T> Transient()
         {
             Projection = new TransientProjection<T>(_eventStore)
@@ -142,6 +164,8 @@ namespace Chronos.Infrastructure.Projections.New
                 Selector = _streamSelector,
                 KeyAggregateType = _keyAggregateType
             };
+            
+            Projection.Do(_actions);
 
             return this;
         }
@@ -156,6 +180,8 @@ namespace Chronos.Infrastructure.Projections.New
                 Selector = _streamSelector,
                 Key = key
             };
+            
+            Projection.Do(_actions);
 
             return this;
         }

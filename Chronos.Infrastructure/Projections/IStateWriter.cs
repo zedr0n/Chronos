@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Chronos.Infrastructure.Projections.New
+namespace Chronos.Infrastructure.Projections
 {
     public interface IStateWriter
     {

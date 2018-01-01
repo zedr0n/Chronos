@@ -11,9 +11,10 @@ using System;
 namespace Chronos.Persistence.Migrations.Read
 {
     [DbContext(typeof(ReadContext))]
-    partial class ReadContextModelSnapshot : ModelSnapshot
+    [Migration("20171231173218_BagHistory2")]
+    partial class BagHistory2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,8 +35,6 @@ namespace Chronos.Persistence.Migrations.Read
 
                     b.Property<Guid>("Timeline");
 
-                    b.Property<DateTime>("TimestampUtc");
-
                     b.Property<int>("Version");
 
                     b.HasKey("Key");
@@ -49,8 +48,6 @@ namespace Chronos.Persistence.Migrations.Read
                         .ValueGeneratedOnAdd();
 
                     b.Property<Guid>("Timeline");
-
-                    b.Property<DateTime>("TimestampUtc");
 
                     b.Property<double>("Value");
 
@@ -67,8 +64,6 @@ namespace Chronos.Persistence.Migrations.Read
                         .ValueGeneratedOnAdd();
 
                     b.Property<Guid>("Timeline");
-
-                    b.Property<DateTime>("TimestampUtc");
 
                     b.Property<string>("Values");
 
@@ -87,8 +82,6 @@ namespace Chronos.Persistence.Migrations.Read
                     b.Property<string>("Name");
 
                     b.Property<Guid>("Timeline");
-
-                    b.Property<DateTime>("TimestampUtc");
 
                     b.Property<double>("Value");
 
@@ -112,8 +105,6 @@ namespace Chronos.Persistence.Migrations.Read
 
                     b.Property<Guid>("Timeline");
 
-                    b.Property<DateTime>("TimestampUtc");
-
                     b.Property<int>("Version");
 
                     b.HasKey("Key");
@@ -133,8 +124,6 @@ namespace Chronos.Persistence.Migrations.Read
                     b.Property<Guid>("PriceAsset");
 
                     b.Property<Guid>("Timeline");
-
-                    b.Property<DateTime>("TimestampUtc");
 
                     b.Property<int>("Version");
 
@@ -156,8 +145,6 @@ namespace Chronos.Persistence.Migrations.Read
 
                     b.Property<Guid>("Timeline");
 
-                    b.Property<DateTime>("TimestampUtc");
-
                     b.Property<int>("Version");
 
                     b.HasKey("Key");
@@ -175,8 +162,6 @@ namespace Chronos.Persistence.Migrations.Read
                     b.Property<int>("NumberOfAssets");
 
                     b.Property<Guid>("Timeline");
-
-                    b.Property<DateTime>("TimestampUtc");
 
                     b.Property<int>("Version");
 

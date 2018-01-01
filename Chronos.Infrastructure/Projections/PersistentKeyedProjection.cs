@@ -1,4 +1,4 @@
-﻿namespace Chronos.Infrastructure.Projections.New
+﻿namespace Chronos.Infrastructure.Projections
 {
     public class PersistentKeyedProjection<T> : PersistentPartitionedProjection<T>
         where T : class, IReadModel, new()

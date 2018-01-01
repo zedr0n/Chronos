@@ -4,7 +4,7 @@ using System.Reactive.Linq;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 
-namespace Chronos.Infrastructure.Projections.New
+namespace Chronos.Infrastructure.Projections
 {
     public class MultiProjection<TKey,T> : PersistentProjection<TKey,T> where T : class, IReadModel, new() where TKey : IEquatable<TKey>
     {

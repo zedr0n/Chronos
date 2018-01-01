@@ -5,7 +5,7 @@ using System.Reactive.Linq;
 using Chronos.Infrastructure.Interfaces;
 using NodaTime;
 
-namespace Chronos.Infrastructure.Projections.New
+namespace Chronos.Infrastructure.Projections
 {
     public class HistoricalProjection<T> : TransientProjection<T>
         where T : class, IReadModel, new()

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Chronos.Core.Assets.Events;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
+using NodaTime;
 
 namespace Chronos.Core.Assets.Projections
 {
@@ -12,7 +14,6 @@ namespace Chronos.Core.Assets.Projections
     public class BagInfo : ReadModelBase<Guid>
     {
         public string Name { get; set; }
-        
         private readonly Dictionary<Guid, double> _assets = new Dictionary<Guid, double>();
         private readonly Dictionary<Guid, double> _prices = new Dictionary<Guid, double>();
 

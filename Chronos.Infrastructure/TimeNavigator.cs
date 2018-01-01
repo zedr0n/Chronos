@@ -1,4 +1,5 @@
 ﻿using System;
+using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Logging;
 using NodaTime;
 using NodaTime.Text;
@@ -9,15 +10,18 @@ namespace Chronos.Infrastructure
     {
         private readonly ITimeline _timeline;
         private readonly IDebugLog _debugLog;
+        private readonly IEventStore _eventStore;
 
-        public TimeNavigator(ITimeline timeline, IDebugLog debugLog)
+        public TimeNavigator(ITimeline timeline, IDebugLog debugLog, IEventStore eventStore)
         {
             _timeline = timeline;
             _debugLog = debugLog;
+            _eventStore = eventStore;
         }
 
         private void Replay(Instant date)
         {
+            _eventStore.Alert(new ReplayCompleted());
             //_replayStrategy.Replay(date);
             //_domainRepository.Reset(date);
         }

@@ -7,7 +7,7 @@ using System.Threading;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Logging;
-using Chronos.Infrastructure.Projections.New;
+using Chronos.Infrastructure.Projections;
 
 namespace Chronos.Persistence
 {

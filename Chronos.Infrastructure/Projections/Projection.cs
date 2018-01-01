@@ -5,7 +5,7 @@ using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
 using NodaTime;
 
-namespace Chronos.Infrastructure.Projections.New
+namespace Chronos.Infrastructure.Projections
 {
     public class Projection : IProjection
     {
@@ -54,6 +54,12 @@ namespace Chronos.Infrastructure.Projections.New
         }
 
         protected virtual void Register(IObservable<StreamDetails> streams) {}
+
+        public virtual void Do<T>(Action<IEnumerable<T>,IEnumerable<IEvent>> actions)
+            where T : class, IReadModel, new()
+        {
+                
+        }
         
         public virtual void Start(bool reset = false)
         {
