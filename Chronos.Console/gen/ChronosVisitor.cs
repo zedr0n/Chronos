@@ -56,6 +56,12 @@ public interface IChronosVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitStop([NotNull] ChronosParser.StopContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.replay"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitReplay([NotNull] ChronosParser.ReplayContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="ChronosParser.create"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -121,6 +127,12 @@ public interface IChronosVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitBags([NotNull] ChronosParser.BagsContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.date"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDate([NotNull] ChronosParser.DateContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="ChronosParser.asset"/>.
 	/// </summary>

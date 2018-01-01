@@ -83,6 +83,18 @@ public partial class ChronosBaseListener : IChronosListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitStop([NotNull] ChronosParser.StopContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.replay"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterReplay([NotNull] ChronosParser.ReplayContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.replay"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitReplay([NotNull] ChronosParser.ReplayContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ChronosParser.create"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -214,6 +226,18 @@ public partial class ChronosBaseListener : IChronosListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitBags([NotNull] ChronosParser.BagsContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.date"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDate([NotNull] ChronosParser.DateContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.date"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDate([NotNull] ChronosParser.DateContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ChronosParser.asset"/>.
 	/// <para>The default implementation does nothing.</para>

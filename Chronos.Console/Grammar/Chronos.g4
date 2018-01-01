@@ -4,11 +4,12 @@ grammar Chronos;
   Parser rules
 */
 
-command : create | trackAsset | add | stop | start | remove;  
+command : create | trackAsset | add | stop | start | remove | replay;  
 query : bags; 
 
 start : START TRACK;
 stop : STOP TRACK;
+replay : REPLAY date?;
 
 create : CREATE ( createCoin | createBag );
 createCoin : COIN name ticker guidOptional;
@@ -26,11 +27,12 @@ to : TO;
 bag : BAG;
 bags : BAGS;
 
+date : NUMBER NUMBER;
 asset : COIN;
 duration : NUMBER;
 name : WORD;
 ticker : WORD;
-quantity : DOUBLE;
+quantity : ( DOUBLE | NUMBER );
 guid : WORD;
 guidOptional : newGuid | WORD;
 newGuid : NEWLINE;
@@ -60,10 +62,12 @@ fragment S          : ('S'|'s') ;
 fragment P          : ('P'|'p') ;
 fragment M          : ('M'|'m') ;
 fragment V          : ('V'|'v') ;
+fragment L          : ('L'|'l') ;
+fragment Y          : ('Y'|'y') ;
 
-fragment LOWERCASE  : [a-z] ;
-fragment UPPERCASE  : [A-Z] ;
-fragment DIGIT     : [0-9] ;
+fragment LOWERCASE  : [a-z];
+fragment UPPERCASE  : [A-Z];
+fragment DIGIT     : [0-9];
 
 CREATE : C R E A T E;
 COIN : C O I N;
@@ -76,9 +80,10 @@ STOP : S T O P;
 START : S T A R T;
 REMOVE : R E M O V E;
 TO : T O;
+REPLAY : R E P L A Y;
 
 WORD                : (LOWERCASE | UPPERCASE | '-')+ ;
 WHITESPACE          : (' '|'\t')+ -> skip ;
 NEWLINE             : ('\r'? '\n' | '\r')+ ;
 NUMBER              : DIGIT+;
-DOUBLE              : DIGIT+'.'?DIGIT*;
+DOUBLE              : DIGIT+'.'DIGIT+;

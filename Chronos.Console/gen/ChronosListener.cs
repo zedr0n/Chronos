@@ -71,6 +71,16 @@ public interface IChronosListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitStop([NotNull] ChronosParser.StopContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.replay"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterReplay([NotNull] ChronosParser.ReplayContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.replay"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitReplay([NotNull] ChronosParser.ReplayContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ChronosParser.create"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -180,6 +190,16 @@ public interface IChronosListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitBags([NotNull] ChronosParser.BagsContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.date"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterDate([NotNull] ChronosParser.DateContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.date"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitDate([NotNull] ChronosParser.DateContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ChronosParser.asset"/>.
 	/// </summary>
