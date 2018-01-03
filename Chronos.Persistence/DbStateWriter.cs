@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Chronos.Infrastructure;
@@ -26,7 +27,7 @@ namespace Chronos.Persistence
         {
             return typeof(T).GetTypeInfo().GetCustomAttributes<MemoryProxyAttribute>().Any();
         }
-
+        
         public void Write<TKey, T>(TKey key, Func<T,bool> action) where TKey : IEquatable<TKey> where T : class, IReadModel, new()
         {
             using (var context = _db.GetContext())
@@ -58,11 +59,11 @@ namespace Chronos.Persistence
                     return;
                 //var before = _debugLog.Now();
                 context.SaveChanges();
-                //var after = _debugLog.Now();
-                //_numberOfWrites++;
-                //var duration = after - before;
-                //_writeTime += duration.TotalMilliseconds; 
-                //_debugLog.WriteLine("Elapsed :" + _writeTime + " for " + _numberOfWrites + " writes");
+                /*var after = _debugLog.Now();
+                _numberOfWrites++;
+                var duration = after - before;
+                _writeTime += duration.TotalMilliseconds; 
+                _debugLog.WriteLine("Elapsed :" + _writeTime + " for " + _numberOfWrites + " writes");*/
             }
         }
     }

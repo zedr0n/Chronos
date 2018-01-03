@@ -65,6 +65,10 @@ namespace Chronos.Infrastructure.Projections
         IProjectionExpression<T> Do(Action<T> action);
         IProjectionExpression<T> Do(Action<T, IEvent> action);
         IProjectionExpression<T> Do(Action<IEnumerable<T>, IEnumerable<IEvent>> action);
+
+        IProjectionExpression<TResult> Select<TKey,TResult>(Func<T, Action<TResult>> selector)
+            where TResult : class, IReadModel, new() 
+            where TKey : IEquatable<TKey>;
     }
 
     public interface ITransientProjectionExpression<T> : IProjectionExpression<T>

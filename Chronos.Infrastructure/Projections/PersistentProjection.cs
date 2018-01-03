@@ -2,7 +2,11 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure.Projections
@@ -48,11 +52,16 @@ namespace Chronos.Infrastructure.Projections
         private readonly IStateWriter _writer;
         private readonly IReadRepository _readRepository;
 
-        private Action<IEnumerable<T>, IEnumerable<IEvent>> _action = (x, e) => { };
+        //private readonly Subject<IConnectableObservable<T>> _models = new Subject<IConnectableObservable<T>>();
+        private readonly Subject<T> _models = new Subject<T>();
 
+        //public IObservable<IConnectableObservable<T>> Models => _models.AsObservable();
+        public IObservable<T> Models => _models.AsObservable();
+        private readonly Subject<bool> _windows = new Subject<bool>();
+        public IObservable<bool> Windows => _windows.AsObservable();
+        
         public override void Do<TS>(Action<IEnumerable<TS>,IEnumerable<IEvent>> action)
         {
-            _action = (x,e) => action(x as IEnumerable<TS>, e);
             base.Do(action);
         }
 
@@ -81,21 +90,39 @@ namespace Chronos.Infrastructure.Projections
         {
             return _readRepository.Find<TKey,T>(key); 
         }
-
+        
         protected virtual void Write(TKey key, IList<IEvent> events)
         {
+            if (events.Count == 0)
+                return;
+            
+            //_events.OnNext(events);
+            
             _writer.Write<TKey,T>(key,x =>
             {
                 x.Timeline = Timeline;
                 var changed = false;
-                var models = new List<T>();
+
                 foreach (var e in events)
                 {
                     changed |= x.When(e);
-                    models.Add(x);
+                    _models.OnNext(x);
                 }
-                _action(models, events);
-
+                _windows.OnNext(true);
+                /*var observable = events.ToObservable().Select(e =>
+                {
+                    changed |= x.When(e);
+                    return x;
+                }).Publish(); 
+                
+                _models.OnNext(observable);
+                observable.Connect();*/
+                //observable.Subscribe(y => y.ToString());
+                //observable.Wait();
+                //_models.OnNext(observable);
+                //observable.Connect();
+                //observable.Wait();
+                
                 return changed;
             });    
         }

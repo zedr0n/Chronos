@@ -21,6 +21,21 @@ namespace Chronos.Core.Assets.Projections
         public int NumberOfAssets => _assets.Count;
         public IEnumerable<Guid> Assets => new List<Guid>(_assets.Keys);
 
+        public override IReadModel Clone()
+        {
+            return new BagInfo(this);
+        }
+
+        public BagInfo() {}
+        
+        private BagInfo(BagInfo rhs) : base(rhs)
+        {
+            _assets = rhs._assets;
+            _prices = rhs._prices;
+            Value = rhs.Value;
+            Name = rhs.Name;
+        }
+        
         public double Quantity(Guid assetId)
         {
             return _assets.ContainsKey(assetId) ? _assets[assetId] : 0.0;

@@ -8,6 +8,8 @@ namespace Chronos.Infrastructure
         int Version { get; set; }
         bool When(IEvent e);
         Guid Timeline { get; set; }
+
+        IReadModel Clone();
     }
 
     public interface IReadModel<TKey> : IReadModel

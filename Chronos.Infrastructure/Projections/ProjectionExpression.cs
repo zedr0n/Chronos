@@ -110,6 +110,18 @@ namespace Chronos.Infrastructure.Projections
             return this;
         }
 
+        public IProjectionExpression<TResult> Select<TKey,TResult>(Func<T, Action<TResult>> selector)
+            where TResult : class, IReadModel, new() 
+            where TKey : IEquatable<TKey>
+        {
+            var projection = new SelectProjection<TKey,T,TResult>(Projection,selector,
+                _eventStore,_writer);
+            return new ProjectionExpression<TResult>(_eventStore, _writer, _readRepository)
+            {
+                Projection = projection
+            };
+        }
+
         public IProjectionExpression<T> Do(Action<T> action)
         {
             _actions = (x, e) => EnumerableExtensions.ForEach(x, e, (x1, e1) => action(x1));
