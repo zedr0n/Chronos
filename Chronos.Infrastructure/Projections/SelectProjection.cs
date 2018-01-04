@@ -42,52 +42,14 @@ namespace Chronos.Infrastructure.Projections
 
             projection.Models.GroupBy(x => ((IReadModel<TKey>) x).Key)
                 .Subscribe(x => x.Select(source => _selector(source))
-                    .Window(() => projection.Windows)
+                    //.Window(() => projection.ClosingWindow)
+                    .Window(projection.OpeningWindow,o => projection.ClosingWindow)
                     //.Buffer(TimeSpan.FromMilliseconds(50), 1000)
-                    .Subscribe(w => w.Buffer(TimeSpan.FromMilliseconds(25),1000)
+                    //.Subscribe(w => w.Buffer(TimeSpan.FromMilliseconds(25),1000)
+                    .Subscribe(w => w.ToList()
                         .Where(buffer => buffer.Any())
                     .Subscribe(list => Write(x.Key,list))));
-            //.Where(buffer => buffer.Any())
-            //.ObserveOn(Scheduler.Default)
-            //.Subscribe(actions => Write(x.Key, actions)));
 
-            /*projection.Models.Subscribe(o =>
-            {
-                var allModels = o.GroupBy(x => ((IReadModel<TKey>) x).Key);
-
-                allModels.Subscribe(x => _stateWriter.Write<TKey, TResult>(x.Key, z =>
-                {
-                    foreach (var enumerable in x.Chunkify())
-                    foreach (var y in enumerable)
-                        _selector(y)(z);
-                    return true;
-                }));
-                /*allModels.Subscribe(x => x.Subscribe(y =>
-                    _stateWriter.Write<TKey, TResult>(x.Key, z =>
-                    {
-                        _selector(y)(z);
-                        return true;
-                    })));*/
-            //});
-
-            /*projection.Models.Subscribe(o =>
-            {
-                var allModels = o.GroupBy(x => ((IReadModel<TKey>) x).Key);
-
-                allModels.Subscribe(x => _stateWriter.Write<TKey, TResult>(x.Key, z =>
-                {
-                    foreach (var enumerable in x.Chunkify())
-                        foreach (var y in enumerable)
-                            _selector(y)(z);
-                    return true;
-                }));
-                /*allModels.Subscribe(x => x.Subscribe(y =>
-                    _stateWriter.Write<TKey, TResult>(x.Key, z =>
-                    {
-                        _selector(y)(z);
-                        return true;
-                    })));*/
-            //});
         }
     }
 }

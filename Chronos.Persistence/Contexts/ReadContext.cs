@@ -22,6 +22,7 @@ namespace Chronos.Persistence.Contexts
         public DbSet<OrderStatus> OrderStatuses { get; set; }
         public DbSet<BagInfo> Bags { get; set; }
         public DbSet<BagHistory> BagHistories { get; set; }
+        public DbSet<CoinHistory> CoinHistories { get; set; }
         
         public virtual void Clear()
         {

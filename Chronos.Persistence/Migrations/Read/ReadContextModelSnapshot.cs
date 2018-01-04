@@ -99,6 +99,24 @@ namespace Chronos.Persistence.Migrations.Read
                     b.ToTable("Bags");
                 });
 
+            modelBuilder.Entity("Chronos.Core.Assets.Projections.CoinHistory", b =>
+                {
+                    b.Property<Guid>("Key")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<Guid>("Timeline");
+
+                    b.Property<DateTime>("TimestampUtc");
+
+                    b.Property<string>("Values");
+
+                    b.Property<int>("Version");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("CoinHistories");
+                });
+
             modelBuilder.Entity("Chronos.Core.Assets.Projections.CoinInfo", b =>
                 {
                     b.Property<Guid>("Key")

@@ -4,6 +4,7 @@ using Chronos.Infrastructure;
 
 namespace Chronos.Core.Assets.Projections
 {
+    //[Reset]
     public class CoinInfo : ReadModelBase<Guid>
     {
         public string Name { get; set; }

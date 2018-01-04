@@ -57,8 +57,12 @@ namespace Chronos.Infrastructure.Projections
 
         //public IObservable<IConnectableObservable<T>> Models => _models.AsObservable();
         public IObservable<T> Models => _models.AsObservable();
-        private readonly Subject<bool> _windows = new Subject<bool>();
-        public IObservable<bool> Windows => _windows.AsObservable();
+        
+        private readonly Subject<bool> _openingWindow = new Subject<bool>();
+        public IObservable<bool> OpeningWindow => _openingWindow;
+        
+        private readonly Subject<bool> _closingWindow = new Subject<bool>();
+        public IObservable<bool> ClosingWindow => _closingWindow.AsObservable();
         
         public override void Do<TS>(Action<IEnumerable<TS>,IEnumerable<IEvent>> action)
         {
@@ -103,12 +107,13 @@ namespace Chronos.Infrastructure.Projections
                 x.Timeline = Timeline;
                 var changed = false;
 
+                _openingWindow.OnNext(true);
                 foreach (var e in events)
                 {
                     changed |= x.When(e);
                     _models.OnNext(x);
                 }
-                _windows.OnNext(true);
+                _closingWindow.OnNext(true);
                 /*var observable = events.ToObservable().Select(e =>
                 {
                     changed |= x.When(e);
