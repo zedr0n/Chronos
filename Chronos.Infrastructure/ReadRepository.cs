@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace Chronos.Infrastructure
 {
@@ -105,6 +106,11 @@ namespace Chronos.Infrastructure
             var id = new Id<TKey>(typeof(T),key,_timeline.TimelineId);
             _dictionary.TryGetValue(id, out var readModel);
             return readModel as T;
+        }
+
+        public T Find<TKey, T, TProperty>(TKey key, Expression<Func<T, IEnumerable<TProperty>>> include) where TKey : IEquatable<TKey> where T : class, IReadModel where TProperty : class
+        {
+            return Find<TKey, T>(key);
         }
 
         public void Set<TKey, T>(TKey key, T readModel) where T : class, IReadModel

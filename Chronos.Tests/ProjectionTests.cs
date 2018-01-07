@@ -35,10 +35,16 @@ namespace Chronos.Tests
             commandBus.Send(createCoinCommand);
 
             var bagId = Guid.NewGuid();
-            var createBagCommand = new CreateBagCommand("BTC");
+            var createBagCommand = new CreateBagCommand("BTC")
+            {
+                TargetId = bagId
+            };
             commandBus.Send(createBagCommand);
             
-            var addAssetCommand = new AddAssetToBagCommand(coinId,1.0);
+            var addAssetCommand = new AddAssetToBagCommand(coinId,1.0)
+            {
+                TargetId = bagId
+            };
             commandBus.Send(addAssetCommand);
 
             for (var i = 0; i < 100; ++i)
@@ -51,12 +57,13 @@ namespace Chronos.Tests
                 commandBus.Send(priceCommand);
             }
             
-            navigator.Reset();
+            //navigator.Reset();
             
             var query = new BagHistoryQuery(bagId);
 
             var bagHistory = handler.Handle(query);
             Assert.NotNull(bagHistory);
+            Assert.Equal(99, bagHistory.Values.Count);
         }
     }
 }

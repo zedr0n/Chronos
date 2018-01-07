@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Chronos.Core.Assets.Projections;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Projections;
@@ -18,7 +19,7 @@ namespace Chronos.Core.Assets.Queries
         public IProjectionExpression<BagHistory> Expression { get; }
         public BagHistory Handle(BagHistoryQuery query)
         {
-            var bagHistory = _readRepository.Find<Guid, BagHistory>(query.BagId);
+            var bagHistory = _readRepository.Find<Guid, BagHistory,ValueInfo>(query.BagId, b => b.Values);
             return bagHistory;
         }
     }

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Chronos.Infrastructure;
 
 namespace Chronos.Persistence
@@ -21,6 +23,17 @@ namespace Chronos.Persistence
             }
         }
 
+        public T Find<TKey, T,TProperty>(TKey key,Expression<Func<T,IEnumerable<TProperty>>> include) where TKey : IEquatable<TKey> where T : class, IReadModel
+            where TProperty : class
+        {
+            using (var context = _db.GetContext())
+            {
+                var entity = context.Find<T>(key);
+                context.Entry(entity).Collection(include).Load();
+                return entity;
+            }
+        }
+        
         public T Find<T>(Func<T, bool> predicate) where T : class, IReadModel
         {
             using (var context = _db.GetContext())
