@@ -29,6 +29,8 @@ namespace Chronos.Persistence
             using (var context = _db.GetContext())
             {
                 var entity = context.Find<T>(key);
+                if (entity == null)
+                    return null;
                 context.Entry(entity).Collection(include).Load();
                 return entity;
             }

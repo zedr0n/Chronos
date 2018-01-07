@@ -12,12 +12,14 @@ namespace Chronos.Infrastructure.Projections
         {
         }
 
+        protected override void Write(IEnumerable<TKey> keys, IList<IEvent> events)
+        {
+            base.Write(keys,events);
+        }
+        
         protected override void Write(TKey key, IList<IEvent> events)
         {
             base.Write(key, events);
-            var readModel = Get(key);
-            
-            
         }
     }
 }

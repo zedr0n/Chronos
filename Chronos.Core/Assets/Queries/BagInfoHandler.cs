@@ -28,9 +28,9 @@ namespace Chronos.Core.Assets.Queries
                 //.Do(Log)
                 .OutputState();
 
-            //var otherExpression = Expression.Select<Guid, BagHistory>(CreateAction);
+            var otherExpression = Expression.Select<Guid, BagHistory>(CreateAction);
             
-            //otherExpression.Invoke();
+            otherExpression.Invoke();
             Expression.Invoke();
 
         }
