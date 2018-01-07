@@ -24,9 +24,9 @@ namespace Chronos.Core.Assets.Queries
                 .ForEachStream()
                 .OutputState();
 
-            var otherExpression = Expression.Select<Guid, BagHistory>(CreateAction);
+            //var otherExpression = Expression.Select<Guid, BagHistory>(CreateAction);
             
-            otherExpression.Invoke();
+            //otherExpression.Invoke();
             Expression.Invoke();
 
         }
@@ -35,8 +35,13 @@ namespace Chronos.Core.Assets.Queries
         {
             var timestamp = FromUtc(bagInfo.TimestampUtc);
             var value = bagInfo.Value;
+            var name = bagInfo.Name;
 
-            Action<BagHistory> action = bagHistory => bagHistory.Update(timestamp, value);
+            Action<BagHistory> action = bagHistory =>
+            {
+                bagHistory.Name = name;
+                bagHistory.Update(timestamp, value);
+            };
             return action;
         }
 

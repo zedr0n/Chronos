@@ -12,6 +12,7 @@ namespace Chronos.Core.Sagas
         {
             Register<CoinTrackingRequested,CoinTrackingSaga>(e => e.AssetId);
             RegisterAlert<CoinInfoParsed,CoinTrackingSaga>(e => e.Id);
+            RegisterAlert<CoinPercentageParsed, CoinTrackingSaga>(e => e.Id);
             Register<CoinTrackingSaga>();
         }
     }

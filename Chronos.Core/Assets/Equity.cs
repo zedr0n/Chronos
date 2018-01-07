@@ -40,5 +40,9 @@ namespace Chronos.Core.Assets
                  Price = price 
              });
         }
+
+        public void UpdateChange(double hourChange, double dayChange, double weekChange)
+        {
+        }
     }
 }

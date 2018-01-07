@@ -42,13 +42,12 @@ namespace Chronos.Infrastructure.Projections
 
             projection.Models.GroupBy(x => ((IReadModel<TKey>) x).Key)
                 .Subscribe(x => x.Select(source => _selector(source))
-                    //.Window(() => projection.ClosingWindow)
-                    .Window(projection.OpeningWindow,o => projection.ClosingWindow)
-                    //.Buffer(TimeSpan.FromMilliseconds(50), 1000)
-                    //.Subscribe(w => w.Buffer(TimeSpan.FromMilliseconds(25),1000)
-                    .Subscribe(w => w.ToList()
-                        .Where(buffer => buffer.Any())
-                    .Subscribe(list => Write(x.Key,list))));
+                    .Buffer(projection.OpeningWindow,o => projection.ClosingWindow)
+                    .Where(l => l.Any())
+                    //.Window(projection.OpeningWindow,o => projection.ClosingWindow)
+                    
+                    //.Subscribe(w => w.ToList()
+                        .Subscribe(list => Write(x.Key,list)));
 
         }
     }

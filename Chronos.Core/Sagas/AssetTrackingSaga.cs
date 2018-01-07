@@ -139,7 +139,8 @@ namespace Chronos.Core.Sagas
 
         public void When(AssetJsonParsed e)
         {
-            StateMachine.Fire(Trigger.Parsed);
+            if(e.Finish())
+                StateMachine.Fire(Trigger.Parsed);
             base.When(e);
         }
 

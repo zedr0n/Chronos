@@ -57,13 +57,13 @@ namespace Chronos.Persistence
                 }
                 if (!action(state))
                     return;
-                var before = _debugLog.Now();
+                //var before = _debugLog.Now();
                 context.SaveChanges();
-                var after = _debugLog.Now();
-                _numberOfWrites++;
-                var duration = after - before;
-                _writeTime += duration.TotalMilliseconds; 
-                _debugLog.WriteLine("Elapsed :" + _writeTime + " for " + _numberOfWrites + " writes");
+                //var after = _debugLog.Now();
+                //_numberOfWrites++;
+                //var duration = after - before;
+                //_writeTime += duration.TotalMilliseconds; 
+                //_debugLog.WriteLine("Elapsed :" + _writeTime + " for " + _numberOfWrites + " writes");
             }
         }
     }

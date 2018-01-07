@@ -10,6 +10,10 @@ namespace Chronos.Core.Assets.Projections
         public string Name { get; set; }
         public string Ticker { get; set; }
         public double Price { get; set; }
+        
+        public double HourChange { get; set; }
+        public double DayChange { get; set; }
+        public double WeekChange { get; set; }
 
         private void When(CoinCreated e)
         {
@@ -20,6 +24,13 @@ namespace Chronos.Core.Assets.Projections
         private void When(AssetPriceUpdated e)
         {
             Price = e.Price;
+        }
+
+        private void When(AssetChangeUpdated e)
+        {
+            HourChange = e.HourChange;
+            DayChange = e.DayChange;
+            WeekChange = e.WeekChange;
         }
     }
 }

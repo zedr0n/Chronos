@@ -3,19 +3,29 @@ using Chronos.Core.Assets.Commands;
 using Chronos.Core.Common.Events;
 using Chronos.Core.Net.Parsing.Commands;
 using Chronos.Core.Net.Tracking.Events;
+using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Sagas;
 
 namespace Chronos.Core.Sagas
 {
     public class CoinTrackingSaga : AssetTrackingSaga,
         IHandle<CoinTrackingRequested>,
-        IHandle<CoinInfoParsed>
+        IHandle<CoinInfoParsed>,
+        IHandle<CoinPercentageParsed>
     {
         private Guid _coinId;
         private string _ticker;
         private double _price;
+        private double _hourChange;
+        private double _dayChange;
+        private double _weekChange;
 
         public void When(CoinTrackingRequested e) => base.When(e);
+
+        protected override void When(IEvent e)
+        {
+            When((dynamic) e);
+        }
 
         protected override void OnTracking(AssetTrackingRequested e)
         {
@@ -34,6 +44,14 @@ namespace Chronos.Core.Sagas
             base.OnReceived(json);
         }
 
+        public void When(CoinPercentageParsed e)
+        {
+            _dayChange = e.DayChange;
+            _weekChange = e.WeekChange;
+            _hourChange = e.HourChange;
+            base.When(e);
+        }
+        
         public void When(CoinInfoParsed e)
         {
             _price = e.PriceUsd;
@@ -48,6 +66,13 @@ namespace Chronos.Core.Sagas
                 Price = _price
             };
             SendMessage(command);
+            
+            var command2 = new UpdateAssetChangeCommand(_hourChange/100,_dayChange/100,_weekChange/100)
+            {
+                TargetId = _coinId
+            };
+            SendMessage(command2);
+            
             base.OnParsed();
         }
     }

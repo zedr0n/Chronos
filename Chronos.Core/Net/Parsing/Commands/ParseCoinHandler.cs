@@ -23,11 +23,15 @@ namespace Chronos.Core.Net.Parsing.Commands
         {
             var parsed = _jsonParser.Parse<List<CoinInfo>>(command.Json);
             var coinInfo = parsed.SingleOrDefault();
-            
-            if(coinInfo == null)
+
+            if (coinInfo == null)
                 _eventBus.Alert(new ParsingCoinInfoFailed(command.AssetId));
             else
-                _eventBus.Alert(new CoinInfoParsed(command.AssetId,coinInfo.price_usd));
+            {
+                _eventBus.Alert(new CoinPercentageParsed(command.AssetId,
+                    coinInfo.percent_change_1h,coinInfo.percent_change_24h,coinInfo.percent_change_7d));
+                _eventBus.Alert(new CoinInfoParsed(command.AssetId, coinInfo.price_usd));
+            }
         }
     }
 }

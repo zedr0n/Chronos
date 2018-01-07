@@ -35,6 +35,16 @@ namespace Chronos.Core.Assets
             base.When(e);
         }
 
+        private void When(AssetChangeUpdated e)
+        {
+            base.When(e);
+        }
+
+        public void UpdateChange(double hourChange, double dayChange, double weekChange)
+        {
+            When(new AssetChangeUpdated(Id,hourChange,dayChange,weekChange));
+        }
+        
         public void UpdatePrice(double price)
         {
              When(new AssetPriceUpdated

@@ -23,6 +23,7 @@ namespace Chronos.Persistence.Contexts
         public DbSet<BagInfo> Bags { get; set; }
         public DbSet<BagHistory> BagHistories { get; set; }
         public DbSet<CoinHistory> CoinHistories { get; set; }
+        public DbSet<ValueInfo> ValueInfo { get; set; }
         
         public virtual void Clear()
         {
@@ -30,5 +31,6 @@ namespace Chronos.Persistence.Contexts
             Movements.RemoveRange(Movements);
             Stats.RemoveRange(Stats); 
         }
+
     }
 }

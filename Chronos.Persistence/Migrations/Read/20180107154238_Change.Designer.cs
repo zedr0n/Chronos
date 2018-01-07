@@ -11,8 +11,8 @@ using System;
 namespace Chronos.Persistence.Migrations.Read
 {
     [DbContext(typeof(ReadContext))]
-    [Migration("20171031205207_Price")]
-    partial class Price
+    [Migration("20180107154238_Change")]
+    partial class Change
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -35,6 +35,8 @@ namespace Chronos.Persistence.Migrations.Read
 
                     b.Property<Guid>("Timeline");
 
+                    b.Property<DateTime>("TimestampUtc");
+
                     b.Property<int>("Version");
 
                     b.HasKey("Key");
@@ -49,6 +51,8 @@ namespace Chronos.Persistence.Migrations.Read
 
                     b.Property<Guid>("Timeline");
 
+                    b.Property<DateTime>("TimestampUtc");
+
                     b.Property<double>("Value");
 
                     b.Property<int>("Version");
@@ -58,10 +62,70 @@ namespace Chronos.Persistence.Migrations.Read
                     b.ToTable("Movements");
                 });
 
+            modelBuilder.Entity("Chronos.Core.Assets.Projections.BagHistory", b =>
+                {
+                    b.Property<Guid>("Key")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Name");
+
+                    b.Property<Guid>("Timeline");
+
+                    b.Property<DateTime>("TimestampUtc");
+
+                    b.Property<int>("Version");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("BagHistories");
+                });
+
+            modelBuilder.Entity("Chronos.Core.Assets.Projections.BagInfo", b =>
+                {
+                    b.Property<Guid>("Key")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Name");
+
+                    b.Property<Guid>("Timeline");
+
+                    b.Property<DateTime>("TimestampUtc");
+
+                    b.Property<double>("Value");
+
+                    b.Property<int>("Version");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("Bags");
+                });
+
+            modelBuilder.Entity("Chronos.Core.Assets.Projections.CoinHistory", b =>
+                {
+                    b.Property<Guid>("Key")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<Guid>("Timeline");
+
+                    b.Property<DateTime>("TimestampUtc");
+
+                    b.Property<string>("Values");
+
+                    b.Property<int>("Version");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("CoinHistories");
+                });
+
             modelBuilder.Entity("Chronos.Core.Assets.Projections.CoinInfo", b =>
                 {
                     b.Property<Guid>("Key")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<double>("DayChange");
+
+                    b.Property<double>("HourChange");
 
                     b.Property<string>("Name");
 
@@ -71,11 +135,33 @@ namespace Chronos.Persistence.Migrations.Read
 
                     b.Property<Guid>("Timeline");
 
+                    b.Property<DateTime>("TimestampUtc");
+
                     b.Property<int>("Version");
+
+                    b.Property<double>("WeekChange");
 
                     b.HasKey("Key");
 
                     b.ToTable("Coins");
+                });
+
+            modelBuilder.Entity("Chronos.Core.Assets.Projections.ValueInfo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<Guid?>("BagHistoryKey");
+
+                    b.Property<DateTime>("TimestampUtc");
+
+                    b.Property<double>("Value");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BagHistoryKey");
+
+                    b.ToTable("ValueInfo");
                 });
 
             modelBuilder.Entity("Chronos.Core.Nicehash.Projections.OrderInfo", b =>
@@ -90,6 +176,8 @@ namespace Chronos.Persistence.Migrations.Read
                     b.Property<Guid>("PriceAsset");
 
                     b.Property<Guid>("Timeline");
+
+                    b.Property<DateTime>("TimestampUtc");
 
                     b.Property<int>("Version");
 
@@ -111,6 +199,8 @@ namespace Chronos.Persistence.Migrations.Read
 
                     b.Property<Guid>("Timeline");
 
+                    b.Property<DateTime>("TimestampUtc");
+
                     b.Property<int>("Version");
 
                     b.HasKey("Key");
@@ -129,11 +219,20 @@ namespace Chronos.Persistence.Migrations.Read
 
                     b.Property<Guid>("Timeline");
 
+                    b.Property<DateTime>("TimestampUtc");
+
                     b.Property<int>("Version");
 
                     b.HasKey("Key");
 
                     b.ToTable("Stats");
+                });
+
+            modelBuilder.Entity("Chronos.Core.Assets.Projections.ValueInfo", b =>
+                {
+                    b.HasOne("Chronos.Core.Assets.Projections.BagHistory")
+                        .WithMany("Values")
+                        .HasForeignKey("BagHistoryKey");
                 });
 #pragma warning restore 612, 618
         }
