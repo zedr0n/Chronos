@@ -17,7 +17,7 @@ namespace Chronos.Infrastructure.Projections
         private readonly IReadRepository _readRepository;
 
         private string _keyAggregateType;
-        private Action<IEnumerable<T>, IEnumerable<IEvent>> _actions = (x, e) => { };
+        private Action<T> _action = (x) => { };
 
         private Projection _projection;
         private Projection Projection
@@ -124,19 +124,7 @@ namespace Chronos.Infrastructure.Projections
 
         public IProjectionExpression<T> Do(Action<T> action)
         {
-            _actions = (x, e) => EnumerableExtensions.ForEach(x, e, (x1, e1) => action(x1));
-            return this;
-        }
-
-        public IProjectionExpression<T> Do(Action<T, IEvent> action)
-        {
-            _actions = (x, e) => EnumerableExtensions.ForEach(x, e, action);
-            return this;
-        }
-
-        public IProjectionExpression<T> Do(Action<IEnumerable<T>, IEnumerable<IEvent>> action)
-        {
-            _actions = action;
+            _action = action;
             return this;
         }
 
@@ -177,7 +165,7 @@ namespace Chronos.Infrastructure.Projections
                 KeyAggregateType = _keyAggregateType
             };
             
-            Projection.Do(_actions);
+            Projection.Do(_action);
 
             return this;
         }
@@ -193,7 +181,7 @@ namespace Chronos.Infrastructure.Projections
                 Key = key
             };
             
-            Projection.Do(_actions);
+            Projection.Do(_action);
 
             return this;
         }

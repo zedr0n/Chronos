@@ -55,7 +55,7 @@ namespace Chronos.Infrastructure.Projections
 
         protected virtual void Register(IObservable<StreamDetails> streams) {}
 
-        public virtual void Do<T>(Action<IEnumerable<T>,IEnumerable<IEvent>> actions)
+        public virtual void Do<T>(Action<T> action)
             where T : class, IReadModel, new()
         {
                 

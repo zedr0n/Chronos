@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Chronos.Infrastructure.Projections
 {
@@ -6,6 +7,9 @@ namespace Chronos.Infrastructure.Projections
     {
         void Write<TKey, T>(TKey key, Func<T,bool> action)
             where TKey : IEquatable<TKey>
+            where T : class, IReadModel, new();
+
+        void Write<TKey, T>(IEnumerable<TKey> keys, Func<T, bool> action) where TKey : IEquatable<TKey>
             where T : class, IReadModel, new();
     }
     

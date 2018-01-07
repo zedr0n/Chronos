@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Xml.Linq;
 using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Infrastructure.Projections
@@ -63,9 +64,12 @@ namespace Chronos.Infrastructure.Projections
         
         private readonly Subject<bool> _closingWindow = new Subject<bool>();
         public IObservable<bool> ClosingWindow => _closingWindow.AsObservable();
+
+        private Action<T> _action;
         
-        public override void Do<TS>(Action<IEnumerable<TS>,IEnumerable<IEvent>> action)
+        public override void Do<TS>(Action<TS> action)
         {
+            _action = x => action(x as TS); 
             base.Do(action);
         }
 
@@ -94,13 +98,33 @@ namespace Chronos.Infrastructure.Projections
         {
             return _readRepository.Find<TKey,T>(key); 
         }
+
+        protected virtual void Write(IEnumerable<TKey> keys, IList<IEvent> events)
+        {
+            if (events.Count == 0)
+                return;
+            
+            _writer.Write<TKey,T>(keys,x =>
+            {
+                x.Timeline = Timeline;
+                var changed = false;
+
+                _openingWindow.OnNext(true);
+                foreach (var e in events)
+                {
+                    changed |= x.When(e);
+                    _action(x);
+                    _models.OnNext(x);
+                }
+                _closingWindow.OnNext(true);
+                return changed;
+            });     
+        }
         
         protected virtual void Write(TKey key, IList<IEvent> events)
         {
             if (events.Count == 0)
                 return;
-            
-            //_events.OnNext(events);
             
             _writer.Write<TKey,T>(key,x =>
             {
@@ -111,6 +135,7 @@ namespace Chronos.Infrastructure.Projections
                 foreach (var e in events)
                 {
                     changed |= x.When(e);
+                    _action(x);
                     _models.OnNext(x);
                 }
                 _closingWindow.OnNext(true);
@@ -134,8 +159,10 @@ namespace Chronos.Infrastructure.Projections
         
         protected override void When(StreamDetails stream, IList<IEvent> events)
         {
-            foreach (var key in Key.Get(stream))
-                Write(key, events);
+            //foreach (var key in Key.Get(stream))
+            //    Write(key, events);
+            var keys = Key.Get(stream);
+            Write(keys,events);
 
             base.When(stream, events);
         }

@@ -4,6 +4,7 @@ using System.Linq;
 using Chronos.Core.Assets.Projections;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Interfaces;
+using Chronos.Infrastructure.Logging;
 using Chronos.Infrastructure.Projections;
 using Chronos.Infrastructure.Queries;
 using NodaTime;
@@ -14,32 +15,49 @@ namespace Chronos.Core.Assets.Queries
     {
         private readonly IReadRepository _repository;
         public IProjectionExpression<BagInfo> Expression { get; }
-    
-        public BagInfoHandler(IReadRepository repository, IProjectionManager manager)
+        private readonly IDebugLog _debugLog;
+            
+        public BagInfoHandler(IReadRepository repository, IProjectionManager manager, IDebugLog debugLog)
         {
             _repository = repository;
+            _debugLog = debugLog;
             Expression = manager.Create<BagInfo>()
                 .From<Bag>()
                 .Include<Coin>()
                 .ForEachStream()
+                //.Do(Log)
                 .OutputState();
 
-            var otherExpression = Expression.Select<Guid, BagHistory>(CreateAction);
+            //var otherExpression = Expression.Select<Guid, BagHistory>(CreateAction);
             
-            otherExpression.Invoke();
+            //otherExpression.Invoke();
             Expression.Invoke();
 
+        }
+
+        private void Log(BagInfo bagInfo)
+        {
+            if (bagInfo.Name == "Btc")
+            {
+                _debugLog.WriteLine(bagInfo.Name + "(" + bagInfo.TimestampUtc + ") : " + bagInfo.Value );
+            } 
         }
 
         private Action<BagHistory> CreateAction(BagInfo bagInfo)
         {
             var timestamp = FromUtc(bagInfo.TimestampUtc);
+            //Log(bagInfo);
+
             var value = bagInfo.Value;
             var name = bagInfo.Name;
 
             Action<BagHistory> action = bagHistory =>
             {
                 bagHistory.Name = name;
+                if (bagHistory.Name == "Btc" && value != 0)
+                {
+                    var found = true;
+                }
                 bagHistory.Update(timestamp, value);
             };
             return action;
