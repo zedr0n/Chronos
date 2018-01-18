@@ -11,9 +11,10 @@ using System;
 namespace Chronos.Persistence.Migrations.Read
 {
     [DbContext(typeof(ReadContext))]
-    partial class ReadContextModelSnapshot : ModelSnapshot
+    [Migration("20180118181112_Amount")]
+    partial class Amount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

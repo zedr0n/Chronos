@@ -14,6 +14,7 @@ namespace Chronos.Core.Assets.Projections
     public class BagInfo : ReadModelBase<Guid>
     {
         public string Name { get; set; }
+        public double Amount { get; set; }
         private readonly Dictionary<Guid, double> _assets = new Dictionary<Guid, double>();
         private readonly Dictionary<Guid, double> _prices = new Dictionary<Guid, double>();
 
@@ -87,6 +88,7 @@ namespace Chronos.Core.Assets.Projections
 
         private void Update()
         {
+            Amount = _assets.Sum(asset => asset.Value);
             Value = _assets.Sum(asset => _prices[asset.Key] * asset.Value);  
         }
     }
