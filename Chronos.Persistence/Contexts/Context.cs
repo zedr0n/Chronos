@@ -45,7 +45,7 @@ namespace Chronos.Persistence.Contexts
             //if (_inMemory)
             //    optionsBuilder.UseInMemoryDatabase(_dbName);
             //else
-                //optionsBuilder.UseSqlite(@"Filename=" + "migration.db");
+                optionsBuilder.UseSqlite(@"Filename=" + "migration.db");
             //optionsBuilder.UseSqlite(@"Filename=" + "Chronos.Read.Console.db"); 
            
         }
