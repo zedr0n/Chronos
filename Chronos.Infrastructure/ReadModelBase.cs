@@ -17,23 +17,9 @@ namespace Chronos.Infrastructure
         // originating stream version
         public int Version { get; set; }
         public Guid Timeline { get; set; }
-        
-        public virtual IReadModel Clone()
-        {
-            return this;
-            //throw new NotImplementedException();
-        }
 
         public DateTime TimestampUtc { get; set; }
 
-        protected ReadModelBase(ReadModelBase<TKey> rhs)
-        {
-            Key = rhs.Key;
-            Version = rhs.Version;
-            Timeline = rhs.Timeline;
-            TimestampUtc = rhs.TimestampUtc;
-        }
-        
         protected ReadModelBase()
         {
             foreach (var m in GetType().GetTypeInfo().GetDeclaredMethods("When"))

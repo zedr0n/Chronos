@@ -67,11 +67,11 @@ namespace Chronos.Core.Sagas
             };
             SendMessage(command);
             
-            var command2 = new UpdateAssetChangeCommand(_hourChange/100,_dayChange/100,_weekChange/100)
-            {
-                TargetId = _coinId
-            };
-            SendMessage(command2);
+            //var command2 = new UpdateAssetChangeCommand(_hourChange/100,_dayChange/100,_weekChange/100)
+            //{
+            //    TargetId = _coinId
+            //};
+            //SendMessage(command2);
             
             base.OnParsed();
         }

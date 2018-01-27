@@ -28,8 +28,8 @@ namespace Chronos.Core.Net.Parsing.Commands
                 _eventBus.Alert(new ParsingCoinInfoFailed(command.AssetId));
             else
             {
-                _eventBus.Alert(new CoinPercentageParsed(command.AssetId,
-                    coinInfo.percent_change_1h,coinInfo.percent_change_24h,coinInfo.percent_change_7d));
+                //_eventBus.Alert(new CoinPercentageParsed(command.AssetId,
+                //    coinInfo.percent_change_1h,coinInfo.percent_change_24h,coinInfo.percent_change_7d));
                 _eventBus.Alert(new CoinInfoParsed(command.AssetId, coinInfo.price_usd));
             }
         }
