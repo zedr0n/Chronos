@@ -17,9 +17,9 @@ namespace Chronos.Infrastructure
         }
     }
 
-    public class BufferEnvelope
+    public class StreamBatch
     {
-        public BufferEnvelope(IList<IEvent> events, StreamDetails stream)
+        public StreamBatch(IList<IEvent> events, StreamDetails stream)
         {
             Events = events;
             Stream = stream;

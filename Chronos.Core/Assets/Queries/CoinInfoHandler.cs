@@ -11,22 +11,23 @@ namespace Chronos.Core.Assets.Queries
     {
         private readonly IReadRepository _repository;
         public IProjectionExpression<CoinInfo> Expression { get; }
-    
-        public CoinInfoHandler(IReadRepository repository, IProjectionManager manager)
+
+        public CoinInfoHandler(IReadRepository repository, IProjection<CoinInfo> projection)
         {
             _repository = repository;
 
-            Expression = manager.Create<CoinInfo>()
-                .From<Coin>()
-                .ForEachStream()
-                .OutputState();
+            projection.Start(false);
+
+            //Expression = manager.Create<CoinInfo>()
+            //    .From<Coin>()
+            //    .ForEachStream()
+            //    .OutputState();
 
             //var otherExpression = Expression.Select<Guid, CoinHistory>(CreateAction);
-                
+
             //otherExpression.Invoke();
-                
-            Expression.Invoke();
-                
+
+            //Expression.Invoke();
         }
             
         private Action<CoinHistory> CreateAction(CoinInfo info)

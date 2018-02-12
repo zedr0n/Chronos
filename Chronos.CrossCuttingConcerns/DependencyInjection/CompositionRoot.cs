@@ -27,6 +27,7 @@ using Chronos.Core.Transactions.Commands;
 using Chronos.Infrastructure;
 using Chronos.Infrastructure.Commands;
 using Chronos.Infrastructure.Projections;
+using Chronos.Infrastructure.ProjectionServices;
 using Chronos.Infrastructure.Queries;
 using Chronos.Infrastructure.Sagas;
 using Chronos.Persistence;
@@ -175,6 +176,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<IEventStore, EventStore>(Lifestyle.Singleton);
             container.Register<StreamTracker>(Lifestyle.Singleton);
 
+            container.Register<IProjection<CoinInfo>,StreamPersistentProjection<CoinInfo>>(Lifestyle.Singleton);
+            
             container.Register(typeof(ICommandHandler<>),new[] {
                 typeof(RequestTimeoutHandler),
                 typeof(CancelTimeoutHandler),

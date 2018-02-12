@@ -22,6 +22,10 @@ namespace Chronos.Infrastructure
 
         IObservable<IGroupedObservable<StreamDetails, IList<IEvent>>> GetEventsBuffered(
             IObservable<StreamRequest> requests);
+        IObservable<IGroupedObservable<StreamDetails, IList<IEvent>>> GetEventsBuffered(
+            IObservable<StreamDetails> streams);
+
+        IObservable<IGroupedObservable<StreamDetails, IEvent>> GetEvents(IObservable<StreamDetails> streams);
     }
 
     public interface IEventStoreConnection

@@ -4,6 +4,11 @@
     {
     }
 
+    public interface IProjection<T> : IProjection where T : IReadModel
+    {
+        void Start(bool reset);
+    }
+
     public interface ITransientProjection<T> : IProjection where T : class,IReadModel, new()
     {
         T State { get; }
