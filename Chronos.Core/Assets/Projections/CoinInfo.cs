@@ -19,7 +19,7 @@ namespace Chronos.Core.Assets.Projections
         {
             Register<CoinCreated>(When);
             Register<AssetPriceUpdated>(When);
-            Register<AssetChangeUpdated>(When());
+            Register<AssetChangeUpdated>(When);
         }
 
         private void When(CoinCreated e)
