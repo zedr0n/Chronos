@@ -21,6 +21,15 @@ namespace Chronos.Core.Accounts.Projections
         
         public DateTime CreatedAtUtc { get; private set; }
 
+        public AccountInfo()
+        {
+            Register<StateReset>(When);
+            Register<AccountCreated>(When);
+            Register<AccountChanged>(When);
+            Register<CashDeposited>(When);
+            Register<CashWithdrawn>(When);
+        }
+
         private void When(StateReset e)
         {
             Name = null;

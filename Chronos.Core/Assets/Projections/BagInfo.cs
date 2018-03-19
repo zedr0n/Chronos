@@ -22,7 +22,13 @@ namespace Chronos.Core.Assets.Projections
         public int NumberOfAssets => _assets.Count;
         public IEnumerable<Guid> Assets => new List<Guid>(_assets.Keys);
 
-        public BagInfo() {}
+        public BagInfo()
+        {
+            Register<BagCreated>(When);
+            Register<AssetAddedToBag>(When);
+            Register<AssetRemovedFromBag>(When);
+            Register<AssetPriceUpdated>(When);
+        }
 
         public double Quantity(Guid assetId)
         {

@@ -15,6 +15,13 @@ namespace Chronos.Core.Assets.Projections
         public double DayChange { get; set; }
         public double WeekChange { get; set; }
 
+        public CoinInfo()
+        {
+            Register<CoinCreated>(When);
+            Register<AssetPriceUpdated>(When);
+            Register<AssetChangeUpdated>(When());
+        }
+
         private void When(CoinCreated e)
         {
             Name = e.Name;
