@@ -68,13 +68,8 @@ namespace Chronos.Tests
                 AssetId = CoinId,
                 Price = 100
             };
-            
-            public static readonly AccountChanged AccountChanged = new AccountChanged
-            {
-                AccountId = AccountId,
-                Currency = "GBP",
-                Name = "OtherAccount"
-            };
+
+            public static readonly AccountChanged AccountChanged = new AccountChanged(AccountId, "GBP", "OtherAccount");
 
             public static readonly AccountCreated OtherAccountCreated = new AccountCreated
             {
