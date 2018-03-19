@@ -9,6 +9,8 @@ namespace Chronos.Core.Assets
         private string _ticker;
         private double _price;
 
+        public Equity() {}
+        
         public Equity(Guid id, string ticker, double price)
         {
             When(new EquityCreated

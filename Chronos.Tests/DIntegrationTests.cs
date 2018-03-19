@@ -156,7 +156,7 @@ namespace Chronos.Tests
             var spec = GetInstance<Specification>()
                 .Given<Coin>(CoinId, History.CoinCreated)
                 .Given<Bag>(BagId, History.BagCreated, History.AssetAddedToBag)
-                .When(new UpdateAssetPriceCommand
+                .When(new UpdateAssetPriceCommand<Coin>
                 {
                     TargetId = CoinId,
                     Price = History.PriceUpdated.Price
@@ -204,7 +204,7 @@ namespace Chronos.Tests
         {
             GetInstance<Specification>()
                 .Given<Coin>(CoinId, History.CoinCreated)
-                .When(new UpdateAssetPriceCommand
+                .When(new UpdateAssetPriceCommand<Coin>
                 {
                     TargetId = CoinId,
                     Price = 100

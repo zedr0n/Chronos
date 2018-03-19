@@ -28,14 +28,14 @@ namespace Chronos.Infrastructure
         /// <param name="id">The aggregate guid</param>
         /// <typeparam name="T">Aggregate type</typeparam>
         /// <returns>Aggregate or null if no events found</returns>
-        T Find<T>(Guid id) where T : class, IAggregate;
+        T Find<T>(Guid id) where T : class, IAggregate,new();
         /// <summary>
         /// Rebuilds the aggregate from event history extracted from Event Store
         /// </summary>
         /// <exception cref="ArgumentException">if no events found for aggregate with this id</exception>
         /// <param name="id">The aggregate guid</param>
         /// <returns></returns>
-        T Get<T>(Guid id) where T : class,IAggregate;
+        T Get<T>(Guid id) where T : class,IAggregate,new();
         void Reset();
     }
 }
