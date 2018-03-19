@@ -89,7 +89,7 @@ namespace Chronos.Persistence
             _eventStore.Connection.AppendToStream(stream, 0 , events);
         }
 
-        public T Find<T>(Guid id) where T : class,IAggregate
+        public T Find<T>(Guid id) where T : class,IAggregate,new()
         {
             var cached = _cache.Get<T>(id);
             var version = cached?.Version ?? 0;
@@ -103,12 +103,13 @@ namespace Chronos.Persistence
             if (!events.Any() && version == 0)
                 return null;
 
-            var aggregate = cached ?? _aggregateFactory.Create<T>(stream.SourceType);
+            //var aggregate = cached ?? _aggregateFactory.Create<T>(stream.SourceType);
+            var aggregate = cached ?? new T();
             aggregate.LoadFrom<T>(id, events);
             return aggregate;
         }
 
-        public T Get<T>(Guid id) where T : class,IAggregate
+        public T Get<T>(Guid id) where T : class,IAggregate,new()
         {
             var entity = Find<T>(id);
             if (entity == null)

@@ -1,4 +1,5 @@
 ﻿using System;
+using Chronos.Core.Assets;
 using Chronos.Core.Assets.Commands;
 using Chronos.Core.Assets.Projections;
 using Chronos.Core.Assets.Queries;
@@ -49,7 +50,7 @@ namespace Chronos.Tests
 
             for (var i = 0; i < 100; ++i)
             {
-                var priceCommand = new UpdateAssetPriceCommand()
+                var priceCommand = new UpdateAssetPriceCommand<Coin>
                 {
                     Price = i,
                     TargetId = coinId
