@@ -31,11 +31,21 @@ namespace Chronos.Core.Assets
             base.When(e);
         }
         
+        /// <summary>
+        /// Add asset to bag
+        /// </summary>
+        /// <param name="assetId">Asset id</param>
+        /// <param name="quantity">Asset quantity</param>
         public void Add(Guid assetId, double quantity)
         {
             When( new AssetAddedToBag(Id,assetId,quantity) );
         }
 
+        /// <summary>
+        /// Remove asset from bag
+        /// </summary>
+        /// <param name="assetId">Asset id</param>
+        /// <param name="quantity">Asset quantity</param>
         public void Remove(Guid assetId, double quantity)
         {
             var currentQuantity = _assets.Where(x => x.EntityId == assetId).Select(x => x.Quantity).Sum();

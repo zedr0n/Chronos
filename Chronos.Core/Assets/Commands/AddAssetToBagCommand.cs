@@ -11,7 +11,13 @@ namespace Chronos.Core.Assets.Commands
             Quantity = quantity;
         }
 
+        /// <summary>
+        /// Asset id
+        /// </summary>
         public Guid AssetId { get; }
+        /// <summary>
+        /// Asset quantity
+        /// </summary>
         public double Quantity { get; }
     }
 }
