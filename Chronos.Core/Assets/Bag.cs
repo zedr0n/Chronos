@@ -8,6 +8,9 @@ using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Core.Assets
 {
+    /// <summary>
+    /// Bag of assets
+    /// </summary>
     public class Bag : AggregateBase
     {
         private readonly List<Amount> _assets = new List<Amount>();

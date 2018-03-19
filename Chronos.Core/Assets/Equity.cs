@@ -32,6 +32,10 @@ namespace Chronos.Core.Assets
             base.When(e);
         }
 
+        /// <summary>
+        /// Update asset price
+        /// </summary>
+        /// <param name="price">Asset price</param>
         public void UpdatePrice(double price)
         {
              When(new AssetPriceUpdated
@@ -41,6 +45,12 @@ namespace Chronos.Core.Assets
              });
         }
 
+        /// <summary>
+        /// Update asset price change
+        /// </summary>
+        /// <param name="hourChange">Percentage change in an hour</param>
+        /// <param name="dayChange">Percentage change in 24 hours</param>
+        /// <param name="weekChange">Percentage change in 7 days</param>
         public void UpdateChange(double hourChange, double dayChange, double weekChange)
         {
         }

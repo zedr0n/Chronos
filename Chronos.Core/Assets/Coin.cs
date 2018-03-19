@@ -5,7 +5,7 @@ using Chronos.Infrastructure;
 namespace Chronos.Core.Assets
 {
     /// <summary>
-    /// Coin aggregate root
+    /// Crypto coin aggregate root
     /// </summary>
     public class Coin : AggregateBase, IAsset
     {
@@ -52,6 +52,7 @@ namespace Chronos.Core.Assets
         /// Update asset price
         /// </summary>
         /// <param name="price">Asset price</param>
+        /// <seealso cref="Chronos.Core.Assets.Commands.UpdateAssetPriceHandler"/>
         public void UpdatePrice(double price)
         {
              When(new AssetPriceUpdated
