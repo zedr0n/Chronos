@@ -12,6 +12,12 @@ namespace Chronos.Core.Assets.Commands
             _domainRepository = domainRepository;
         }
 
+        /// <summary>
+        /// <see cref="Bag.Add"/>
+        ///   (<see cref="AddAssetToBagCommand.AssetId"/>,<see cref="AddAssetToBagCommand.Quantity"/>)
+        ///  -> @ <see cref="Bag"/> : <see cref="Chronos.Core.Assets.Events.AssetAddedToBag"/>
+        /// </summary>
+        /// <param name="command"></param>
         public void Handle(AddAssetToBagCommand command)
         {
             var bag = _domainRepository.Get<Bag>(command.TargetId);

@@ -10,6 +10,9 @@ using NodaTime;
 
 namespace Chronos.Core.Assets.Projections
 {
+    /// <summary>
+    /// Bag info read model
+    /// </summary>
     [Reset,MemoryProxy]
     public class BagInfo : ReadModelBase<Guid>
     {
