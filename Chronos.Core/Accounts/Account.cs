@@ -9,7 +9,7 @@ using Chronos.Infrastructure.Interfaces;
 namespace Chronos.Core.Accounts
 {
     /// <summary>
-    /// Account aggregate
+    /// Account aggregate root
     /// </summary>
     public class Account : AggregateBase
     {
@@ -59,7 +59,7 @@ namespace Chronos.Core.Accounts
         /// <summary>
         /// Credit the account with cash <paramref name="amount"/>
         /// </summary>
-        /// <param name="amount"></param>
+        /// <param name="amount">Withdrawal amount</param>
         public void Credit(double amount)
         {
             When(new CashWithdrawn
@@ -68,19 +68,32 @@ namespace Chronos.Core.Accounts
                 Amount = amount
             });
         }
-        public void DepositAsset( Guid assetId ) => When(
-            new AssetDeposited
-            {
-                AccountId = Id,
-                AssetId = assetId
-            });
 
-        public void WithdrawAsset(Guid assetId) => When( 
-            new AssetWithdrawn
-            {
-                AccountId = Id,
-                AssetId = assetId
-            });
+        /// <summary>
+        /// Deposit asset to the account
+        /// </summary>
+        /// <param name="assetId">Asset id</param>
+        public void DepositAsset(Guid assetId)
+        {
+            When( new AssetDeposited
+                {
+                    AccountId = Id,
+                    AssetId = assetId
+                });
+        }
+
+        /// <summary>
+        /// Withdraw asset from account
+        /// </summary>
+        /// <param name="assetId">Asset id</param>
+        public void WithdrawAsset(Guid assetId)
+        {
+            When( new AssetWithdrawn
+                {
+                    AccountId = Id,
+                    AssetId = assetId
+                });
+        }
 
         protected override void When(IEvent e)
         {

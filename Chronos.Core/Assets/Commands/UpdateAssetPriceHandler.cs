@@ -13,6 +13,13 @@ namespace Chronos.Core.Assets.Commands
 			_domainRepository = domainRepository;
 		}
 
+		/// <summary>
+		/// <see cref="IAsset.UpdatePrice"/>
+		/// 	(<see cref="UpdateAssetPriceCommand.Price"/>)
+		///   -> @ <see cref="IAsset"/> : <see cref="Chronos.Core.Assets.Events.AssetPriceUpdated"/>
+		/// </summary>
+		/// <param name="command"></param>
+		/// <exception cref="InvalidOperationException">Asset does not exist</exception>
 		public void Handle(UpdateAssetPriceCommand command)
 		{
 			var asset = _domainRepository.Find<IAsset>(command.TargetId);

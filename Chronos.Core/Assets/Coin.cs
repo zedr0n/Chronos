@@ -4,6 +4,9 @@ using Chronos.Infrastructure;
 
 namespace Chronos.Core.Assets
 {
+    /// <summary>
+    /// Coin aggregate root
+    /// </summary>
     public class Coin : AggregateBase, IAsset
     {
         private string _ticker;
@@ -45,6 +48,10 @@ namespace Chronos.Core.Assets
             When(new AssetChangeUpdated(Id,hourChange,dayChange,weekChange));
         }
         
+        /// <summary>
+        /// Update asset price
+        /// </summary>
+        /// <param name="price">Asset price</param>
         public void UpdatePrice(double price)
         {
              When(new AssetPriceUpdated

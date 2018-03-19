@@ -16,7 +16,7 @@ namespace Chronos.Core.Accounts.Events
         }
 
         /// <summary>
-        /// Account GUID
+        /// Account id
         /// </summary>
         public Guid AccountId { get; }
         /// <summary>
