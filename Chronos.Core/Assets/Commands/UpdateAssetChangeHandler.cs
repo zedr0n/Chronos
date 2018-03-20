@@ -4,7 +4,8 @@ using Chronos.Infrastructure.Commands;
 
 namespace Chronos.Core.Assets.Commands
 {
-    public class UpdateAssetChangeHandler : ICommandHandler<UpdateAssetChangeCommand>
+    public class UpdateAssetChangeHandler<T> : ICommandHandler<UpdateAssetChangeCommand<T>>
+        where T : class, IAsset,new()
     {
         private readonly IDomainRepository _domainRepository;
 
@@ -13,9 +14,9 @@ namespace Chronos.Core.Assets.Commands
             _domainRepository = domainRepository;
         }
 
-        public void Handle(UpdateAssetChangeCommand command)
+        public void Handle(UpdateAssetChangeCommand<T> command)
         {
-            var asset = _domainRepository.Find<IAsset>(command.TargetId);
+            var asset = _domainRepository.Find<T>(command.TargetId);
             if(asset == null)
                 throw new InvalidOperationException("Asset does not exist");
 				

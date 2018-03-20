@@ -2,7 +2,8 @@
 
 namespace Chronos.Core.Assets.Commands
 {
-    public class UpdateAssetChangeCommand : CommandBase 
+    public class UpdateAssetChangeCommand<T> : CommandBase 
+        where T : IAsset
     {
         public UpdateAssetChangeCommand(double hourChange, double dayChange, double weekChange)
         {

@@ -24,6 +24,7 @@ namespace Chronos.Core.Nicehash
                 Speed = 0.0;
             }
         }
+        public Order() {}
             
         public Order(Guid orderId, int orderNumber, Amount unitPrice)
         {
