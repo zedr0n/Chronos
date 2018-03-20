@@ -1,4 +1,5 @@
 ﻿using System;
+using Chronos.Core.Assets;
 using Chronos.Core.Assets.Commands;
 using Chronos.Core.Common.Events;
 using Chronos.Core.Net.Parsing.Commands;
@@ -60,7 +61,7 @@ namespace Chronos.Core.Sagas
 
         protected override void OnParsed()
         {
-            var command = new UpdateAssetPriceCommand
+            var command = new UpdateAssetPriceCommand<Coin>
             {
                 TargetId = _coinId,
                 Price = _price

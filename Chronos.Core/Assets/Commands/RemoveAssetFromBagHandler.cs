@@ -12,6 +12,12 @@ namespace Chronos.Core.Assets.Commands
             _domainRepository = domainRepository;
         }
         
+        /// <summary>
+        /// <see cref="Bag.Remove"/>
+        ///   (<see cref="RemoveAssetFromBagCommand.AssetId"/>,<see cref="RemoveAssetFromBagCommand.Quantity"/>)
+        ///   -> @ <see cref="Bag"/> : <see cref="Chronos.Core.Assets.Events.AssetRemovedFromBag"/>
+        /// </summary>
+        /// <param name="command"></param>
         public void Handle(RemoveAssetFromBagCommand command)
         {
             var bag = _domainRepository.Get<Bag>(command.TargetId);

@@ -68,13 +68,8 @@ namespace Chronos.Tests
                 AssetId = CoinId,
                 Price = 100
             };
-            
-            public static readonly AccountChanged AccountChanged = new AccountChanged
-            {
-                AccountId = AccountId,
-                Currency = "GBP",
-                Name = "OtherAccount"
-            };
+
+            public static readonly AccountChanged AccountChanged = new AccountChanged(AccountId, "GBP", "OtherAccount");
 
             public static readonly AccountCreated OtherAccountCreated = new AccountCreated
             {
@@ -156,7 +151,7 @@ namespace Chronos.Tests
             var spec = GetInstance<Specification>()
                 .Given<Coin>(CoinId, History.CoinCreated)
                 .Given<Bag>(BagId, History.BagCreated, History.AssetAddedToBag)
-                .When(new UpdateAssetPriceCommand
+                .When(new UpdateAssetPriceCommand<Coin>
                 {
                     TargetId = CoinId,
                     Price = History.PriceUpdated.Price
@@ -204,7 +199,7 @@ namespace Chronos.Tests
         {
             GetInstance<Specification>()
                 .Given<Coin>(CoinId, History.CoinCreated)
-                .When(new UpdateAssetPriceCommand
+                .When(new UpdateAssetPriceCommand<Coin>
                 {
                     TargetId = CoinId,
                     Price = 100

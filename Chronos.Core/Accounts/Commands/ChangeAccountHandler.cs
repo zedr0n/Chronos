@@ -15,10 +15,11 @@ namespace Chronos.Core.Accounts.Commands
         }
 
         /// <summary>
-        /// <see cref="ChangeAccountCommand"/>! -> <see cref="ChangeAccountHandler"/> 
-        /// <para> @<see cref="Account"/>:<see cref="AccountChanged"/>!</para>
-        /// <para> -> <see cref="Account.When(AccountChanged)"/> </para>
+        /// <see cref="Account.ChangeDetails"/>
+        ///     (<see cref="ChangeAccountCommand.Name"/>,<see cref="ChangeAccountCommand.Currency"/>)
+        ///  ->  @ <see cref="Account"/> : <see cref="Chronos.Core.Accounts.Events.AccountChanged"/>
         /// </summary>
+        /// <seealso cref="Chronos.Infrastructure.Commands.CommandBus.Send"/>
         public void Handle(ChangeAccountCommand command)
         {
             var account = _domainRepository.Get<Account>(command.TargetId);

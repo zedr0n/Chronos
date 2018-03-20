@@ -8,6 +8,9 @@ using Chronos.Infrastructure.Interfaces;
 
 namespace Chronos.Core.Accounts
 {
+    /// <summary>
+    /// Account aggregate root
+    /// </summary>
     public class Account : AggregateBase
     {
         private string _name;
@@ -31,22 +34,17 @@ namespace Chronos.Core.Accounts
         }
 
         /// <summary>
-        /// @<see cref="Account"/> : <see cref="AccountChanged"/>! -> <see cref="When(Chronos.Core.Accounts.Events.AccountChanged)"/>
+        /// Change account <paramref name="name"/> and <paramref name="currency"/>
         /// </summary>
         /// <param name="name">Account name</param>
         /// <param name="currency">Account currency</param>
         public void ChangeDetails(string name, string currency)
         {
-            When(new AccountChanged
-            {
-                AccountId = Id,
-                Name = name,
-                Currency = currency
-            });
+            When(new AccountChanged(Id,name,currency));
         }
 
         /// <summary>
-        /// @<see cref="Account"/> : <see cref="CashDeposited"/>! -> <see cref="When(CashDeposited)"/>
+        /// Debit the account with cash <paramref name="amount"/>
         /// </summary>
         /// <param name="amount">Debit amount</param>
         public void Debit(double amount)
@@ -57,6 +55,11 @@ namespace Chronos.Core.Accounts
                 Amount = amount
             });
         }
+        
+        /// <summary>
+        /// Credit the account with cash <paramref name="amount"/>
+        /// </summary>
+        /// <param name="amount">Withdrawal amount</param>
         public void Credit(double amount)
         {
             When(new CashWithdrawn
@@ -65,19 +68,32 @@ namespace Chronos.Core.Accounts
                 Amount = amount
             });
         }
-        public void DepositAsset( Guid assetId ) => When(
-            new AssetDeposited
-            {
-                AccountId = Id,
-                AssetId = assetId
-            });
 
-        public void WithdrawAsset(Guid assetId) => When( 
-            new AssetWithdrawn
-            {
-                AccountId = Id,
-                AssetId = assetId
-            });
+        /// <summary>
+        /// Deposit asset to the account
+        /// </summary>
+        /// <param name="assetId">Asset id</param>
+        public void DepositAsset(Guid assetId)
+        {
+            When( new AssetDeposited
+                {
+                    AccountId = Id,
+                    AssetId = assetId
+                });
+        }
+
+        /// <summary>
+        /// Withdraw asset from account
+        /// </summary>
+        /// <param name="assetId">Asset id</param>
+        public void WithdrawAsset(Guid assetId)
+        {
+            When( new AssetWithdrawn
+                {
+                    AccountId = Id,
+                    AssetId = assetId
+                });
+        }
 
         protected override void When(IEvent e)
         {
