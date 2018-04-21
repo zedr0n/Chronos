@@ -48,11 +48,6 @@ namespace Chronos.Core.Assets
             When(new AssetChangeUpdated(Id,hourChange,dayChange,weekChange));
         }
         
-        /// <summary>
-        /// Update asset price
-        /// </summary>
-        /// <param name="price">Asset price</param>
-        /// <seealso cref="Chronos.Core.Assets.Commands.UpdateAssetPriceHandler"/>
         public void UpdatePrice(double price)
         {
              When(new AssetPriceUpdated

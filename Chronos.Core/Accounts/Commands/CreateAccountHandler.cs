@@ -18,6 +18,11 @@ namespace Chronos.Core.Accounts.Commands
             _handler = handler;
         }
 
+        /// <summary>
+        /// <see cref="Account"/>
+        ///   (<see cref="CreateAccountCommand.TargetId"/>,<see cref="CreateAccountCommand.Name"/>,<see cref="CreateAccountCommand.Currency"/>)
+        ///   -> @ <see cref="Account"/> : <see cref="Chronos.Core.Accounts.Events.AccountCreated"/>
+        /// </summary>
         public void Handle(CreateAccountCommand command)
         {
             var account = new Account(command.TargetId,command.Name, command.Currency);

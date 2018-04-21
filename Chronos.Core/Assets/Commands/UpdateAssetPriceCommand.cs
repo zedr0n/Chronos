@@ -2,7 +2,7 @@
 
 namespace Chronos.Core.Assets.Commands
 {
-    public class UpdateAssetPriceCommand<T> : CommandBase
+    public abstract class UpdateAssetPriceCommand<T> : CommandBase
         where T : IAsset
     {
         /// <summary>
@@ -10,4 +10,7 @@ namespace Chronos.Core.Assets.Commands
         /// </summary>
         public double Price { get; set; }
     }
+    
+    public class UpdateCoinPriceCommand : UpdateAssetPriceCommand<Coin> {}
+    public class UpdateEquityPriceCommand : UpdateAssetPriceCommand<Equity> {}
 }

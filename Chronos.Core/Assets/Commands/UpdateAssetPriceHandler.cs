@@ -4,7 +4,7 @@ using Chronos.Infrastructure.Commands;
 
 namespace Chronos.Core.Assets.Commands
 {
-	public class UpdateAssetPriceHandler<T> : ICommandHandler<UpdateAssetPriceCommand<T>> where T : class,IAsset,new()
+	public abstract class UpdateAssetPriceHandler<T> : ICommandHandler<UpdateAssetPriceCommand<T>> where T : class,IAsset,new()
 	{
 		private readonly IDomainRepository _domainRepository;
 
@@ -31,5 +31,27 @@ namespace Chronos.Core.Assets.Commands
 		}
 	}
 
-    
+    public class UpdateCoinPriceHandler : UpdateAssetPriceHandler<Coin>, ICommandHandler<UpdateCoinPriceCommand>
+    {
+	    public UpdateCoinPriceHandler(IDomainRepository domainRepository) : base(domainRepository)
+	    {
+	    }
+
+	    public void Handle(UpdateCoinPriceCommand command)
+	    {
+		    base.Handle(command);
+	    }
+    }
+
+	public class UpdateEquityPriceHandler : UpdateAssetPriceHandler<Equity>, ICommandHandler<UpdateEquityPriceCommand>
+	{
+		public UpdateEquityPriceHandler(IDomainRepository domainRepository) : base(domainRepository)
+		{
+		}
+
+		public void Handle(UpdateEquityPriceCommand command)
+		{
+			base.Handle(command);
+		}
+	}
 }

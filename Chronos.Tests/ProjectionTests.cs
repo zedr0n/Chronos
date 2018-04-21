@@ -50,7 +50,7 @@ namespace Chronos.Tests
 
             for (var i = 0; i < 100; ++i)
             {
-                var priceCommand = new UpdateAssetPriceCommand<Coin>
+                var priceCommand = new UpdateCoinPriceCommand 
                 {
                     Price = i,
                     TargetId = coinId
