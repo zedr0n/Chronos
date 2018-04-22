@@ -68,6 +68,7 @@ namespace Chronos.Infrastructure.Projections
             _streams = _eventStore.GetLiveStreams().Where(Selector);
             Register(_streams);
             var requests = _streams.Select(s => new StreamRequest(s, reset ? 0 : GetVersion(s)+1));
+           
             
             var events = _eventStore.GetEventsBuffered(requests)
                 .Select(x => new GroupedObservable<StreamDetails,IList<IEvent>>

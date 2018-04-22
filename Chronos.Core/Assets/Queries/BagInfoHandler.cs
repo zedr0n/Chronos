@@ -23,7 +23,7 @@ namespace Chronos.Core.Assets.Queries
             _debugLog = debugLog;
             Expression = manager.Create<BagInfo>()
                 .From<Bag>()
-                .Include<Coin>()
+                //.Include<Coin>()
                 .ForEachStream()
                 //.Do(Log)
                 .OutputState();

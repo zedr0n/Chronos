@@ -19,7 +19,7 @@ namespace Chronos.Core.Assets.Projections
         public string Name { get; set; }
         public double Amount { get; set; }
         private readonly Dictionary<Guid, double> _assets = new Dictionary<Guid, double>();
-        private readonly Dictionary<Guid, double> _prices = new Dictionary<Guid, double>();
+        //private readonly Dictionary<Guid, double> _prices = new Dictionary<Guid, double>();
 
         public double Value { get; set; }
         public int NumberOfAssets => _assets.Count;
@@ -43,8 +43,8 @@ namespace Chronos.Core.Assets.Projections
                 _assets.Add(e.AssetId,0.0);
 
             _assets[e.AssetId] += e.Quantity;
-            if(!_prices.ContainsKey(e.AssetId))
-                _prices[e.AssetId] = 0.0;
+            //if(!_prices.ContainsKey(e.AssetId))
+            //    _prices[e.AssetId] = 0.0;
         }
 
         private void When(AssetRemovedFromBag e)
@@ -52,21 +52,9 @@ namespace Chronos.Core.Assets.Projections
             _assets[e.AssetId] -= e.Quantity;
         }
 
-        private void When(AssetPriceUpdated e)
-        {
-            _prices[e.AssetId] = e.Price;
-        }
-
-        public void UpdatePrice(Guid assetId, double price)
-        {
-            _prices[assetId] = price;
-            Update();
-        }
-
         private void When(StateReset e)
         {
             _assets.Clear();
-            _prices.Clear();
         }
 
         public override bool When(IEvent e)
@@ -78,8 +66,8 @@ namespace Chronos.Core.Assets.Projections
 
         private void Update()
         {
-            Amount = _assets.Sum(asset => asset.Value);
-            Value = _assets.Sum(asset => _prices[asset.Key] * asset.Value);  
+            //Amount = _assets.Sum(asset => asset.Value);
+            //Value = _assets.Sum(asset => _prices[asset.Key] * asset.Value);  
         }
     }
 }

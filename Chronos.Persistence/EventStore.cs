@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
@@ -51,11 +52,11 @@ namespace Chronos.Persistence
                 // and current stream events
                 // we only need to handle the event once
                 // => Distinct()
-                return Observable.Return(new BufferEnvelope(pastEvents, r.Stream))
+                return Observable.Return(new StreamBatch(pastEvents, r.Stream))
                     .Concat(_events.Where(e => e.Stream.Name == r.Stream.Name
                                                && e.Stream.Timeline == r.Stream.Timeline
                                                && e.Event.Version > lastEvent)
-                        .Select(e => new BufferEnvelope(new List<IEvent> {e.Event}, r.Stream)));
+                        .Select(e => new StreamBatch(new List<IEvent> {e.Event}, r.Stream)));
                 //.Distinct(x => x.Events.FirstOrDefault()?.EventNumber);
 
                 //return pastEvents.Select(e => new Envelope(e,r.Stream)).ToObservable()
@@ -65,6 +66,60 @@ namespace Chronos.Persistence
             //return null;
             return events.GroupBy(x => x.Stream, x => x.Events);
             //return events.GroupBy(x => x.Stream, x => x.Select(l => )); 
+        }
+        
+        public IObservable<IGroupedObservable<StreamDetails, IList<IEvent>>> GetEventsBuffered(
+            IObservable<StreamDetails> streams)
+        {
+            var events = streams.SelectMany(s =>
+            {
+                var pastEvents = Connection.ReadStreamEventsForward(s, s.Version, int.MaxValue)
+                    .OrderBy(e => e.Version)
+                    .ToList();
+                
+                var lastEvent = pastEvents.LastOrDefault()?.Version ?? -1;
+                return Observable.Return(new StreamBatch(pastEvents, s))
+                    .Concat(_events.Where(e => e.Stream.Name == s.Name
+                                               && e.Stream.Timeline == s.Timeline
+                                               && e.Event.Version > lastEvent)
+                        .Select(e => new StreamBatch(new List<IEvent> {e.Event}, s)));
+            });
+            return events.GroupBy(x => x.Stream, x => x.Events);
+        }
+        
+        public IObservable<IGroupedObservable<StreamDetails, IEvent>> GetEvents(IObservable<StreamDetails> streams)
+        {
+            var lastEvents = new Dictionary<string, int>();
+            var allPastEvents = streams.SelectMany(s =>
+            {
+                var pastEvents = Connection.ReadStreamEventsForward(s, s.Version, int.MaxValue)
+                    .OrderBy(e => e.Version).ToList();
+                lastEvents[s.Name] = pastEvents.LastOrDefault()?.Version ?? -1;
+                return Observable.Return(pastEvents.Select(e => new Envelope(e, s)).ToList());
+            }).Scan(new List<Envelope>(), (list, e) => {
+                list.AddRange(e);
+                return list.OrderBy(x => x.Event.Timestamp).ToList();
+            });
+
+            var allFutureEvents = streams.SelectMany(s => _events.Where(e => e.Stream.Name == s.Name
+                                          && e.Stream.Timeline == s.Timeline
+                                          && e.Event.Version > lastEvents[s.Name]));
+
+            return allPastEvents.Merge(allFutureEvents)
+                .GroupBy(x => x.Stream, x => x.Event);
+            
+            var events = streams.SelectMany(s =>
+            {
+                var pastEvents = Connection.ReadStreamEventsForward(s, s.Version, int.MaxValue)
+                    .OrderBy(e => e.Version).ToList();
+                var lastEvent = pastEvents.LastOrDefault()?.Version ?? -1;
+
+                return pastEvents.Select(e => new Envelope(e, s)).ToObservable()
+                    .Concat(_events.Where(e => e.Stream.Name == s.Name 
+                                            && e.Stream.Timeline == s.Timeline
+                                            && e.Event.Version > lastEvent));
+            });
+            return events.GroupBy(x => x.Stream, x => x.Event);
         }
         
         public IObservable<IGroupedObservable<StreamDetails, IEvent>> GetEvents(IObservable<StreamRequest> requests)

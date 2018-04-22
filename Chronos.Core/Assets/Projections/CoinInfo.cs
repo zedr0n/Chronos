@@ -8,6 +8,7 @@ namespace Chronos.Core.Assets.Projections
     /// <summary>
     /// Coin info read model
     /// </summary>
+    [Source(typeof(Coin))]
     public class CoinInfo : ReadModelBase<Guid>
     {
         public string Name { get; set; }
