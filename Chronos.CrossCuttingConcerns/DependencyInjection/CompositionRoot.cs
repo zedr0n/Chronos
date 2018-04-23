@@ -130,7 +130,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(Purchase),
                 typeof(Order),
                 typeof(Tracker),
-                typeof(Bag)
+                typeof(Bag),
+                typeof(Core.Coinbase.Account)
             }) );
             
             // register infrastructure
@@ -205,7 +206,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(RemoveAssetFromBagHandler),
                 typeof(UpdateAssetChangeHandler<Coin>),
                 typeof(UpdateAssetChangeHandler<Equity>),
-                typeof(CreateCoinbaseAccountHandler)
+                typeof(CreateCoinbaseAccountHandler),
+                typeof(PurchaseCoinHandler)
             } ,Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(NullCommandHandler<>),Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(HistoricalCommandHandler<>),Lifestyle.Singleton);

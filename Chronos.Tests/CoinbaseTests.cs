@@ -35,5 +35,33 @@ namespace Chronos.Tests
             
             Assert.True(accountCreated);
         }
+
+        [Fact]
+        public void CanProcessCoinbasePurchase()
+        {
+            var container = CreateContainer(nameof(CanProcessCoinbasePurchase));
+            var commandBus = container.GetInstance<ICommandBus>();
+            var eventStore = container.GetInstance<IEventStore>();
+
+            var coinPurchased = false;
+
+            eventStore.Events.OfType<CoinPurchased>().Subscribe(e => coinPurchased = true);
+            
+            var accountId = Guid.NewGuid();
+            var command = new CreateCoinbaseAccountCommand("test@test.com")
+            {
+                TargetId = accountId
+            };
+            commandBus.Send(command);
+
+            var purchaseId = Guid.NewGuid();
+            var purchaseCommand = new PurchaseCoinCommand(purchaseId, "Bitcoin",1.0,1000.0,3.0)
+            {
+                TargetId = accountId
+            };
+            commandBus.Send(purchaseCommand);
+            
+            Assert.True(coinPurchased);
+        }
     }
 }
