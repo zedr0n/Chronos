@@ -1,6 +1,7 @@
 ﻿using System;
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Transactions.Events;
+using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Sagas;
 using Stateless;
 
@@ -28,8 +29,8 @@ namespace Chronos.Core.Sagas
 
             base.ConfigureStateMachine();
         }
-
-        public TransactionSaga() { }
+        
+        protected override void When(IEvent e) => When((dynamic) e);
 
         private void WithdrawCash()
         {
