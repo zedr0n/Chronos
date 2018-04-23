@@ -60,13 +60,13 @@ namespace Chronos.Tests
             commandBus.Send(command);
 
             // create corresponding core account for Coinbase
-            var accountCommand = new CreateAccountCommand
+            /*var accountCommand = new CreateAccountCommand
             {
                 TargetId = accountId,
                 Currency = "GBP",
                 Name = "Coinbase"
             };
-            commandBus.Send(accountCommand);
+            commandBus.Send(accountCommand);*/
             
             // create Bitcoin coin
             var btcId = Guid.NewGuid();

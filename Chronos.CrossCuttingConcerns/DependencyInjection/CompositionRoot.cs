@@ -227,7 +227,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(SchedulerSagaHandler),
                 typeof(TransactionSagaHandler),
                 typeof(TransferSagaHandler),
-                typeof(AssetPurchaseSagaHandler)
+                typeof(AssetPurchaseSagaHandler),
+                typeof(CoinbaseSagaHandler)
             },Lifestyle.Singleton);
             container.Register<ISagaHandler<OrderTrackingSaga>,OrderTrackingSagaHandler>(Lifestyle.Singleton);
             container.Register<ISagaHandler<CoinTrackingSaga>,CoinTrackingSagaHandler>(Lifestyle.Singleton);
