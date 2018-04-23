@@ -7,16 +7,16 @@ namespace Chronos.Core.Coinbase.Events
     {
         public Guid AccountId { get; }
         public Guid PurchaseId { get; }
-        public string Coin { get; }
+        public Guid CoinId { get; }
         public double Quantity { get; }
         public double CostPerUnit { get; } // in GBP
         public double Fee { get; }
 
-        public CoinPurchased(Guid accountId, Guid purchaseId, string coin, double quantity, double costPerUnit, double fee)
+        public CoinPurchased(Guid accountId, Guid purchaseId, Guid coinId, double quantity, double costPerUnit, double fee)
         {
             AccountId = accountId;
             PurchaseId = purchaseId;
-            Coin = coin;
+            CoinId = coinId;
             Quantity = quantity;
             CostPerUnit = costPerUnit;
             Fee = fee;

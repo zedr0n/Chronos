@@ -15,7 +15,7 @@ namespace Chronos.Core.Coinbase.Commands
     	public void Handle(PurchaseCoinCommand command)
 	    {
 		    var account = _domainRepository.Get<CoinbaseAccount>(command.TargetId);
-		    account.PurchaseCoin(command.PurchaseId,command.Coin, command.Quantity, command.CostPerUnit, command.Fee);
+		    account.PurchaseCoin(command.PurchaseId,command.CoinId, command.Quantity, command.CostPerUnit, command.Fee);
     		_domainRepository.Save(account);
     	}
     }

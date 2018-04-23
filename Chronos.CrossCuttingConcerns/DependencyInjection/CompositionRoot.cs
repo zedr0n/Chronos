@@ -208,7 +208,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(UpdateAssetChangeHandler<Coin>),
                 typeof(UpdateAssetChangeHandler<Equity>),
                 typeof(CreateCoinbaseAccountHandler),
-                typeof(PurchaseCoinHandler)
+                typeof(PurchaseCoinHandler),
+                typeof(PurchaseAssetHandler)
             } ,Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(NullCommandHandler<>),Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(HistoricalCommandHandler<>),Lifestyle.Singleton);
@@ -225,7 +226,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             {
                 typeof(SchedulerSagaHandler),
                 typeof(TransactionSagaHandler),
-                typeof(TransferSagaHandler)
+                typeof(TransferSagaHandler),
+                typeof(AssetPurchaseSagaHandler)
             },Lifestyle.Singleton);
             container.Register<ISagaHandler<OrderTrackingSaga>,OrderTrackingSagaHandler>(Lifestyle.Singleton);
             container.Register<ISagaHandler<CoinTrackingSaga>,CoinTrackingSagaHandler>(Lifestyle.Singleton);

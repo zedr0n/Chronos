@@ -9,5 +9,6 @@ namespace Chronos.Core.Accounts.Commands
         /// Asset id
         /// </summary>
         public Guid AssetId { get; set; }
+        public double Quantity { get; set; }
     }
 }

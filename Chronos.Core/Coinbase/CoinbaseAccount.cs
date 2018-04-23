@@ -15,9 +15,9 @@ namespace Chronos.Core.Coinbase
             When(new CoinbaseAccountCreated(accountId,email));
         }
 
-        public void PurchaseCoin(Guid purchaseId,string coin, double quantity, double costPerUnit, double fee)
+        public void PurchaseCoin(Guid purchaseId,Guid coinId, double quantity, double costPerUnit, double fee)
         {
-            When(new CoinPurchased(Id,purchaseId,coin, quantity, costPerUnit, fee));
+            When(new CoinPurchased(Id,purchaseId,coinId, quantity, costPerUnit, fee));
         }
 
         public void When(CoinbaseAccountCreated e)
