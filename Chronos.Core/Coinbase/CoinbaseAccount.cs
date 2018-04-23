@@ -4,13 +4,13 @@ using Chronos.Infrastructure;
 
 namespace Chronos.Core.Coinbase
 {
-    public class Account : AggregateBase
+    public class CoinbaseAccount : AggregateBase
     {
         private string _email;
         
-        public Account() {}
+        public CoinbaseAccount() {}
 
-        public Account(Guid accountId, string email)
+        public CoinbaseAccount(Guid accountId, string email)
         {
             When(new CoinbaseAccountCreated(accountId,email));
         }

@@ -9,6 +9,7 @@ using Chronos.Core.Assets;
 using Chronos.Core.Assets.Commands;
 using Chronos.Core.Assets.Projections;
 using Chronos.Core.Assets.Queries;
+using Chronos.Core.Coinbase;
 using Chronos.Core.Coinbase.Commands;
 using Chronos.Core.Net.Parsing;
 using Chronos.Core.Net.Parsing.Commands;
@@ -131,7 +132,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(Order),
                 typeof(Tracker),
                 typeof(Bag),
-                typeof(Core.Coinbase.Account)
+                typeof(CoinbaseAccount)
             }) );
             
             // register infrastructure

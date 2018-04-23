@@ -15,7 +15,7 @@ namespace Chronos.Core.Coinbase.Commands
     
     	public void Handle(CreateCoinbaseAccountCommand command)
     	{
-    		var account = new Account(command.TargetId,command.Email);        
+    		var account = new CoinbaseAccount(command.TargetId,command.Email);        
     		_domainRepository.Save(account);
     	}
     }
