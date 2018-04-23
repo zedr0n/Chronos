@@ -9,6 +9,8 @@ using Chronos.Core.Assets;
 using Chronos.Core.Assets.Commands;
 using Chronos.Core.Assets.Projections;
 using Chronos.Core.Assets.Queries;
+using Chronos.Core.Coinbase;
+using Chronos.Core.Coinbase.Commands;
 using Chronos.Core.Net.Parsing;
 using Chronos.Core.Net.Parsing.Commands;
 using Chronos.Core.Net.Tracking;
@@ -130,7 +132,8 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(Purchase),
                 typeof(Order),
                 typeof(Tracker),
-                typeof(Bag)
+                typeof(Bag),
+                typeof(CoinbaseAccount)
             }) );
             
             // register infrastructure
@@ -206,7 +209,10 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
                 typeof(AddAssetToBagHandler),
                 typeof(RemoveAssetFromBagHandler),
                 typeof(UpdateAssetChangeHandler<Coin>),
-                typeof(UpdateAssetChangeHandler<Equity>)
+                typeof(UpdateAssetChangeHandler<Equity>),
+                typeof(CreateCoinbaseAccountHandler),
+                typeof(PurchaseCoinHandler),
+                typeof(PurchaseAssetHandler)
             } ,Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(NullCommandHandler<>),Lifestyle.Singleton);
             //container.Register(typeof(IHistoricalCommandHandler<>),typeof(HistoricalCommandHandler<>),Lifestyle.Singleton);
@@ -223,7 +229,9 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             {
                 typeof(SchedulerSagaHandler),
                 typeof(TransactionSagaHandler),
-                typeof(TransferSagaHandler)
+                typeof(TransferSagaHandler),
+                typeof(AssetPurchaseSagaHandler),
+                typeof(CoinbaseSagaHandler)
             },Lifestyle.Singleton);
             container.Register<ISagaHandler<OrderTrackingSaga>,OrderTrackingSagaHandler>(Lifestyle.Singleton);
             container.Register<ISagaHandler<CoinTrackingSaga>,CoinTrackingSagaHandler>(Lifestyle.Singleton);

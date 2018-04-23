@@ -2,6 +2,7 @@
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Transactions;
 using Chronos.Core.Transactions.Events;
+using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Sagas;
 using Stateless;
 
@@ -57,6 +58,8 @@ namespace Chronos.Core.Sagas
             });
         }
 
+        protected override void When(IEvent e) => When((dynamic) e);
+        
         public void When(AssetTransferCreated e)
         {
             _transferDetails = new TransferDetails(e.FromAccount,e.ToAccount);
