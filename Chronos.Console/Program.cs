@@ -34,6 +34,7 @@ namespace Chronos.Console
                     typeof(GuidListener),
                     typeof(CreateCoinListener),
                     typeof(TrackCoinListener),
+                    typeof(UpdateAssetPriceListener),
                     typeof(CreateBagListener),
                     typeof(AddAssetToBagListener),
                     typeof(StopTrackingListener),

@@ -143,6 +143,18 @@ public partial class ChronosBaseListener : IChronosListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitTrackAsset([NotNull] ChronosParser.TrackAssetContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.updateAssetPrice"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterUpdateAssetPrice([NotNull] ChronosParser.UpdateAssetPriceContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.updateAssetPrice"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitUpdateAssetPrice([NotNull] ChronosParser.UpdateAssetPriceContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ChronosParser.add"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -274,6 +286,18 @@ public partial class ChronosBaseListener : IChronosListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitName([NotNull] ChronosParser.NameContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.price"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterPrice([NotNull] ChronosParser.PriceContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.price"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitPrice([NotNull] ChronosParser.PriceContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ChronosParser.ticker"/>.
 	/// <para>The default implementation does nothing.</para>

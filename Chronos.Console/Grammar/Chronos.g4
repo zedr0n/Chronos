@@ -4,7 +4,7 @@ grammar Chronos;
   Parser rules
 */
 
-command : create | trackAsset | add | stop | start | remove | replay;  
+command : create | trackAsset | add | stop | start | remove | replay | updateAssetPrice;    
 query : bags; 
 
 start : START TRACK;
@@ -16,6 +16,7 @@ createCoin : COIN name ticker guidOptional;
 createBag : BAG name guidOptional;
 
 trackAsset : TRACK asset? name duration;
+updateAssetPrice : UPDATEPRICE asset? name price;  
 
 add : ADD assetToBag;
 assetToBag : quantity assetDescriptor to? bag? bagDescriptor;
@@ -31,6 +32,7 @@ date : NUMBER NUMBER;
 asset : COIN;
 duration : NUMBER;
 name : WORD;
+price : ( DOUBLE | NUMBER );
 ticker : WORD;
 quantity : ( DOUBLE | NUMBER );
 guid : WORD;
@@ -72,6 +74,7 @@ fragment DIGIT     : [0-9];
 CREATE : C R E A T E;
 COIN : C O I N;
 TRACK : T R A C K;
+UPDATEPRICE : U P D A T E P R I C E;
 GUID : G U I D;
 BAG : B A G;
 ADD : A D D;

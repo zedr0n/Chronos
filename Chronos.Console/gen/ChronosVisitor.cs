@@ -86,6 +86,12 @@ public interface IChronosVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitTrackAsset([NotNull] ChronosParser.TrackAssetContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.updateAssetPrice"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitUpdateAssetPrice([NotNull] ChronosParser.UpdateAssetPriceContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="ChronosParser.add"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -151,6 +157,12 @@ public interface IChronosVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitName([NotNull] ChronosParser.NameContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="ChronosParser.price"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitPrice([NotNull] ChronosParser.PriceContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="ChronosParser.ticker"/>.
 	/// </summary>

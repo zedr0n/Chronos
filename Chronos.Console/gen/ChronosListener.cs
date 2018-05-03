@@ -121,6 +121,16 @@ public interface IChronosListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitTrackAsset([NotNull] ChronosParser.TrackAssetContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.updateAssetPrice"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterUpdateAssetPrice([NotNull] ChronosParser.UpdateAssetPriceContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.updateAssetPrice"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitUpdateAssetPrice([NotNull] ChronosParser.UpdateAssetPriceContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="ChronosParser.add"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -230,6 +240,16 @@ public interface IChronosListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitName([NotNull] ChronosParser.NameContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="ChronosParser.price"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterPrice([NotNull] ChronosParser.PriceContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="ChronosParser.price"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitPrice([NotNull] ChronosParser.PriceContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="ChronosParser.ticker"/>.
 	/// </summary>
