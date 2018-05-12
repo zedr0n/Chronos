@@ -119,6 +119,14 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
         ICompositionRootWrite ICompositionRootWrite.Persistent() => _writeConfiguration.Persistent();
         ICompositionRoot ICompositionRootWrite.Database(string dbName) => _writeConfiguration.Database(dbName);
 
+        public ICompositionRoot WithNet()
+        {
+            _withNet = true;
+            return this;
+        }
+
+        private bool _withNet = false;
+        
         public virtual void ComposeApplication(Container container)
         {
             container.Options.RegisterParameterConvention(new NicehashKeyConvention());
@@ -149,7 +157,10 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
             container.Register<IQueryProcessor, QueryProcessor>(Lifestyle.Singleton);
             container.Register<IClock,HighPrecisionClock>(Lifestyle.Singleton);
             container.Register<IAggregateFactory,AggregateFactory>(Lifestyle.Singleton);
-            container.Register<IJsonConnector,JsonConnector>(Lifestyle.Singleton);
+            if (_withNet)
+                container.Register<IJsonConnector,JsonConnector>(Lifestyle.Singleton);
+            else
+                container.Register<IJsonConnector, FakeJsonConnector>(Lifestyle.Singleton);
             container.AddRegistration<IEventBus>(Lifestyle.Singleton.CreateRegistration<EventStore>(container));
             container.RegisterConditional<IUrlProvider,OrderUrlProvider>(Lifestyle.Singleton,
                 x => x.Consumer.ImplementationType == typeof(TrackOrderHandler));

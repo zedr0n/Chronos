@@ -7,6 +7,7 @@ namespace Chronos.CrossCuttingConcerns.DependencyInjection
     {
         ICompositionRootRead ReadWith();
         ICompositionRootWrite WriteWith();
+        ICompositionRoot WithNet();
         void ComposeApplication(Container container);
     }
 

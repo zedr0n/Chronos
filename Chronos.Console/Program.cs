@@ -24,7 +24,8 @@ namespace Chronos.Console
         private void Initialise()
         {
             var root = new CompositionRoot().WriteWith().Persistent().Database("Chronos.ES.Console")
-                .ReadWith().Persistent().Database("Chronos.Read.Console");
+                .ReadWith().Persistent().Database("Chronos.Read.Console")
+                .WithNet();
             root.ComposeApplication(_container);
             _container.Register<IDebugLog,DebugLog>(Lifestyle.Singleton);
             _container.Register<ChronosVisitor>();

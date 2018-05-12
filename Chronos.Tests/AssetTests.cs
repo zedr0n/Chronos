@@ -31,7 +31,7 @@ namespace Chronos.Tests
                 .WriteWith().Database(dbName); 
         }
         
-        //[Fact]
+        [Fact]
         public void CanTrackBitcoin()
         {
             var container = CreateContainer(nameof(CanTrackBitcoin));
