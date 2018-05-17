@@ -1,6 +1,7 @@
 ﻿using System;
 using Chronos.Core.Net.Parsing.Commands;
 using Chronos.Core.Net.Tracking.Events;
+using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Sagas;
 using Stateless;
 
@@ -11,6 +12,13 @@ namespace Chronos.Core.Sagas
     {
         private int _orderNumber;
         private Guid _orderId;
+
+        public OrderTrackingSaga()
+        {
+            Register<OrderTrackingRequested>(Trigger.TrackingRequested);
+        }
+
+        protected override void Handle(IEvent e) => When((dynamic) e);
 
         public void When(OrderTrackingRequested e)
         {
