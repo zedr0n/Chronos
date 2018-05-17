@@ -19,10 +19,10 @@ namespace Chronos.Core.Sagas
         private double _costPerUnit;
         private Guid _accountId;
         
-        public enum State { Open, Completed }
-        public enum Trigger { CoinPurchased }
+        public enum State { Open, Processing, Completed }
+        public enum Trigger { CoinPurchased, AssetPurchaseCreated }
 
-        protected override void When(IEvent e)
+        public override void When(IEvent e)
         {
             When((dynamic) e);
         }
@@ -32,10 +32,10 @@ namespace Chronos.Core.Sagas
             StateMachine = new StateMachine<State, Trigger>(State.Open);
 
             StateMachine.Configure(State.Open)
-                .Permit(Trigger.CoinPurchased, State.Completed);
+                .Permit(Trigger.CoinPurchased, State.Processing);
 
-            StateMachine.Configure(State.Completed)
-                .OnEntry(OnCompleted);
+            StateMachine.Configure(State.Processing)
+                .Permit(Trigger.AssetPurchaseCreated, State.Completed);
             
             base.ConfigureStateMachine();
         }
@@ -51,7 +51,7 @@ namespace Chronos.Core.Sagas
         
         public void When(CoinPurchased e)
         {
-            if (StateMachine.IsInState(State.Open))
+            if (StateMachine.CanFire(Trigger.CoinPurchased))
             {
                 _coinId = e.CoinId;
                 _quantity = e.Quantity;

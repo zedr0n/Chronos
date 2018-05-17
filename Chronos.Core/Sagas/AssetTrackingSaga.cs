@@ -12,6 +12,7 @@ namespace Chronos.Core.Sagas
 {
     public class AssetTrackingSaga : StatelessSaga<AssetTrackingSaga.State,AssetTrackingSaga.Trigger>,
         IHandle<JsonRequestFailed>,
+        IHandle<JsonRequested>,
         IHandle<JsonReceived>,
         IHandle<AssetJsonParsed>,
         IHandle<TimeoutCompleted>,
@@ -21,131 +22,95 @@ namespace Chronos.Core.Sagas
         public enum State
         {
             Open,
-            Active,
-            Paused,
+            Requesting,
+            Waiting,
             Received
         }
         public enum Trigger
         {
             TrackingRequested,
+            Start,
+            JsonRequested,
             JsonReceived,
             Pause,
             Stop,
             Parsed
         }
         
-        public AssetTrackingSaga()
-        {
-        }
-
         private string _url;
         private Duration _updateInterval;
+        private string _json;
 
-        private StateMachine<State, Trigger>.TriggerWithParameters<AssetTrackingRequested> _trackingTrigger;
-        private StateMachine<State, Trigger>.TriggerWithParameters<string> _jsonReceivedTrigger;
-
-        protected override void When(IEvent e)
+        public override void When(IEvent e)
         {
-            When((dynamic) e);
+            if (CanFire(e))
+                Handle(e);   
+            Fire(e);
+            base.When(e);
+        }
+
+        protected virtual void Handle(IEvent e) => When((dynamic) e); 
+
+        public AssetTrackingSaga()
+        {
+            Register<StopTrackingRequested>(Trigger.Stop);
+            Register<StartRequested>(Trigger.Start);
+            Register<JsonRequested>(Trigger.JsonRequested);
+            Register<JsonReceived>(Trigger.JsonReceived);
+            Register<JsonRequestFailed>(Trigger.Pause);
+            Register<TimeoutCompleted>(Trigger.Start);  
         }
 
         protected override void ConfigureStateMachine()
         {
             StateMachine = new StateMachine<State,Trigger>(State.Open);
 
-            _trackingTrigger = StateMachine.SetTriggerParameters<AssetTrackingRequested>(Trigger.TrackingRequested);
-            _jsonReceivedTrigger = StateMachine.SetTriggerParameters<string>(Trigger.JsonReceived);
-
             StateMachine.Configure(State.Open)
-                .Permit(Trigger.TrackingRequested, State.Paused)
+                .Permit(Trigger.TrackingRequested, State.Waiting)
                 .Ignore(Trigger.Stop)
-                .OnEntryFrom(Trigger.Stop,OnCancel);
+                .OnEntryFrom(Trigger.Stop, () =>
+                    SendMessage(new CancelTimeoutCommand(SagaId)));
 
-            StateMachine.Configure(State.Paused)
+            StateMachine.Configure(State.Waiting)
                 .Permit(Trigger.JsonReceived, State.Received)
-                .OnEntryFrom(_trackingTrigger, OnTracking)
-                .Permit(Trigger.Stop,State.Open)
+                .Permit(Trigger.Start, State.Requesting)
+                .Permit(Trigger.Stop, State.Open)
                 .Ignore(Trigger.Pause);
 
-            StateMachine.Configure(State.Active)
-                .Permit(Trigger.Pause, State.Paused)
-                .Permit(Trigger.JsonReceived, State.Received)
-                .Permit(Trigger.Stop, State.Open)
-                .OnEntry(RequestTimeout);
+            StateMachine.Configure(State.Requesting)
+                .Permit(Trigger.JsonRequested, State.Waiting)
+                .OnEntry(() =>
+                    SendMessage(new RequestJsonCommand(_url, SagaId)))
+                .OnExit(() =>
+                    SendMessage(new RequestTimeoutCommand(SagaId, _updateInterval)));
 
             StateMachine.Configure(State.Received)
-                .OnEntryFrom(_jsonReceivedTrigger, OnReceived)
                 .PermitReentry(Trigger.JsonReceived)
-                .Permit(Trigger.Parsed, State.Active)
-                .Permit(Trigger.Stop, State.Open)
+                .Permit(Trigger.Parsed, State.Waiting)
+                .OnEntry(() => OnReceived(_json))
                 .OnExit(OnParsed);
 
             base.ConfigureStateMachine();
         }
 
-        protected void When(AssetTrackingRequested e)
-        {
-            StateMachine.Fire(_trackingTrigger,e);    
-            base.When(e);
-        }
-        
-        protected virtual void OnTracking(AssetTrackingRequested e)
+        public void When(AssetTrackingRequested e)
         {
             _url = e.Url;
             _updateInterval = e.UpdateInterval;
         }
-
-        private void OnCancel()
-        {
-            SendMessage(new CancelTimeoutCommand(SagaId));
-        }
         
-        public void When(StopTrackingRequested e)
-        {
-            StateMachine.Fire(Trigger.Stop);
-            base.When(e);
-        }
-        
-        public void When(StartRequested e)
-        {
-            SendMessage(new RequestJsonCommand(_url,SagaId));
-        }
-
-        private void RequestTimeout()
-        {
-            SendMessage(new RequestTimeoutCommand(SagaId, _updateInterval));
-        }
-
-        public void When(TimeoutCompleted e)
-        {
-            SendMessage(new RequestJsonCommand(_url,SagaId));       
-        }
-
-        public void When(JsonRequestFailed e)
-        {
-            StateMachine.Fire(Trigger.Pause);
-            
-            base.When(e);
-        }
-
+        public void When(StopTrackingRequested e) { }
+        public void When(StartRequested e) { }
+        public void When(TimeoutCompleted e) { }
+        public void When(JsonRequestFailed e) { }
+        public void When(AssetJsonParsed e) { }
+        public void When(JsonRequested e) { }
         public void When(JsonReceived e)
         {
-            StateMachine.Fire(_jsonReceivedTrigger,e.Result);
-            // do not store json
-            base.When(new JsonReceived(e.Url,null,e.RequestorId));
+            _json = e.Result;
         }
-
-        protected virtual void OnReceived(string json) {}
-
-        public void When(AssetJsonParsed e)
-        {
-            if(e.Finish())
-                StateMachine.Fire(Trigger.Parsed);
-            base.When(e);
-        }
-
-        protected virtual void OnParsed() {}
         
-
+        protected virtual void OnReceived (string json) {}
+        protected virtual void OnParsed() {}
     }
 }

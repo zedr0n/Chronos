@@ -3,6 +3,7 @@ using Chronos.Core.Assets;
 using Chronos.Core.Assets.Commands;
 using Chronos.Core.Common.Events;
 using Chronos.Core.Net.Parsing.Commands;
+using Chronos.Core.Net.Parsing.Json;
 using Chronos.Core.Net.Tracking.Events;
 using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Sagas;
@@ -10,7 +11,7 @@ using Chronos.Infrastructure.Sagas;
 namespace Chronos.Core.Sagas
 {
     public class CoinTrackingSaga : AssetTrackingSaga,
-        IHandle<CoinTrackingRequested>,
+        //IHandle<CoinTrackingRequested>,
         IHandle<CoinInfoParsed>,
         IHandle<CoinPercentageParsed>
     {
@@ -21,28 +22,28 @@ namespace Chronos.Core.Sagas
         private double _dayChange;
         private double _weekChange;
 
-        public void When(CoinTrackingRequested e) => base.When(e);
-
-        protected override void When(IEvent e)
+        public CoinTrackingSaga()
         {
-            When((dynamic) e);
+            Register<CoinTrackingRequested>(Trigger.TrackingRequested); 
+            Register<CoinInfoParsed>(Trigger.Parsed);
         }
-
-        protected override void OnTracking(AssetTrackingRequested e)
+        
+        protected override void Handle(IEvent e) => When((dynamic) e); 
+        
+        protected void When(CoinTrackingRequested e)
         {
             _coinId = e.AssetId;
-            _ticker = ((CoinTrackingRequested) e).Ticker;
-            base.OnTracking(e);    
+            _ticker = e.Ticker; 
+            base.When(e);
         }
 
         protected override void OnReceived(string json)
         {
-            if (json != null)
-            {
-                var command = new ParseCoinCommand(_coinId, _ticker, json);
-                SendMessage(command);    
-            }
-            base.OnReceived(json);
+            if (json == null)
+                return;
+            
+            var command = new ParseCoinCommand(_coinId, _ticker, json);
+            SendMessage(command);
         }
 
         public void When(CoinPercentageParsed e)

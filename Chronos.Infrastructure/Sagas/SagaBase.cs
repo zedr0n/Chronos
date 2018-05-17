@@ -59,7 +59,7 @@ namespace Chronos.Infrastructure.Sagas
             _undispatchedMessages.Clear();
         }
 
-        protected virtual void When(IEvent e)
+        public virtual void When(IEvent e)
         {
             Version++;
             e.Version = Version;

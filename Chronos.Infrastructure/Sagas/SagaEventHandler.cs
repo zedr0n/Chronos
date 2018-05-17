@@ -17,7 +17,8 @@ namespace Chronos.Infrastructure.Sagas
         {
             try
             {
-                (saga as IHandle<TEvent>)?.When(e);
+                //(saga as IHandle<TEvent>)?.When(e);
+                saga.When(e);
             }
             catch (Exception exception)
             {

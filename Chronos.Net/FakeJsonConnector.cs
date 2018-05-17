@@ -1,12 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using Chronos.Infrastructure;
 
 namespace Chronos.Net
 {
     public class FakeJsonConnector : IJsonConnector
     {
+        private class Envelope
+        {
+            public Envelope(string url, Lazy<IObservable<string>> observable)
+            {
+                Url = url;
+                Observable = observable;
+            }
+
+            public string Url { get; }
+            public Lazy<IObservable<string>> Observable { get; }
+        }
+        
         private readonly Dictionary<string,string> _json = new Dictionary<string, string>()
         {
             {"https://api.coinmarketcap.com/v1/ticker/Bitcoin", @"[
@@ -30,16 +43,28 @@ namespace Chronos.Net
             ]"} 
         };
 
-        
+        public FakeJsonConnector()
+        {
+            Requests = _urls.AsObservable().Select(s =>
+                    new Envelope(s, new Lazy<IObservable<string>>(
+                        () => Observable.Return(_json[s]))))
+                .DelayBetweenValues(TimeSpan.FromSeconds(1));
+        }
+
+        private readonly Subject<string> _urls = new Subject<string>(); 
+        private IObservable<Envelope> Requests { get; } 
         public void SubmitRequest(string url)
         {
             if(!_json.ContainsKey(url))
                 throw new InvalidOperationException("Url not found");
+            _urls.OnNext(url);
         }
 
         public IObservable<Lazy<IObservable<string>>> GetRequest(string url)
         {
-            return Observable.Return(new Lazy<IObservable<string>>(() => Observable.Return(_json[url])));
+            return Requests.Where(x => x.Url == url).Select(x => x.Observable);
+            //return _urls.Select(s => new Lazy<IObservable<string>>(() => Observable.Return(_json[url])));
+            //return Observable.Return();
         }
     }
 }

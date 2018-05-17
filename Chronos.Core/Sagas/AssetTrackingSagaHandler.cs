@@ -18,6 +18,7 @@ namespace Chronos.Core.Sagas
         {
             RegisterAlert<TimeoutCompleted,TSaga>(e => e.ScheduleId);
             RegisterAlert<JsonReceived,TSaga>(e => e.RequestorId);
+            RegisterAlert<JsonRequested,TSaga>(e => e.RequestorId);
             RegisterAlert<JsonRequestFailed,TSaga>(e => e.RequestorId);
             Register<StartRequested, TSaga>(e => e.AssetId,false);
             Register<StopTrackingRequested, TSaga>(e => e.AssetId.Value,false);

@@ -16,6 +16,7 @@ namespace Chronos.Infrastructure
 
         IEnumerable<IMessage> UndispatchedMessages { get; }
         void ClearUndispatchedMessages();
+        void When(IEvent e);
 
         /// <summary>
         /// Hydrate the saga from events sequence

@@ -49,7 +49,7 @@ namespace Chronos.Core.Sagas
             StateMachine.Fire(Trigger.OrderFilled);
             if (StateMachine.IsInState(State.Filled))
             {
-                SendMessage(new CreateAssetExchangeCommand(e.FromAsset, e.ToAsset, e.FromQuantity, e.ToQuantity)
+                SendMessage(new CreateAssetExchangeCommand(e.FromAsset, e.ToAsset, e.FromQuantity, e.ToQuantity, e.ExchangeId)
                 {
                     TargetId = Guid.NewGuid()
                 });

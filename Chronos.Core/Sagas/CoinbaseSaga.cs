@@ -37,8 +37,8 @@ namespace Chronos.Core.Sagas
                 Name = "Coinbase"
             });
         }
-        
-        protected override void When(IEvent e) => When((dynamic) e);
+
+        public override void When(IEvent e) => When((dynamic) e);
         
         public void When(CoinbaseAccountCreated e)
         {

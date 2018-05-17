@@ -7,9 +7,9 @@ namespace Chronos.Core.Assets
 {
     public class AssetExchange : AggregateBase
     {
-        public AssetExchange(Guid fromAsset, Guid toAsset, double fromQuantity, double toQuantity)
+        public AssetExchange(Guid fromAsset, Guid toAsset, double fromQuantity, double toQuantity,Guid exchangeId)
         {
-            When(new AssetExchanged(fromAsset,toAsset, fromQuantity, toQuantity));
+            When(new AssetExchanged(fromAsset,toAsset, fromQuantity, toQuantity,exchangeId));
         }
 
         public void When(AssetExchanged e)

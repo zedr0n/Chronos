@@ -58,7 +58,7 @@ namespace Chronos.Core.Sagas
             });
         }
 
-        protected override void When(IEvent e) => When((dynamic) e);
+        public override void When(IEvent e) => When((dynamic) e);
         
         public void When(AssetTransferCreated e)
         {

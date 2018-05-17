@@ -14,7 +14,7 @@ namespace Chronos.Core.Assets.Commands
     
     		public void Handle(CreateAssetExchangeCommand command)
     		{
-    			var exchange = new AssetExchange(command.AssetFrom, command.AssetTo, command.QuantityFrom, command.QuantityTo);        
+    			var exchange = new AssetExchange(command.AssetFrom, command.AssetTo, command.QuantityFrom, command.QuantityTo, command.ExchangeId);        
     			_domainRepository.Save(exchange);
     		}
     }

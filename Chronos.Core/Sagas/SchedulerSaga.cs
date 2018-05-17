@@ -78,6 +78,6 @@ namespace Chronos.Core.Sagas
             base.When(e);
         }
 
-        protected override void When(IEvent e) => When((dynamic) e);
+        public override void When(IEvent e) => When((dynamic) e);
     }
 }

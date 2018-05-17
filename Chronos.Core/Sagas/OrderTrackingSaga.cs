@@ -12,13 +12,11 @@ namespace Chronos.Core.Sagas
         private int _orderNumber;
         private Guid _orderId;
 
-        public void When(OrderTrackingRequested e) => base.When(e);
-
-        protected override void OnTracking(AssetTrackingRequested e)
+        public void When(OrderTrackingRequested e)
         {
-            _orderNumber = ((OrderTrackingRequested) e).OrderNumber;
+            _orderNumber = e.OrderNumber;
             _orderId = e.AssetId;
-            base.OnTracking(e);
+            base.When(e);    
         }
 
         protected override void OnReceived(string json)
