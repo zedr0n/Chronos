@@ -48,7 +48,7 @@ namespace Chronos.Net
             Requests = _urls.AsObservable().Select(s =>
                     new Envelope(s, new Lazy<IObservable<string>>(
                         () => Observable.Return(_json[s]))))
-                .DelayBetweenValues(TimeSpan.FromSeconds(1));
+                .DelayBetweenValues(TimeSpan.FromSeconds(0.01));
         }
 
         private readonly Subject<string> _urls = new Subject<string>(); 
