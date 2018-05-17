@@ -1,25 +1,27 @@
-﻿using Chronos.Core.Scheduling.Commands;
+﻿using System;
+using Chronos.Core.Scheduling.Commands;
 using Chronos.Core.Scheduling.Events;
 using Chronos.Infrastructure.Events;
 using Chronos.Infrastructure.Interfaces;
-using Chronos.Infrastructure.Sagas;
+using NodaTime;
 using Stateless;
 
 namespace Chronos.Core.Sagas
 {
-    public class SchedulerSaga : StatelessSaga<SchedulerSaga.State,SchedulerSaga.Trigger>,
-        IHandle<CommandSchedulingRequested>,
-        IHandle<StopRequested>,
-        IHandle<StopCompleted>
+    public class SchedulerSaga : StatelessSaga<SchedulerSaga.State,SchedulerSaga.Trigger>
     {
         public enum State { Open,Requesting,Pending,Completed }
         public enum Trigger { CommandScheduled, SchedulerActive, CommandDue }
 
         private ICommand _command;
+        private Instant _when; 
 
-        private StateMachine<State, Trigger>.TriggerWithParameters<CommandSchedulingRequested> _commandTrigger;
-        
-        public SchedulerSaga() { }
+        public SchedulerSaga()
+        {
+            Register<CommandSchedulingRequested>(Trigger.CommandScheduled, When); 
+            Register<StopRequested>(Trigger.SchedulerActive);
+            Register<StopCompleted>(Trigger.CommandDue);
+        }
 
         protected override void ConfigureStateMachine()
         {
@@ -28,56 +30,28 @@ namespace Chronos.Core.Sagas
             StateMachine.Configure(State.Open)
                 .Permit(Trigger.CommandScheduled, State.Requesting);
 
-            _commandTrigger = StateMachine.SetTriggerParameters<CommandSchedulingRequested>(Trigger.CommandScheduled);
-
             StateMachine.Configure(State.Requesting)
-                .OnEntryFrom(_commandTrigger, OnScheduled)
+                .OnEntry(() => 
+                    SendMessage(new RequestStopAtCommand(SagaId,_when)
+                    {
+                        TargetId = SagaId
+                    }))
                 .Permit(Trigger.SchedulerActive, State.Pending)
                 .Ignore(Trigger.CommandScheduled);
 
             StateMachine.Configure(State.Pending)
-                .Ignore(Trigger.CommandScheduled)
                 .Permit(Trigger.CommandDue, State.Completed);
 
             StateMachine.Configure(State.Completed)
-                .OnEntry(ExecuteCommand);
+                .OnEntry(() => SendMessage(_command));
 
             base.ConfigureStateMachine();
         }
 
-        private void ExecuteCommand()
-        {
-            SendMessage(_command);
-        }
-
-        public void When(CommandSchedulingRequested e)
-        {
-            StateMachine.Fire(_commandTrigger,e);
-            base.When(e);
-        }
-
-        private void OnScheduled(CommandSchedulingRequested e)
+        private void When(CommandSchedulingRequested e)
         {
             _command = e.Command;
-            
-            SendMessage(new RequestStopAtCommand(e.ScheduleId,e.When)
-            {
-                TargetId = SagaId
-            }); 
+            _when = e.When;
         }
-
-        public void When(StopRequested e)
-        {
-            StateMachine.Fire(Trigger.SchedulerActive);
-            base.When(e);
-        }
-        
-        public void When(StopCompleted e)
-        {
-            StateMachine.Fire(Trigger.CommandDue);
-            base.When(e);
-        }
-
-        public override void When(IEvent e) => When((dynamic) e);
     }
 }

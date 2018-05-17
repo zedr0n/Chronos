@@ -14,11 +14,24 @@ namespace Chronos.Core.Sagas
         public enum Trigger { ExchangeAdded, OrderCreated, OrderFilled, AssetExchanged }
 
         private Guid _accountId;
+        private string _name;
+
+        public AssetExchangeSaga()
+        {
+            Register<ExchangeAdded>(Trigger.ExchangeAdded, When);
+            Register<ExchangeOrderFilled>(Trigger.OrderFilled);
+        }
         
         protected override void ConfigureStateMachine()
         {
             StateMachine.Configure(State.Open)
-                .Permit(Trigger.ExchangeAdded, State.Exchanging);
+                .Permit(Trigger.ExchangeAdded, State.Exchanging)
+                .OnExit(() =>
+                    SendMessage(new CreateAccountCommand
+                    {
+                        TargetId = _accountId,
+                        Name = _name
+                    }));
             StateMachine.Configure(State.Exchanging)
                 .Permit(Trigger.OrderCreated, State.Exchanging)
                 .Permit(Trigger.OrderFilled, State.Filled);
@@ -29,19 +42,9 @@ namespace Chronos.Core.Sagas
 
         public void When(ExchangeAdded e)
         {
-            if (StateMachine.IsInState(State.Open))
-            {
-                _accountId = e.ExchangeId;
-                SendMessage(new CreateAccountCommand
-                {
-                    TargetId = _accountId,
-                    Name = e.Name
-                });
-                
-                StateMachine.Fire(Trigger.ExchangeAdded); 
-            }
+            _accountId = e.ExchangeId;
+            _name = e.Name;
 
-            base.When(e);    
         }
         
         public void When(ExchangeOrderFilled e)

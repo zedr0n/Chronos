@@ -7,14 +7,18 @@ using Stateless;
 
 namespace Chronos.Core.Sagas
 {
-    public class TransactionSaga : StatelessSaga<TransactionSaga.State, TransactionSaga.Trigger>,
-        IHandle<PurchaseCreated>
+    public class TransactionSaga : StatelessSaga<TransactionSaga.State, TransactionSaga.Trigger>
     {
         public enum State { Open, Completed }
         public enum Trigger { PurchaseCreated }
 
         private double _amount;
         private Guid _accountId;
+
+        public TransactionSaga()
+        {
+            Register<PurchaseCreated>(Trigger.PurchaseCreated, When);
+        }
 
         protected override void ConfigureStateMachine()
         {
@@ -30,8 +34,6 @@ namespace Chronos.Core.Sagas
             base.ConfigureStateMachine();
         }
 
-        public override void When(IEvent e) => When((dynamic) e);
-
         private void WithdrawCash()
         {
             SendMessage(new WithdrawCashCommand
@@ -41,13 +43,10 @@ namespace Chronos.Core.Sagas
             });
         }
 
-        public void When(PurchaseCreated e)
+        private void When(PurchaseCreated e)
         {
             _amount = e.Amount;
             _accountId = e.AccountId;
-
-            StateMachine.Fire(Trigger.PurchaseCreated);
-            base.When(e);
         }
     }
 }

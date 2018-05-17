@@ -2,15 +2,11 @@
 using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Transactions;
 using Chronos.Core.Transactions.Events;
-using Chronos.Infrastructure.Interfaces;
-using Chronos.Infrastructure.Sagas;
 using Stateless;
 
 namespace Chronos.Core.Sagas
 {
-    public class TransferSaga : StatelessSaga<TransferSaga.State,TransferSaga.Trigger>,
-        IHandle<AssetTransferCreated>,
-        IHandle<CashTransferCreated>
+    public class TransferSaga : StatelessSaga<TransferSaga.State,TransferSaga.Trigger>
     {
         public enum State { Open, Completed }
         public enum Trigger { CashTransferCreated, AssetTransferCreated }
@@ -19,7 +15,11 @@ namespace Chronos.Core.Sagas
         private double _amount;
         private Guid _assetId;
 
-        public TransferSaga() { }
+        public TransferSaga()
+        {
+            Register<AssetTransferCreated>(Trigger.AssetTransferCreated, When);
+            Register<CashTransferCreated>(Trigger.CashTransferCreated, When);
+        }
 
         protected override void ConfigureStateMachine()
         {
@@ -58,24 +58,16 @@ namespace Chronos.Core.Sagas
             });
         }
 
-        public override void When(IEvent e) => When((dynamic) e);
-        
-        public void When(AssetTransferCreated e)
+        private void When(AssetTransferCreated e)
         {
             _transferDetails = new TransferDetails(e.FromAccount,e.ToAccount);
             _assetId = e.AssetId;
-
-            StateMachine.Fire(Trigger.AssetTransferCreated);
-            base.When(e);
         }
 
-        public void When(CashTransferCreated e)
+        private void When(CashTransferCreated e)
         {
             _transferDetails = new TransferDetails(e.FromAccount, e.ToAccount);
             _amount = e.Amount;
-
-            StateMachine.Fire(Trigger.CashTransferCreated);
-            base.When(e);
         }
     }
 }
