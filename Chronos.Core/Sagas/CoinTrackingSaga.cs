@@ -24,13 +24,13 @@ namespace Chronos.Core.Sagas
 
         public CoinTrackingSaga()
         {
-            Register<CoinTrackingRequested>(Trigger.TrackingRequested); 
-            Register<CoinInfoParsed>(Trigger.Parsed);
+            Register<CoinTrackingRequested>(Trigger.TrackingRequested,When); 
+            Register<CoinInfoParsed>(Trigger.Parsed, When);
         }
         
-        protected override void Handle(IEvent e) => When((dynamic) e); 
-        
-        protected void When(CoinTrackingRequested e)
+        protected override void Handle(IEvent e) => When((dynamic) e);
+
+        private void When(CoinTrackingRequested e)
         {
             _coinId = e.AssetId;
             _ticker = e.Ticker; 
@@ -51,13 +51,11 @@ namespace Chronos.Core.Sagas
             _dayChange = e.DayChange;
             _weekChange = e.WeekChange;
             _hourChange = e.HourChange;
-            base.When(e);
         }
         
         public void When(CoinInfoParsed e)
         {
             _price = e.PriceUsd;
-            base.When(e);    
         }
 
         protected override void OnParsed()

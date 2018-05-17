@@ -7,20 +7,19 @@ using Stateless;
 
 namespace Chronos.Core.Sagas
 {
-    public class OrderTrackingSaga : AssetTrackingSaga,
-        IHandle<OrderTrackingRequested>
+    public class OrderTrackingSaga : AssetTrackingSaga
     {
         private int _orderNumber;
         private Guid _orderId;
 
         public OrderTrackingSaga()
         {
-            Register<OrderTrackingRequested>(Trigger.TrackingRequested);
+            Register<OrderTrackingRequested>(Trigger.TrackingRequested, When);
         }
 
         protected override void Handle(IEvent e) => When((dynamic) e);
 
-        public void When(OrderTrackingRequested e)
+        private void When(OrderTrackingRequested e)
         {
             _orderNumber = e.OrderNumber;
             _orderId = e.AssetId;

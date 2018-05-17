@@ -10,9 +10,7 @@ using Stateless;
 
 namespace Chronos.Core.Sagas
 {
-    public class AssetPurchaseSaga : StatelessSaga<AssetPurchaseSaga.State, AssetPurchaseSaga.Trigger>,
-        IHandle<CoinPurchased>,
-        IHandle<AssetPurchased>
+    public class AssetPurchaseSaga : StatelessSaga<AssetPurchaseSaga.State, AssetPurchaseSaga.Trigger>
     {
         private Guid _coinId;
         private double _quantity;
@@ -26,7 +24,7 @@ namespace Chronos.Core.Sagas
 
         public AssetPurchaseSaga()
         {
-            Register<CoinPurchased>(Trigger.CoinPurchased);
+            Register<CoinPurchased>(Trigger.CoinPurchased, When);
             Register<AssetPurchased>(Trigger.AssetPurchaseCreated);
         }
         
@@ -59,17 +57,13 @@ namespace Chronos.Core.Sagas
             base.ConfigureStateMachine();
         }
 
-        
-        public void When(CoinPurchased e)
+
+        private void When(CoinPurchased e)
         {
             _coinId = e.CoinId;
             _quantity = e.Quantity;
             _costPerUnit = e.CostPerUnit;
             _accountId = e.AccountId;
-        }
-
-        public void When(AssetPurchased e)
-        {
         }
     }
 }

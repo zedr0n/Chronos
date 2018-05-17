@@ -10,14 +10,7 @@ using Stateless;
 
 namespace Chronos.Core.Sagas
 {
-    public class AssetTrackingSaga : StatelessSaga<AssetTrackingSaga.State,AssetTrackingSaga.Trigger>,
-        IHandle<JsonRequestFailed>,
-        IHandle<JsonRequested>,
-        IHandle<JsonReceived>,
-        IHandle<AssetJsonParsed>,
-        IHandle<TimeoutCompleted>,
-        IHandle<StartRequested>,
-        IHandle<StopTrackingRequested>
+    public class AssetTrackingSaga : StatelessSaga<AssetTrackingSaga.State,AssetTrackingSaga.Trigger>
     {
         public enum State
         {
@@ -46,7 +39,7 @@ namespace Chronos.Core.Sagas
             Register<StopTrackingRequested>(Trigger.Stop);
             Register<StartRequested>(Trigger.Start);
             Register<JsonRequested>(Trigger.JsonRequested);
-            Register<JsonReceived>(Trigger.JsonReceived);
+            Register<JsonReceived>(Trigger.JsonReceived, When);
             Register<JsonRequestFailed>(Trigger.Pause);
             Register<TimeoutCompleted>(Trigger.Start);  
         }
@@ -83,22 +76,13 @@ namespace Chronos.Core.Sagas
             base.ConfigureStateMachine();
         }
 
-        public void When(AssetTrackingRequested e)
+        protected void When(AssetTrackingRequested e)
         {
             _url = e.Url;
             _updateInterval = e.UpdateInterval;
         }
-        
-        public void When(StopTrackingRequested e) { }
-        public void When(StartRequested e) { }
-        public void When(TimeoutCompleted e) { }
-        public void When(JsonRequestFailed e) { }
-        public void When(AssetJsonParsed e) { }
-        public void When(JsonRequested e) { }
-        public void When(JsonReceived e)
-        {
-            _json = e.Result;
-        }
+
+        protected void When(JsonReceived e) => _json = e.Result;
         
         protected virtual void OnReceived (string json) {}
         protected virtual void OnParsed() {}
