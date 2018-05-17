@@ -7,13 +7,17 @@ using Stateless;
 
 namespace Chronos.Core.Sagas
 {
-    public class CoinbaseSaga : StatelessSaga<CoinbaseSaga.State,CoinbaseSaga.Trigger>,
-        IHandle<CoinbaseAccountCreated>
+    public class CoinbaseSaga : StatelessSaga<CoinbaseSaga.State,CoinbaseSaga.Trigger>
     {
         public enum State { Open, Completed }
         public enum Trigger { AccountCreated }
 
         private Guid _accountId;
+
+        public CoinbaseSaga()
+        {
+            Register<CoinbaseAccountCreated>(Trigger.AccountCreated, When);
+        }
         
         protected override void ConfigureStateMachine()
         {
@@ -38,16 +42,9 @@ namespace Chronos.Core.Sagas
             });
         }
 
-        public override void When(IEvent e) => When((dynamic) e);
-        
-        public void When(CoinbaseAccountCreated e)
+        private void When(CoinbaseAccountCreated e)
         {
-            if (StateMachine.IsInState(State.Open))
-            {
-                _accountId = e.AccountId;
-                StateMachine.Fire(Trigger.AccountCreated);
-            }
-            base.When(e);
+            _accountId = e.AccountId;
         }
     }
 }

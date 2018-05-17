@@ -28,8 +28,6 @@ namespace Chronos.Core.Sagas
             Register<CoinInfoParsed>(Trigger.Parsed, When);
         }
         
-        protected override void Handle(IEvent e) => When((dynamic) e);
-
         private void When(CoinTrackingRequested e)
         {
             _coinId = e.AssetId;

@@ -20,8 +20,6 @@ namespace Chronos.Core.Sagas
         public enum State { Open, Processing, Completed }
         public enum Trigger { CoinPurchased, AssetPurchaseCreated }
 
-        protected override void Handle(IEvent e) => When((dynamic) e);
-
         public AssetPurchaseSaga()
         {
             Register<CoinPurchased>(Trigger.CoinPurchased, When);
@@ -52,7 +50,6 @@ namespace Chronos.Core.Sagas
                         Quantity = _quantity
                     })
                 );
-
             
             base.ConfigureStateMachine();
         }

@@ -17,8 +17,6 @@ namespace Chronos.Core.Sagas
             Register<OrderTrackingRequested>(Trigger.TrackingRequested, When);
         }
 
-        protected override void Handle(IEvent e) => When((dynamic) e);
-
         private void When(OrderTrackingRequested e)
         {
             _orderNumber = e.OrderNumber;

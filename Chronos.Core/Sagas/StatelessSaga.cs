@@ -20,26 +20,24 @@ namespace Chronos.Core.Sagas
         }
         private StateMachine<TState, TTrigger> _stateMachine;
         private readonly Dictionary<Type, TTrigger> _triggers = new Dictionary<Type, TTrigger>();
-        private readonly HashSet<Type> _handlers = new HashSet<Type>();
+        private readonly Dictionary<Type, Action<IEvent>> _handlers = new Dictionary<Type, Action<IEvent>>();
 
         public override void When(IEvent e)
         {
             if (_triggers.TryGetValue(e.GetType(), out var trigger))
             {
-                if(_handlers.Contains(e.GetType()))
-                    Handle(e);
+                if (_handlers.TryGetValue(e.GetType(), out var handler))
+                    handler(e);
                 StateMachine.Fire(trigger);
             }
             base.When(e);
         }
 
-        protected virtual void Handle(IEvent e) => When((dynamic) e); 
-        
         protected void Register<TEvent>(TTrigger t, Action<TEvent> handler = null)
-            where TEvent : IEvent
+            where TEvent : class, IEvent
         {
             if (handler != null)
-                _handlers.Add(typeof(TEvent));
+                _handlers[typeof(TEvent)] = e => handler(e as TEvent);
             _triggers[typeof(TEvent)] = t;
         }
         
