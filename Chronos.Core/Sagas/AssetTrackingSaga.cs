@@ -82,7 +82,7 @@ namespace Chronos.Core.Sagas
             _updateInterval = e.UpdateInterval;
         }
 
-        protected void When(JsonReceived e) => _json = e.Result;
+        private void When(JsonReceived e) => _json = e.Result;
         
         protected virtual void OnReceived (string json) {}
         protected virtual void OnParsed() {}
