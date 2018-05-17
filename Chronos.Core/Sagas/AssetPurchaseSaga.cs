@@ -22,9 +22,12 @@ namespace Chronos.Core.Sagas
         public enum State { Open, Processing, Completed }
         public enum Trigger { CoinPurchased, AssetPurchaseCreated }
 
-        public override void When(IEvent e)
+        protected override void Handle(IEvent e) => When((dynamic) e);
+
+        public AssetPurchaseSaga()
         {
-            When((dynamic) e);
+            Register<CoinPurchased>(Trigger.CoinPurchased);
+            Register<AssetPurchased>(Trigger.AssetPurchaseCreated);
         }
         
         protected override void ConfigureStateMachine()
@@ -35,45 +38,38 @@ namespace Chronos.Core.Sagas
                 .Permit(Trigger.CoinPurchased, State.Processing);
 
             StateMachine.Configure(State.Processing)
-                .Permit(Trigger.AssetPurchaseCreated, State.Completed);
+                .Permit(Trigger.AssetPurchaseCreated, State.Completed)
+                .OnEntry(() =>
+                    SendMessage(new PurchaseAssetCommand(_coinId, _quantity, _costPerUnit)
+                    {
+                        TargetId = SagaId
+                    })
+                );
+
+            StateMachine.Configure(State.Completed)
+                .OnEntry(() =>
+                    SendMessage(new DepositAssetCommand
+                    {
+                        TargetId = _accountId,
+                        Quantity = _quantity
+                    })
+                );
+
             
             base.ConfigureStateMachine();
-        }
-
-        private void OnCompleted()
-        {
-            SendMessage(new PurchaseAssetCommand(_coinId,_quantity,_costPerUnit)
-            {
-                TargetId = SagaId
-            });
         }
 
         
         public void When(CoinPurchased e)
         {
-            if (StateMachine.CanFire(Trigger.CoinPurchased))
-            {
-                _coinId = e.CoinId;
-                _quantity = e.Quantity;
-                _costPerUnit = e.CostPerUnit;
-                _accountId = e.AccountId;
-                StateMachine.Fire(Trigger.CoinPurchased); 
-            }
-            
-            base.When(e);
+            _coinId = e.CoinId;
+            _quantity = e.Quantity;
+            _costPerUnit = e.CostPerUnit;
+            _accountId = e.AccountId;
         }
 
         public void When(AssetPurchased e)
         {
-            if (StateMachine.IsInState(State.Completed))
-            {
-                SendMessage(new DepositAssetCommand
-                {
-                    TargetId = _accountId,
-                    Quantity = _quantity
-                });
-            }
-            base.When(e);
         }
     }
 }

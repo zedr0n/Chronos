@@ -41,16 +41,6 @@ namespace Chronos.Core.Sagas
         private Duration _updateInterval;
         private string _json;
 
-        public override void When(IEvent e)
-        {
-            if (CanFire(e))
-                Handle(e);   
-            Fire(e);
-            base.When(e);
-        }
-
-        protected virtual void Handle(IEvent e) => When((dynamic) e); 
-
         public AssetTrackingSaga()
         {
             Register<StopTrackingRequested>(Trigger.Stop);
