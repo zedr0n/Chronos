@@ -12,11 +12,9 @@ namespace Chronos.Core.Sagas
         public enum State { Open, Completed }
         public enum Trigger { AccountCreated }
 
-        private Guid _accountId;
-
         public CoinbaseSaga()
         {
-            Register<CoinbaseAccountCreated>(Trigger.AccountCreated, When);
+            Register<CoinbaseAccountCreated>(Trigger.AccountCreated);
         }
         
         protected override void ConfigureStateMachine()
@@ -36,15 +34,10 @@ namespace Chronos.Core.Sagas
         {
             SendMessage(new CreateAccountCommand
             {
-                TargetId = _accountId,
+                TargetId = SagaId,
                 Currency = "GBP",
                 Name = "Coinbase"
             });
-        }
-
-        private void When(CoinbaseAccountCreated e)
-        {
-            _accountId = e.AccountId;
         }
     }
 }
