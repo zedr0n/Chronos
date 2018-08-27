@@ -72,6 +72,7 @@ namespace Chronos.Core.Sagas
                 .PermitReentry(Trigger.JsonReceived)
                 .Permit(Trigger.Parsed, State.Waiting)
                 .Permit(Trigger.Start,State.Requesting)
+                .Permit(Trigger.Stop,State.Open)
                 .OnEntry(() => OnReceived(_json))
                 .OnExit(OnParsed);
 
