@@ -3,6 +3,7 @@ using Chronos.Core.Accounts.Commands;
 using Chronos.Core.Assets.Commands;
 using Chronos.Core.Assets.Events;
 using Chronos.Core.Exchanges.Events;
+using Chronos.Infrastructure.Interfaces;
 using Chronos.Infrastructure.Sagas;
 
 namespace Chronos.Core.Sagas
@@ -21,17 +22,19 @@ namespace Chronos.Core.Sagas
             Register<ExchangeAdded>(Trigger.ExchangeAdded, When);
             Register<ExchangeOrderFilled>(Trigger.OrderFilled);
         }
+
+        private ICommand CreateAccountCommand =>
+            new CreateAccountCommand
+            {
+                TargetId = _accountId,
+                Name = _name
+            };
         
         protected override void ConfigureStateMachine()
         {
             StateMachine.Configure(State.Open)
                 .Permit(Trigger.ExchangeAdded, State.Exchanging)
-                .OnExit(() =>
-                    SendMessage(new CreateAccountCommand
-                    {
-                        TargetId = _accountId,
-                        Name = _name
-                    }));
+                .OnExit(() => SendMessage(CreateAccountCommand));
             StateMachine.Configure(State.Exchanging)
                 .Permit(Trigger.OrderCreated, State.Exchanging)
                 .Permit(Trigger.OrderFilled, State.Filled);

@@ -61,9 +61,9 @@ namespace Chronos.Core.Sagas
                 .Ignore(Trigger.Pause);
 
             StateMachine.Configure(State.Requesting)
-                .Permit(Trigger.JsonRequested, State.Waiting)
                 .OnEntry(() =>
                     SendMessage(new RequestJsonCommand(_url, SagaId)))
+                .Permit(Trigger.JsonRequested, State.Waiting)
                 .OnExit(() =>
                     SendMessage(new RequestTimeoutCommand(SagaId, _updateInterval)));
 

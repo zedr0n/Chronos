@@ -26,6 +26,19 @@ namespace Chronos.Core.Sagas
             Register<AssetPurchased>(Trigger.AssetPurchaseCreated);
         }
         
+        private ICommand PurchaseCommand =>
+            new PurchaseAssetCommand(_coinId, _quantity, _costPerUnit)
+            {
+                TargetId = SagaId
+            };
+
+        private ICommand DepositCommand =>
+            new DepositAssetCommand
+            {
+                TargetId = _accountId,
+                Quantity = _quantity
+            };
+
         protected override void ConfigureStateMachine()
         {
             StateMachine = new StateMachine<State, Trigger>(State.Open);
@@ -35,25 +48,13 @@ namespace Chronos.Core.Sagas
 
             StateMachine.Configure(State.Processing)
                 .Permit(Trigger.AssetPurchaseCreated, State.Completed)
-                .OnEntry(() =>
-                    SendMessage(new PurchaseAssetCommand(_coinId, _quantity, _costPerUnit)
-                    {
-                        TargetId = SagaId
-                    })
-                );
+                .OnEntry(() => SendMessage(PurchaseCommand));
 
             StateMachine.Configure(State.Completed)
-                .OnEntry(() =>
-                    SendMessage(new DepositAssetCommand
-                    {
-                        TargetId = _accountId,
-                        Quantity = _quantity
-                    })
-                );
+                .OnEntry(() => SendMessage(DepositCommand));
             
             base.ConfigureStateMachine();
         }
-
 
         private void When(CoinPurchased e)
         {
