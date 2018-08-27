@@ -26,7 +26,7 @@ namespace Chronos.Tests
         protected override ICompositionRoot CreateRoot(string dbName)
         {
             return new CompositionRoot()
-                .WithNet()
+                //.WithNet()
                 .WriteWith().Database(dbName); 
         }
         

@@ -43,11 +43,16 @@ namespace Chronos.Net
             ]"} 
         };
 
+        private string Provide(string url)
+        {
+            return _json.TryGetValue(url, out var json) ? json : "";
+        }
+
         public FakeJsonConnector()
         {
             Requests = _urls.AsObservable().Select(s =>
                     new Envelope(s, new Lazy<IObservable<string>>(
-                        () => Observable.Return(_json[s]))))
+                        () => Observable.Return(Provide(s)))))
                 .DelayBetweenValues(TimeSpan.FromSeconds(0.05));
         }
 
@@ -55,8 +60,6 @@ namespace Chronos.Net
         private IObservable<Envelope> Requests { get; } 
         public void SubmitRequest(string url)
         {
-            if(!_json.ContainsKey(url))
-                throw new InvalidOperationException("Url not found");
             _urls.OnNext(url);
         }
 

@@ -11,8 +11,8 @@ namespace Chronos.Net
         public T Parse<T>(string json)
         {
             var obj = JsonConvert.DeserializeObject<T>(json);
-            if (obj == null)
-                throw new InvalidOperationException("Cannot parse json to type " + typeof(T).SerializableName());
+            //if (obj == null)
+            //    throw new InvalidOperationException("Cannot parse json to type " + typeof(T).SerializableName());
             return obj;
         }
     }
