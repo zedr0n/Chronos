@@ -64,12 +64,14 @@ namespace Chronos.Core.Sagas
                 .OnEntry(() =>
                     SendMessage(new RequestJsonCommand(_url, SagaId)))
                 .Permit(Trigger.JsonRequested, State.Waiting)
+                .Ignore(Trigger.Parsed)
                 .OnExit(() =>
                     SendMessage(new RequestTimeoutCommand(SagaId, _updateInterval)));
 
             StateMachine.Configure(State.Received)
                 .PermitReentry(Trigger.JsonReceived)
                 .Permit(Trigger.Parsed, State.Waiting)
+                .Permit(Trigger.Start,State.Requesting)
                 .OnEntry(() => OnReceived(_json))
                 .OnExit(OnParsed);
 
